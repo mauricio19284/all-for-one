@@ -1032,15 +1032,18 @@ function weekLine(d,extra){
   if(extra){ const g=(c.gymTime||{})[d]; if(g)bits.push(g+" Gym — "+((c.split||{})[d]||"")); const s=(c.schoolwork||{})[d]; if(s)bits.push(s+" Schoolwork"); }
   return '<li data-k="'+(b[0]?b[0].k:"study")+'"'+(d===wd?' class="now"':'')+'><time class="mono">'+DL[d]+'</time><i class="bar"></i><div class="lab"><small>'+esc(bits.length?bits.join(" · "):"Open")+'</small></div></li>';
 }
-/* Twenty-six figures, none repeated. ART maps a figure to a drawing in img/ once one exists; until then the card shows an ink panel. */
+/* Thirty-two figures, none repeated. ART maps a figure to a drawing in img/ once one exists; until then the card shows an ink panel. */
 const FIG={socrates:"Socrates",plato:"Plato",alexander:"Alexander",aristotle:"Aristotle",atlas:"Atlas",hercules:"Hercules",caesar:"Caesar",augustus:"Augustus","marcus-aurelius":"Marcus Aurelius",icarus:"Icarus",homer:"Homer",perseus:"Perseus",
   artemis:"Artemis",ares:"Ares",hermes:"Hermes",zeus:"Zeus",aphrodite:"Aphrodite",cronus:"Cronus",apollo:"Apollo",
-  achilles:"Achilles",odysseus:"Odysseus",leonidas:"Leonidas",prometheus:"Prometheus",theseus:"Theseus",hector:"Hector",athena:"Athena"};
+  achilles:"Achilles",odysseus:"Odysseus",leonidas:"Leonidas",prometheus:"Prometheus",theseus:"Theseus",hector:"Hector",athena:"Athena",
+  napoleon:"Napoleon",hannibal:"Hannibal","genghis-khan":"Genghis Khan",leonardo:"Leonardo da Vinci","sun-tzu":"Sun Tzu",musashi:"Miyamoto Musashi"};
 const ART={};
 /* days follow the planets the weekdays are named for: Moon, Mars, Mercury, Jupiter, Venus, Saturn, Sun */
 const DAY_FIGS=["artemis","ares","hermes","zeus","aphrodite","cronus","apollo"];
 const MONTH_FIGS=["socrates","plato","alexander","aristotle","atlas","hercules","caesar","augustus","marcus-aurelius","icarus","homer","perseus"];
-const WEEK_FIGS=["achilles","odysseus","leonidas","prometheus","theseus","hector"];
+/* week cards alternate by month: heroes of myth in odd months, figures from history in even months */
+const WEEK_FIGS_MYTH=["achilles","odysseus","leonidas","prometheus","theseus","hector"];
+const WEEK_FIGS_HIST=["napoleon","hannibal","genghis-khan","leonardo","sun-tzu","musashi"];
 const YEAR_FIG="athena";
 const WEEK_SLOTS=["s1","s4","s2","s5","s3","s6"];
 function seeded(str){
@@ -1139,7 +1142,7 @@ function weekCards(c){
     h+='<div class="dcard" role="button" tabindex="0" data-slot="'+WEEK_SLOTS[i]+'" data-act="week:'+w+'" aria-label="Week '+(i+1)+', '+esc(rangeText(w,end))+'">'
       +'<div class="dtext"><div class="dhead"><span class="dname">Week '+(i+1)+'</span><span class="ddate">'+esc(rangeText(w,end))+(w===cur?' · <span class="dtoday">This week</span>':'')+'</span></div>'
       +'<div class="dlist">'+(due.length?due.map(t=>'<div class="wev" data-k="due"><i></i><time></time><span>'+esc(fmt(t.due,{weekday:"short"})+" · "+t.title)+'</span></div>').join(""):'<div class="wnone">Nothing due</div>')+'</div>'
-      +(due.length>4?'<div class="dmore">+'+(due.length-4)+' more</div>':'')+'</div>'+figBox(WEEK_FIGS[i%WEEK_FIGS.length])+'</div>';
+      +(due.length>4?'<div class="dmore">+'+(due.length-4)+' more</div>':'')+'</div>'+figBox((mi%2?WEEK_FIGS_HIST:WEEK_FIGS_MYTH)[i%6])+'</div>';
   });
   return h;
 }
