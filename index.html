@@ -138,7 +138,17 @@ body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:
 .tl li[data-k="due"] .bar{background:var(--accent)}
 
 /* week deck: seven paper cards, one per day; the chosen day sits in front, the rest fan out behind it */
-.wcaltitle{font-family:var(--display); font-weight:500; font-size:clamp(30px,5vw,56px); line-height:1.1; letter-spacing:.24em; margin-right:-.24em; text-transform:uppercase; text-align:center; padding:2px 0 22px}
+.crumbs{display:flex; justify-content:center; align-items:center; gap:4px 10px; flex-wrap:wrap; padding-bottom:8px; color:var(--muted); font-size:11px}
+.crumbs button{background:none; border:0; padding:4px 2px; font-size:10px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); cursor:pointer}
+.crumbs button:hover{color:var(--ink); text-decoration:underline; text-underline-offset:4px}
+.crumbs button[aria-current="true"]{color:var(--ink); cursor:default; text-decoration:none}
+.follow{display:inline-flex; align-items:center; gap:7px; font-size:11.5px; font-weight:600; color:var(--ink); background:var(--paper); border:1px solid var(--line-2); border-radius:999px; padding:5px 13px; cursor:pointer}
+.follow::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--line-2)}
+.follow:hover{border-color:var(--ink)}
+.follow:disabled{background:none; border-color:transparent; color:var(--muted); cursor:default; font-weight:500}
+.follow:disabled::before{background:var(--ok)}
+.wcaltitle{font-family:var(--display); font-weight:500; font-size:clamp(30px,5vw,56px); line-height:1.1; letter-spacing:.24em; margin-right:-.24em; text-transform:uppercase; text-align:center; padding:2px 0 6px}
+.wcalsub{text-align:center; font-size:10px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); padding-bottom:22px; min-height:36px}
 .deck{position:relative; height:644px}
 .dcard{position:absolute; display:grid; grid-template-columns:minmax(0,1fr) 40%; background:var(--paper); border:1px solid var(--line); border-radius:3px; box-shadow:var(--shadow); overflow:hidden; cursor:pointer; text-align:left;
   transition:left .5s cubic-bezier(.2,.7,.2,1), top .5s cubic-bezier(.2,.7,.2,1), width .5s cubic-bezier(.2,.7,.2,1), height .5s cubic-bezier(.2,.7,.2,1), box-shadow .25s, transform .25s}
@@ -187,8 +197,41 @@ body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:
 .dcard[data-slot="s4"] .dcap,.dcard[data-slot="s5"] .dcap,.dcard[data-slot="s6"] .dcap{text-align:right}
 a.dcap:hover{text-decoration:underline}
 .deckcredit{font-size:11.5px; padding-top:14px}
+/* title cards (the year, the month) and the month and week cards */
+.dcard.title{cursor:default; grid-template-columns:44% minmax(0,1fr)}
+.dcard.title .dimg{order:-1}
+.dcard.title .dtext{justify-content:center; padding:26px 30px}
+.dcard.title .dname{font-size:clamp(26px,3.2vw,40px); font-weight:500; letter-spacing:.14em; line-height:1.1}
+.dcard.title .ddate{font-size:11px; padding-top:8px}
+.dcard.title .drule{width:64px; height:1px; background:var(--ink); margin-top:16px}
+.deck[data-level="months"]{height:636px}
+.deck[data-level="months"] .dcard[data-slot="front"]{left:25.2%; top:153px; width:49.6%; height:330px}
+.mcard{grid-template-columns:minmax(0,1fr) 34%}
+.mcard .dtext{padding:11px 12px 8px}
+.mcard .dhead{flex-direction:row; align-items:baseline; justify-content:space-between; gap:6px; padding-bottom:5px}
+.mcard .dname{font-size:14.5px; letter-spacing:.14em}
+.mcard .ddate{font-size:8.5px; letter-spacing:.14em; white-space:nowrap}
+.dcard[data-slot="m1"]{left:0; top:4px} .dcard[data-slot="m2"]{left:25.3%; top:0} .dcard[data-slot="m3"]{left:50.6%; top:6px} .dcard[data-slot="m4"]{left:75.9%; top:1px}
+.dcard[data-slot="m5"]{left:.5%; top:166px} .dcard[data-slot="m6"]{left:75.5%; top:162px}
+.dcard[data-slot="m7"]{left:0; top:326px} .dcard[data-slot="m8"]{left:75.9%; top:323px}
+.dcard[data-slot="m9"]{left:.4%; top:486px} .dcard[data-slot="m10"]{left:25.5%; top:482px} .dcard[data-slot="m11"]{left:50.4%; top:488px} .dcard[data-slot="m12"]{left:75.7%; top:484px}
+.dcard[data-slot^="m"]{width:24.1%; height:150px; z-index:1}
+.mini{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:1px 0; justify-items:center; font-size:8.5px; line-height:1; font-variant-numeric:tabular-nums; color:var(--ink-2)}
+.mini b{font-weight:600; color:var(--muted); padding-bottom:3px}
+.mini span{position:relative; width:14px; height:14px; display:grid; place-items:center; border-radius:50%}
+.mini span.t{background:var(--ink); color:var(--paper); font-weight:700}
+.mini span.h::after{content:""; position:absolute; bottom:-1px; left:50%; width:3px; height:3px; margin-left:-1.5px; border-radius:50%; background:var(--accent)}
+.deck.enter .dcard{animation:deckin .45s cubic-bezier(.2,.7,.2,1) both}
+.deck.enter .dcard:nth-child(2){animation-delay:.03s} .deck.enter .dcard:nth-child(3){animation-delay:.06s} .deck.enter .dcard:nth-child(4){animation-delay:.09s}
+.deck.enter .dcard:nth-child(5){animation-delay:.12s} .deck.enter .dcard:nth-child(6){animation-delay:.15s} .deck.enter .dcard:nth-child(7){animation-delay:.18s}
+.deck.enter .dcard:nth-child(n+8){animation-delay:.21s}
+@keyframes deckin{from{opacity:0; transform:translateY(12px) scale(.97)} to{opacity:1; transform:none}}
 @media (max-width:980px){
-  .deck{height:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+  .deck,.deck[data-level="months"]{height:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+  .deck .dcard.title{grid-template-columns:40% minmax(0,1fr); min-height:190px}
+  .deck .dcard.title .dimg{order:-1}
+  .deck .dcard.mcard{grid-template-columns:minmax(0,1fr) 32%; height:146px}
+  .deck[data-level="months"] .dcard[data-slot="front"]{width:auto; height:auto}
   .deck .dcard{position:static; width:auto; height:150px; transition:none; grid-template-columns:minmax(0,1fr) 36%}
   .deck .dcard .dimg{order:0}
   .deck .dcard .dcap{text-align:left}
@@ -199,6 +242,12 @@ a.dcap:hover{text-decoration:underline}
 @media (max-width:520px){
   .deck{grid-template-columns:minmax(0,1fr)}
   .deck .dcard{height:128px; grid-template-columns:minmax(0,1fr) 30%}
+  .deck .dcard.title,.deck .dcard.title[data-slot="front"]{grid-template-columns:38% minmax(0,1fr); grid-template-rows:none; min-height:170px}
+  .deck .dcard.title[data-slot="front"] .dimg{order:-1}
+  .deck .dcard.title .dtext{padding:18px}
+  .dcard.title .dname{font-size:22px; letter-spacing:.1em}
+  .deck .dcard.mcard{height:140px; grid-template-columns:minmax(0,1fr) 26%}
+  .mcard .dname{font-size:13px}
   .deck .dcard[data-slot="front"]{grid-template-columns:minmax(0,1fr); grid-template-rows:180px auto; min-height:0}
   .deck .dcard[data-slot="front"] .dimg{order:-1}
   .dcard[data-slot="front"] .dname{font-size:24px}
@@ -541,12 +590,14 @@ input[type=checkbox]:checked::after{transform:translateY(-1px) rotate(-45deg) sc
 
     <!-- WEEK -->
     <section id="view-week" class="grid cols" hidden>
-      <div class="pagehead wide"><h1>The week</h1><p>Fixed commitments and the Sunday review.</p></div>
+      <div class="pagehead wide"><h1>The week</h1><p>The calendar and the Sunday review.</p></div>
       <div class="panel wide" id="flagbox-week" hidden></div>
       <div class="panel wide wk">
-        <header><h2>Fixed commitments</h2><span class="right" id="wkrange"></span></header>
+        <header><h2>Calendar</h2><span class="right"><button class="follow" id="wkfollow" type="button"></button></span></header>
         <div class="body">
+          <nav class="crumbs" id="wkcrumbs" aria-label="Calendar level"></nav>
           <div class="wcaltitle" id="wkmonth"></div>
+          <div class="wcalsub" id="wksub"></div>
           <div class="deck" id="weekcal"></div>
           <p class="hlegend deckcredit">Pictures come from Wikipedia. Open a figure's name for its source, author and license.</p>
         </div>
@@ -770,7 +821,7 @@ const TEST={start:"2026-09-01", end:"2026-10-12", firstMonday:"2026-08-31"};
 
 const FALLBACK={week:{},schoolwork:{},gymTime:{},split:{},shutdown:[],review:[]};
 
-const S={db:null,sample:null,tasks:[],notes:[],gym:[],days:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,weekSel:null};
+const S={db:null,sample:null,tasks:[],notes:[],gym:[],days:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -976,8 +1027,12 @@ function weekLine(d,extra){
   if(extra){ const g=(c.gymTime||{})[d]; if(g)bits.push(g+" Gym — "+((c.split||{})[d]||"")); const s=(c.schoolwork||{})[d]; if(s)bits.push(s+" Schoolwork"); }
   return '<li data-k="'+(b[0]?b[0].k:"study")+'"'+(d===wd?' class="now"':'')+'><time class="mono">'+DL[d]+'</time><i class="bar"></i><div class="lab"><small>'+esc(bits.length?bits.join(" · "):"Open")+'</small></div></li>';
 }
-const FIGS=[["Alexander","Alexander the Great"],["Atlas","Farnese Atlas"],["Socrates","Socrates"],["Icarus","Icarus"],["Marcus Aurelius","Marcus Aurelius"],["Hercules","Farnese Hercules"],["Perseus","Perseus with the Head of Medusa"]];
-const figURL={};
+const DAY_FIGS=[["Alexander","Alexander the Great"],["Atlas","Farnese Atlas"],["Socrates","Socrates"],["Icarus","Icarus"],["Marcus Aurelius","Marcus Aurelius"],["Hercules","Farnese Hercules"],["Perseus","Perseus with the Head of Medusa"]];
+const MONTH_FIGS=[["Socrates","Socrates"],["Plato","Plato"],["Alexander","Alexander the Great"],["Aristotle","Aristotle"],["Atlas","Farnese Atlas"],["Hercules","Farnese Hercules"],["Caesar","Julius Caesar"],["Augustus","Augustus of Prima Porta"],["Marcus Aurelius","Marcus Aurelius"],["Icarus","Icarus"],["Homer","Homer"],["Perseus","Perseus with the Head of Medusa"]];
+const WEEK_FIGS=[["Parthenon","Parthenon"],["Laocoön","Laocoön and His Sons"],["Discobolus","Discobolus"],["Winged Victory","Winged Victory of Samothrace"],["Venus de Milo","Venus de Milo"],["Apollo","Apollo Belvedere"]];
+const YEAR_FIG=["Pericles","Pericles"];
+const WEEK_SLOTS=["s1","s4","s2","s5","s3","s6"];
+const figURL={},figAsked={};
 function paintFigs(){
   document.querySelectorAll("#weekcal img[data-fig]").forEach(im=>{
     const u=figURL[im.dataset.fig];
@@ -985,53 +1040,121 @@ function paintFigs(){
   });
 }
 function loadFigs(){
-  try{const c=JSON.parse(localStorage.getItem("afo-figs-v1")||"{}");Object.keys(c).forEach(k=>{figURL[k]=c[k];});}catch(e){}
-  paintFigs();
-  FIGS.forEach((f,i)=>{
-    if(figURL[i])return;
-    fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&titles="+encodeURIComponent(f[1]))
-      .then(r=>r.json())
-      .then(j=>{
-        const pg=(j&&j.query&&j.query.pages)||{},p=pg[Object.keys(pg)[0]],u=p&&p.thumbnail&&p.thumbnail.source;
-        if(!u)return;
-        figURL[i]=u;
-        try{localStorage.setItem("afo-figs-v1",JSON.stringify(figURL));}catch(e){}
-        paintFigs();
-      }).catch(()=>{});
+  try{const c=JSON.parse(localStorage.getItem("afo-figs-v2")||"{}");Object.keys(c).forEach(k=>{figURL[k]=c[k];});}catch(e){}
+}
+function needFigs(titles){
+  const want=titles.filter((t,i)=>!figURL[t]&&!figAsked[t]&&titles.indexOf(t)===i);
+  if(!want.length)return;
+  want.forEach(t=>{figAsked[t]=1;});
+  fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&pilimit=50&titles="+encodeURIComponent(want.join("|")))
+    .then(r=>r.json())
+    .then(j=>{
+      const q=(j&&j.query)||{},map={},src={};
+      (q.normalized||[]).concat(q.redirects||[]).forEach(n=>{map[n.from]=n.to;});
+      Object.keys(q.pages||{}).forEach(k=>{const pg=q.pages[k];if(pg&&pg.thumbnail&&pg.thumbnail.source)src[pg.title]=pg.thumbnail.source;});
+      want.forEach(t=>{let k=t;for(let i=0;i<4&&map[k];i++)k=map[k];if(src[k])figURL[t]=src[k];});
+      try{localStorage.setItem("afo-figs-v2",JSON.stringify(figURL));}catch(e){}
+      paintFigs();
+    }).catch(()=>{want.forEach(t=>{delete figAsked[t];});});
+}
+function figBox(f){
+  const u=figURL[f[1]];
+  return '<div class="dimg'+(u?'':' noimg')+'"><img alt="" data-fig="'+esc(f[1])+'"'+(u?' src="'+esc(u)+'"':'')+'>'
+    +'<a class="dcap" href="https://en.wikipedia.org/wiki/'+encodeURIComponent(f[1].replace(/ /g,"_"))+'" target="_blank" rel="noopener">'+esc(f[0])+'</a></div>';
+}
+/* the calendar follows today until something is picked; "Back to today" lets go again */
+function calState(){
+  const iso=todayISO(),c=S.cal;
+  if(!c.pinned){c.level="days";c.week=mondayOf(iso);c.day=iso;c.ym=iso.slice(0,7);}
+  return c;
+}
+function plural(n,w){return n+" "+w+(n===1?"":"s");}
+function lastOf(ym){return ym+"-"+String(new Date(Date.UTC(+ym.slice(0,4),+ym.slice(5,7),0)).getUTCDate()).padStart(2,"0");}
+function weeksOf(ym){const out=[],last=lastOf(ym);for(let m=mondayOf(ym+"-01");m<=last;m=shift(m,7))out.push(m);return out;}
+function rangeText(a,b){return fmt(a,{month:"short",day:"numeric"})+" – "+fmt(b,a.slice(0,7)===b.slice(0,7)?{day:"numeric"}:{month:"short",day:"numeric"});}
+function dueIn(a,b){return S.tasks.filter(t=>t.status!=="done"&&t.due&&t.due>=a&&t.due<=b).sort((x,y)=>x.due.localeCompare(y.due));}
+function calChrome(){
+  const c=S.cal,year=c.ym.slice(0,4),mName=fmt(c.ym+"-01",{month:"long"});
+  const wks=weeksOf(c.ym),wi=wks.indexOf(c.week);
+  const crumb=(lvl,label,cur)=>'<button type="button" data-crumb="'+lvl+'"'+(cur?' aria-current="true"':'')+'>'+esc(label)+'</button>';
+  let h=crumb("months",year,c.level==="months");
+  if(c.level!=="months")h+='<span aria-hidden="true">›</span>'+crumb("weeks",mName,c.level==="weeks");
+  if(c.level==="days")h+='<span aria-hidden="true">›</span>'+crumb("days",wi>=0?"Week "+(wi+1):"Week",true);
+  $("#wkcrumbs").innerHTML=h;
+  $("#wkmonth").textContent=c.level==="months"?year:mName;
+  $("#wksub").textContent=c.level==="months"?"Pick a month":c.level==="weeks"?plural(wks.length,"week")+" · pick one":rangeText(c.week,shift(c.week,6));
+  const f=$("#wkfollow");f.disabled=!c.pinned;f.textContent=c.pinned?"Back to today":"Following today";
+}
+function miniCal(ym){
+  const iso=todayISO(),dim=+lastOf(ym).slice(8),lead=(new Date(ym+"-01T12:00:00Z").getUTCDay()+6)%7,due={};
+  S.tasks.forEach(t=>{if(t.status!=="done"&&t.due&&t.due.slice(0,7)===ym)due[t.due]=1;});
+  let h='<div class="mini" aria-hidden="true"><b>M</b><b>T</b><b>W</b><b>T</b><b>F</b><b>S</b><b>S</b>';
+  for(let i=0;i<lead;i++)h+="<i></i>";
+  for(let d=1;d<=dim;d++){const di=ym+"-"+String(d).padStart(2,"0");h+='<span class="'+(di===iso?"t":"")+(due[di]?" h":"")+'">'+d+'</span>';}
+  return h+"</div>";
+}
+function dayCards(c){
+  const iso=todayISO(),cf=cfg();
+  if(c.day<c.week||c.day>shift(c.week,6))c.day=c.week;
+  return ORDER.map((d,i)=>{
+    const day=shift(c.week,i);
+    const ev=((cf.week||{})[d]||[]).map(b=>({t:b.t,l:b.l,k:b.k}));
+    const gt=(cf.gymTime||{})[d],sw=(cf.schoolwork||{})[d];
+    if(gt)ev.push({t:gt+"–"+plus(gt,95),l:"Gym — "+((cf.split||{})[d]||"training"),k:"gym"});
+    if(sw)ev.push({t:sw+"–"+plus(sw,60),l:"Schoolwork hour",k:"study"});
+    ev.sort((a,b)=>startMin(a.t)-startMin(b.t));
+    const all=S.tasks.filter(t=>t.status!=="done"&&t.due===day).map(t=>({t:"Due",l:t.title,k:"due"})).concat(ev);
+    return '<div class="dcard" role="button" tabindex="0" data-day="'+day+'" data-act="day:'+day+'" aria-label="'+esc(fmt(day,{weekday:"long",month:"long",day:"numeric"}))+'">'
+      +'<div class="dtext"><div class="dhead"><span class="dname">'+esc(fmt(day,{weekday:"long"}))+'</span>'
+      +'<span class="ddate">'+esc(fmt(day,{month:"long",day:"numeric"}))+(day===iso?' · <span class="dtoday">Today</span>':'')+'</span></div>'
+      +'<div class="dlist">'+(all.length?all.map(b=>'<div class="wev" data-k="'+esc(b.k)+'"><i></i><time>'+esc(b.t)+'</time><span>'+esc(b.l)+'</span></div>').join(""):'<div class="wnone">Open</div>')+'</div>'
+      +(all.length>4?'<div class="dmore">+'+(all.length-4)+' more</div>':'')+'</div>'+figBox(DAY_FIGS[i])+'</div>';
+  }).join("");
+}
+function weekCards(c){
+  const iso=todayISO(),cur=mondayOf(iso),mi=+c.ym.slice(5,7)-1,wks=weeksOf(c.ym);
+  const dueM=dueIn(c.ym+"-01",lastOf(c.ym)).length;
+  let h='<div class="dcard title" data-slot="front">'+figBox(MONTH_FIGS[mi])+'<div class="dtext"><span class="dname">'+esc(fmt(c.ym+"-01",{month:"long"}))+'</span>'
+    +'<span class="ddate">'+c.ym.slice(0,4)+' · '+(dueM?dueM+" due":"nothing due")+'</span><span class="drule"></span></div></div>';
+  wks.forEach((w,i)=>{
+    const end=shift(w,6),due=dueIn(w,end);
+    h+='<div class="dcard" role="button" tabindex="0" data-slot="'+WEEK_SLOTS[i]+'" data-act="week:'+w+'" aria-label="Week '+(i+1)+', '+esc(rangeText(w,end))+'">'
+      +'<div class="dtext"><div class="dhead"><span class="dname">Week '+(i+1)+'</span><span class="ddate">'+esc(rangeText(w,end))+(w===cur?' · <span class="dtoday">This week</span>':'')+'</span></div>'
+      +'<div class="dlist">'+(due.length?due.map(t=>'<div class="wev" data-k="due"><i></i><time></time><span>'+esc(fmt(t.due,{weekday:"short"})+" · "+t.title)+'</span></div>').join(""):'<div class="wnone">Nothing due</div>')+'</div>'
+      +(due.length>4?'<div class="dmore">+'+(due.length-4)+' more</div>':'')+'</div>'+figBox(WEEK_FIGS[i%WEEK_FIGS.length])+'</div>';
   });
+  return h;
+}
+function monthCards(c){
+  const year=c.ym.slice(0,4),nowYm=todayISO().slice(0,7);
+  let h='<div class="dcard title" data-slot="front">'+figBox(YEAR_FIG)+'<div class="dtext"><span class="dname">Calendar</span><span class="ddate">'+year+'</span><span class="drule"></span></div></div>';
+  for(let m=0;m<12;m++){
+    const ym=year+"-"+String(m+1).padStart(2,"0"),n=dueIn(ym+"-01",lastOf(ym)).length;
+    h+='<div class="dcard mcard" role="button" tabindex="0" data-slot="m'+(m+1)+'" data-act="month:'+ym+'" aria-label="'+esc(fmt(ym+"-01",{month:"long",year:"numeric"}))+'">'
+      +'<div class="dtext"><div class="dhead"><span class="dname">'+esc(fmt(ym+"-01",{month:"long"}))+'</span>'
+      +'<span class="ddate">'+(ym===nowYm?'<span class="dtoday">Now</span>':n?n+" due":"")+'</span></div>'+miniCal(ym)+'</div>'+figBox(MONTH_FIGS[m])+'</div>';
+  }
+  return h;
 }
 function deckSlots(){
   let n=0;
-  document.querySelectorAll("#weekcal .dcard").forEach(c=>{
-    const front=c.dataset.day===S.weekSel;
+  document.querySelectorAll("#weekcal .dcard[data-day]").forEach(c=>{
+    const front=c.dataset.day===S.cal.day;
     c.dataset.slot=front?"front":"s"+(++n);
     c.setAttribute("aria-pressed",String(front));
   });
 }
 function weekCal(){
   const el=document.getElementById("weekcal"); if(!el)return;
-  const iso=todayISO(),mon=mondayOf(iso),sun=shift(mon,6),c=cfg();
-  if(!S.weekSel||S.weekSel<mon||S.weekSel>sun)S.weekSel=iso;
-  $("#wkmonth").textContent=fmt(iso,{month:"long"});
-  $("#wkrange").textContent=fmt(mon,{month:"short",day:"numeric"})+" – "+fmt(sun,mon.slice(0,7)===sun.slice(0,7)?{day:"numeric"}:{month:"short",day:"numeric"});
-  el.innerHTML=ORDER.map((d,i)=>{
-    const day=shift(mon,i);
-    const ev=((c.week||{})[d]||[]).map(b=>({t:b.t,l:b.l,k:b.k}));
-    const gt=(c.gymTime||{})[d],sw=(c.schoolwork||{})[d];
-    if(gt)ev.push({t:gt+"–"+plus(gt,95),l:"Gym — "+((c.split||{})[d]||"training"),k:"gym"});
-    if(sw)ev.push({t:sw+"–"+plus(sw,60),l:"Schoolwork hour",k:"study"});
-    ev.sort((a,b)=>startMin(a.t)-startMin(b.t));
-    const due=S.tasks.filter(t=>t.status!=="done"&&t.due===day).map(t=>({t:"Due",l:t.title,k:"due"}));
-    const all=due.concat(ev), f=FIGS[i], u=figURL[i];
-    return '<div class="dcard" role="button" tabindex="0" data-day="'+day+'" aria-label="'+esc(fmt(day,{weekday:"long",month:"long",day:"numeric"}))+'">'
-      +'<div class="dtext"><div class="dhead"><span class="dname">'+esc(fmt(day,{weekday:"long"}))+'</span>'
-      +'<span class="ddate">'+esc(fmt(day,{month:"long",day:"numeric"}))+(day===iso?' · <span class="dtoday">Today</span>':'')+'</span></div>'
-      +'<div class="dlist">'+(all.length?all.map(b=>'<div class="wev" data-k="'+esc(b.k)+'"><i></i><time>'+esc(b.t)+'</time><span>'+esc(b.l)+'</span></div>').join(""):'<div class="wnone">Open</div>')+'</div>'
-      +(all.length>4?'<div class="dmore">+'+(all.length-4)+' more</div>':'')+'</div>'
-      +'<div class="dimg'+(u?'':' noimg')+'"><img alt="" data-fig="'+i+'"'+(u?' src="'+esc(u)+'"':'')+'>'
-      +'<a class="dcap" href="https://en.wikipedia.org/wiki/'+encodeURIComponent(f[1].replace(/ /g,"_"))+'" target="_blank" rel="noopener">'+esc(f[0])+'</a></div></div>';
-  }).join("");
-  deckSlots();
+  const c=calState(),key=c.level+"|"+c.ym+"|"+(c.level==="days"?c.week:"");
+  const fresh=key!==S.calKey; S.calKey=key; S.calToday=todayISO();
+  el.dataset.level=c.level;
+  el.innerHTML=c.level==="months"?monthCards(c):c.level==="weeks"?weekCards(c):dayCards(c);
+  if(c.level==="days")deckSlots();
+  calChrome();
+  el.classList.remove("enter");
+  if(fresh){void el.offsetWidth;el.classList.add("enter");}
+  needFigs(Array.from(el.querySelectorAll("img[data-fig]")).map(im=>im.dataset.fig));
 }
 function week(){
   home();
@@ -1229,12 +1352,24 @@ document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>g
   const deck=document.getElementById("weekcal");
   const pick=e=>{
     if(e.target.closest("a"))return;
-    const c=e.target.closest(".dcard"); if(!c||c.dataset.day===S.weekSel)return;
-    S.weekSel=c.dataset.day; deckSlots();
+    const card=e.target.closest(".dcard[data-act]"); if(!card)return;
+    const i=card.dataset.act.indexOf(":"),kind=card.dataset.act.slice(0,i),v=card.dataset.act.slice(i+1),c=S.cal;
+    if(kind==="day"){
+      if(v===c.day)return;
+      c.day=v;c.pinned=true;deckSlots();calChrome();return;
+    }
+    if(kind==="month"){c.level="weeks";c.ym=v;}
+    if(kind==="week"){const t=todayISO();c.level="days";c.week=v;c.day=(t>=v&&t<=shift(v,6))?t:v;}
+    c.pinned=true;weekCal();
   };
   deck.addEventListener("click",pick);
   deck.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("dcard")){e.preventDefault();pick(e);}});
   deck.addEventListener("error",e=>{const im=e.target;if(im&&im.tagName==="IMG"){delete figURL[im.dataset.fig];im.removeAttribute("src");im.parentNode.classList.add("noimg");}},true);
+  document.getElementById("wkcrumbs").addEventListener("click",e=>{
+    const b=e.target.closest("[data-crumb]"); if(!b||b.getAttribute("aria-current")==="true")return;
+    S.cal.level=b.dataset.crumb;S.cal.pinned=true;weekCal();
+  });
+  document.getElementById("wkfollow").addEventListener("click",()=>{S.cal.pinned=false;weekCal();});
 })();
 document.addEventListener("click",e=>{
   const g=e.target.closest("[data-go]"),cd=e.target.closest("[data-cal]"),cn=e.target.closest("[data-calnav]");
@@ -1470,7 +1605,7 @@ async function fileIt(){
 /* ---------- boot ---------- */
 $("#gym-add").querySelector("[name=date]").value=todayISO();
 renderAll();
-setInterval(()=>{header();if(S.view==="today")today();else home();},60000);
+setInterval(()=>{header();if(S.view==="today")today();else home();if(todayISO()!==S.calToday)weekCal();},60000);
 
 /* ---------- storage: one "docs" table, mirrored in memory, live through realtime ---------- */
 const CFG={url:"https://lijjbumgqelkqwpljjov.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpampidW1ncWVsa3F3cGxqam92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0Nzk3MTksImV4cCI6MjEwNzA1NTcxOX0.c3q8M3C6nPYkTOeUcDlpWUkEzSZeh9GeWGlpetrZwms"};
