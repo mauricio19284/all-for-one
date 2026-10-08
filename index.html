@@ -137,32 +137,75 @@ body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:
 .agenda .tl li{grid-template-columns:92px 3px minmax(0,1fr)}
 .tl li[data-k="due"] .bar{background:var(--accent)}
 
-/* week calendar: a black sheet ruled with thin lines, one column per day */
-.panel.wk{background:#0A0A0A; border-color:#0A0A0A; color:#F4F3EF; color-scheme:dark;
-  --ink:#F4F3EF; --ink-2:#D3D2CD; --muted:#9C9B96; --line:rgba(255,255,255,.14); --line-2:rgba(255,255,255,.34);
-  --accent:#F06A6A; --copper:#D9B36A; --ok:#6FCF97; --warn:#E5C15A}
-.wcaltitle{font-family:var(--display); font-weight:500; font-size:clamp(30px,5vw,56px); line-height:1.1; letter-spacing:.24em; margin-right:-.24em; text-transform:uppercase; text-align:center; padding:2px 0 20px}
-.wcalwrap{overflow-x:auto}
-.wcal{display:grid; grid-template-columns:repeat(7,minmax(122px,1fr)); border:1px solid var(--line-2)}
-.wday{display:flex; flex-direction:column; min-width:0; border-right:1px solid var(--line-2)}
-.wday:last-child{border-right:0}
-.wdh{display:flex; align-items:baseline; justify-content:center; gap:8px; padding:9px 6px 8px; border-bottom:1px solid var(--line-2); font-size:10.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--muted)}
-.wdh b{font-family:var(--display); font-size:19px; font-weight:600; letter-spacing:0; color:var(--ink); font-variant-numeric:lining-nums}
-.wday.today .wdh{background:var(--ink); color:#0A0A0A}
-.wday.today .wdh b{color:#0A0A0A}
-.wdb{display:flex; flex-direction:column; padding:6px 0 10px; min-height:230px}
-.wev{display:grid; grid-template-columns:2px minmax(0,1fr); gap:9px; padding:6px 10px}
-.wev i{background:var(--line-2); border-radius:2px}
+/* week deck: seven paper cards, one per day; the chosen day sits in front, the rest fan out behind it */
+.wcaltitle{font-family:var(--display); font-weight:500; font-size:clamp(30px,5vw,56px); line-height:1.1; letter-spacing:.24em; margin-right:-.24em; text-transform:uppercase; text-align:center; padding:2px 0 22px}
+.deck{position:relative; height:644px}
+.dcard{position:absolute; display:grid; grid-template-columns:minmax(0,1fr) 40%; background:var(--paper); border:1px solid var(--line); border-radius:3px; box-shadow:var(--shadow); overflow:hidden; cursor:pointer; text-align:left;
+  transition:left .5s cubic-bezier(.2,.7,.2,1), top .5s cubic-bezier(.2,.7,.2,1), width .5s cubic-bezier(.2,.7,.2,1), height .5s cubic-bezier(.2,.7,.2,1), box-shadow .25s, transform .25s}
+.dcard[data-slot="front"]{left:24%; top:112px; width:52%; height:416px; z-index:5; cursor:default; box-shadow:0 2px 6px rgba(17,17,17,.06), 0 28px 60px rgba(17,17,28,.16)}
+.dcard[data-slot="s1"]{left:0; top:8px; width:27.5%; height:196px; z-index:1}
+.dcard[data-slot="s2"]{left:1.4%; top:226px; width:27.5%; height:196px; z-index:2}
+.dcard[data-slot="s3"]{left:.2%; top:444px; width:27.5%; height:196px; z-index:1}
+.dcard[data-slot="s4"]{left:72.5%; top:0; width:27.5%; height:196px; z-index:1}
+.dcard[data-slot="s5"]{left:71.2%; top:218px; width:27.5%; height:196px; z-index:2}
+.dcard[data-slot="s6"]{left:72.3%; top:436px; width:27.5%; height:196px; z-index:1}
+.dcard[data-slot="s4"],.dcard[data-slot="s5"],.dcard[data-slot="s6"]{grid-template-columns:40% minmax(0,1fr)}
+.dcard[data-slot="s4"] .dimg,.dcard[data-slot="s5"] .dimg,.dcard[data-slot="s6"] .dimg{order:-1}
+.dcard:not([data-slot="front"]):hover{transform:translateY(-3px); box-shadow:var(--shadow-up)}
+.dcard:focus-visible{outline:2px solid var(--ink); outline-offset:3px}
+.dtext{min-width:0; display:flex; flex-direction:column; padding:16px 16px 12px; overflow:hidden}
+.dcard[data-slot="front"] .dtext{padding:26px 26px 18px; overflow-y:auto}
+.dhead{display:flex; flex-direction:column; gap:3px; padding-bottom:10px}
+.dname{font-family:var(--display); font-size:19px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; line-height:1.1}
+.dcard[data-slot="front"] .dname{font-size:30px}
+.ddate{font-size:9.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--muted)}
+.dtoday{color:var(--accent)}
+.dlist{display:flex; flex-direction:column; min-width:0}
+.wev{display:grid; grid-template-columns:2px 92px minmax(0,1fr); gap:10px; align-items:baseline; padding:5px 0}
+.wev i{align-self:stretch; background:var(--line-2); border-radius:2px}
 .wev[data-k="class"] i,.wev[data-k="study"] i,.wev[data-k="fixed"] i{background:var(--ink)}
 .wev[data-k="work"] i{background:var(--copper)}
 .wev[data-k="gym"] i{background:var(--ok)}
 .wev[data-k="social"] i{background:var(--warn)}
 .wev[data-k="due"] i{background:var(--accent)}
-.wev time{display:block; font-family:var(--util); font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums}
-.wev span{display:block; font-size:12.5px; line-height:1.3; overflow-wrap:break-word}
+.wev time{font-family:var(--util); font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap}
+.wev span{font-size:13.5px; line-height:1.3; overflow-wrap:break-word; min-width:0}
 .wev[data-k="commute"] span{color:var(--muted)}
 .wev[data-k="due"] time{color:var(--accent)}
-.wnone{padding:10px; font-size:12.5px; color:var(--muted)}
+.dcard:not([data-slot="front"]) .wev{grid-template-columns:2px minmax(0,1fr); padding:3px 0}
+.dcard:not([data-slot="front"]) .wev time{display:none}
+.dcard:not([data-slot="front"]) .wev span{font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dcard:not([data-slot="front"]) .wev:nth-child(n+5){display:none}
+.dmore{font-size:11px; color:var(--muted); padding-top:4px}
+.dcard[data-slot="front"] .dmore{display:none}
+.wnone{font-size:12.5px; color:var(--muted)}
+.dimg{position:relative; min-width:0; background:var(--ground); overflow:hidden}
+.dimg img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 22%; filter:grayscale(1) contrast(1.06); display:block}
+.dimg img:not([src]){display:none}
+.dcap{position:absolute; left:0; right:0; bottom:0; padding:22px 10px 8px; font-size:8.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#fff; text-decoration:none; background:linear-gradient(180deg,transparent,rgba(0,0,0,.55)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dimg.noimg .dcap{color:var(--muted); background:none}
+.dcard[data-slot="s4"] .dcap,.dcard[data-slot="s5"] .dcap,.dcard[data-slot="s6"] .dcap{text-align:right}
+a.dcap:hover{text-decoration:underline}
+.deckcredit{font-size:11.5px; padding-top:14px}
+@media (max-width:980px){
+  .deck{height:auto; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+  .deck .dcard{position:static; width:auto; height:150px; transition:none; grid-template-columns:minmax(0,1fr) 36%}
+  .deck .dcard .dimg{order:0}
+  .deck .dcard .dcap{text-align:left}
+  .deck .dcard[data-slot="front"]{grid-column:1/-1; order:-1; height:auto; min-height:300px}
+  .dcard[data-slot="front"] .dtext{padding:20px 18px 16px}
+  .dcard:not([data-slot="front"]) .wev:nth-child(n+4){display:none}
+}
+@media (max-width:520px){
+  .deck{grid-template-columns:minmax(0,1fr)}
+  .deck .dcard{height:128px; grid-template-columns:minmax(0,1fr) 30%}
+  .deck .dcard[data-slot="front"]{grid-template-columns:minmax(0,1fr); grid-template-rows:180px auto; min-height:0}
+  .deck .dcard[data-slot="front"] .dimg{order:-1}
+  .dcard[data-slot="front"] .dname{font-size:24px}
+  .dname{font-size:16px}
+  .dcard:not([data-slot="front"]) .wev:nth-child(n+3){display:none}
+  .dmore{display:none}
+}
 .mustline{display:flex; align-items:center; gap:12px; padding:2px 0 14px; border-bottom:1px solid var(--line); margin-bottom:2px}
 .mustline div{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px}
 .mustline p{font-size:16px; font-weight:650; overflow-wrap:break-word}
@@ -504,7 +547,8 @@ input[type=checkbox]:checked::after{transform:translateY(-1px) rotate(-45deg) sc
         <header><h2>Fixed commitments</h2><span class="right" id="wkrange"></span></header>
         <div class="body">
           <div class="wcaltitle" id="wkmonth"></div>
-          <div class="wcalwrap"><div class="wcal" id="weekcal"></div></div>
+          <div class="deck" id="weekcal"></div>
+          <p class="hlegend deckcredit">Pictures come from Wikipedia. Open a figure's name for its source, author and license.</p>
         </div>
       </div>
       <div class="panel wide">
@@ -726,7 +770,7 @@ const TEST={start:"2026-09-01", end:"2026-10-12", firstMonday:"2026-08-31"};
 
 const FALLBACK={week:{},schoolwork:{},gymTime:{},split:{},shutdown:[],review:[]};
 
-const S={db:null,sample:null,tasks:[],notes:[],gym:[],days:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null};
+const S={db:null,sample:null,tasks:[],notes:[],gym:[],days:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,weekSel:null};
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -932,9 +976,42 @@ function weekLine(d,extra){
   if(extra){ const g=(c.gymTime||{})[d]; if(g)bits.push(g+" Gym — "+((c.split||{})[d]||"")); const s=(c.schoolwork||{})[d]; if(s)bits.push(s+" Schoolwork"); }
   return '<li data-k="'+(b[0]?b[0].k:"study")+'"'+(d===wd?' class="now"':'')+'><time class="mono">'+DL[d]+'</time><i class="bar"></i><div class="lab"><small>'+esc(bits.length?bits.join(" · "):"Open")+'</small></div></li>';
 }
+const FIGS=[["Alexander","Alexander the Great"],["Atlas","Farnese Atlas"],["Socrates","Socrates"],["Icarus","Icarus"],["Marcus Aurelius","Marcus Aurelius"],["Hercules","Farnese Hercules"],["Perseus","Perseus with the Head of Medusa"]];
+const figURL={};
+function paintFigs(){
+  document.querySelectorAll("#weekcal img[data-fig]").forEach(im=>{
+    const u=figURL[im.dataset.fig];
+    if(u&&im.getAttribute("src")!==u){im.src=u;im.parentNode.classList.remove("noimg");}
+  });
+}
+function loadFigs(){
+  try{const c=JSON.parse(localStorage.getItem("afo-figs-v1")||"{}");Object.keys(c).forEach(k=>{figURL[k]=c[k];});}catch(e){}
+  paintFigs();
+  FIGS.forEach((f,i)=>{
+    if(figURL[i])return;
+    fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&titles="+encodeURIComponent(f[1]))
+      .then(r=>r.json())
+      .then(j=>{
+        const pg=(j&&j.query&&j.query.pages)||{},p=pg[Object.keys(pg)[0]],u=p&&p.thumbnail&&p.thumbnail.source;
+        if(!u)return;
+        figURL[i]=u;
+        try{localStorage.setItem("afo-figs-v1",JSON.stringify(figURL));}catch(e){}
+        paintFigs();
+      }).catch(()=>{});
+  });
+}
+function deckSlots(){
+  let n=0;
+  document.querySelectorAll("#weekcal .dcard").forEach(c=>{
+    const front=c.dataset.day===S.weekSel;
+    c.dataset.slot=front?"front":"s"+(++n);
+    c.setAttribute("aria-pressed",String(front));
+  });
+}
 function weekCal(){
   const el=document.getElementById("weekcal"); if(!el)return;
   const iso=todayISO(),mon=mondayOf(iso),sun=shift(mon,6),c=cfg();
+  if(!S.weekSel||S.weekSel<mon||S.weekSel>sun)S.weekSel=iso;
   $("#wkmonth").textContent=fmt(iso,{month:"long"});
   $("#wkrange").textContent=fmt(mon,{month:"short",day:"numeric"})+" – "+fmt(sun,mon.slice(0,7)===sun.slice(0,7)?{day:"numeric"}:{month:"short",day:"numeric"});
   el.innerHTML=ORDER.map((d,i)=>{
@@ -944,11 +1021,17 @@ function weekCal(){
     if(gt)ev.push({t:gt+"–"+plus(gt,95),l:"Gym — "+((c.split||{})[d]||"training"),k:"gym"});
     if(sw)ev.push({t:sw+"–"+plus(sw,60),l:"Schoolwork hour",k:"study"});
     ev.sort((a,b)=>startMin(a.t)-startMin(b.t));
-    S.tasks.filter(t=>t.status!=="done"&&t.due===day).forEach(t=>ev.push({t:"Due",l:t.title,k:"due"}));
-    return '<div class="wday'+(day===iso?" today":"")+'"><div class="wdh">'+DL[d]+'<b>'+(+day.slice(8))+'</b></div><div class="wdb">'
-      +(ev.length?ev.map(b=>'<div class="wev" data-k="'+esc(b.k)+'"><i></i><div><time>'+esc(b.t)+'</time><span>'+esc(b.l)+'</span></div></div>').join(""):'<div class="wnone">Open</div>')
-      +'</div></div>';
+    const due=S.tasks.filter(t=>t.status!=="done"&&t.due===day).map(t=>({t:"Due",l:t.title,k:"due"}));
+    const all=due.concat(ev), f=FIGS[i], u=figURL[i];
+    return '<div class="dcard" role="button" tabindex="0" data-day="'+day+'" aria-label="'+esc(fmt(day,{weekday:"long",month:"long",day:"numeric"}))+'">'
+      +'<div class="dtext"><div class="dhead"><span class="dname">'+esc(fmt(day,{weekday:"long"}))+'</span>'
+      +'<span class="ddate">'+esc(fmt(day,{month:"long",day:"numeric"}))+(day===iso?' · <span class="dtoday">Today</span>':'')+'</span></div>'
+      +'<div class="dlist">'+(all.length?all.map(b=>'<div class="wev" data-k="'+esc(b.k)+'"><i></i><time>'+esc(b.t)+'</time><span>'+esc(b.l)+'</span></div>').join(""):'<div class="wnone">Open</div>')+'</div>'
+      +(all.length>4?'<div class="dmore">+'+(all.length-4)+' more</div>':'')+'</div>'
+      +'<div class="dimg'+(u?'':' noimg')+'"><img alt="" data-fig="'+i+'"'+(u?' src="'+esc(u)+'"':'')+'>'
+      +'<a class="dcap" href="https://en.wikipedia.org/wiki/'+encodeURIComponent(f[1].replace(/ /g,"_"))+'" target="_blank" rel="noopener">'+esc(f[0])+'</a></div></div>';
   }).join("");
+  deckSlots();
 }
 function week(){
   home();
@@ -1142,6 +1225,17 @@ function go(v){
   window.scrollTo(0,0);
 }
 document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.view)));
+(function(){
+  const deck=document.getElementById("weekcal");
+  const pick=e=>{
+    if(e.target.closest("a"))return;
+    const c=e.target.closest(".dcard"); if(!c||c.dataset.day===S.weekSel)return;
+    S.weekSel=c.dataset.day; deckSlots();
+  };
+  deck.addEventListener("click",pick);
+  deck.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("dcard")){e.preventDefault();pick(e);}});
+  deck.addEventListener("error",e=>{const im=e.target;if(im&&im.tagName==="IMG"){delete figURL[im.dataset.fig];im.removeAttribute("src");im.parentNode.classList.add("noimg");}},true);
+})();
 document.addEventListener("click",e=>{
   const g=e.target.closest("[data-go]"),cd=e.target.closest("[data-cal]"),cn=e.target.closest("[data-calnav]");
   if(g)go(g.dataset.go);
@@ -1490,6 +1584,7 @@ $("#gateform").addEventListener("submit",async e=>{
 });
 $("#signout").addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 sb.auth.getSession().then(r=>gate(r.data&&r.data.session)).catch(()=>gate(null));
+loadFigs();
 })();
 </script>
 </body>
