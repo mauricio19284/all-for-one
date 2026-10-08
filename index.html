@@ -136,6 +136,33 @@ body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:
 .agenda{min-width:0; display:flex; flex-direction:column; gap:4px}
 .agenda .tl li{grid-template-columns:92px 3px minmax(0,1fr)}
 .tl li[data-k="due"] .bar{background:var(--accent)}
+
+/* week calendar: a black sheet ruled with thin lines, one column per day */
+.panel.wk{background:#0A0A0A; border-color:#0A0A0A; color:#F4F3EF; color-scheme:dark;
+  --ink:#F4F3EF; --ink-2:#D3D2CD; --muted:#9C9B96; --line:rgba(255,255,255,.14); --line-2:rgba(255,255,255,.34);
+  --accent:#F06A6A; --copper:#D9B36A; --ok:#6FCF97; --warn:#E5C15A}
+.wcaltitle{font-family:var(--display); font-weight:500; font-size:clamp(30px,5vw,56px); line-height:1.1; letter-spacing:.24em; margin-right:-.24em; text-transform:uppercase; text-align:center; padding:2px 0 20px}
+.wcalwrap{overflow-x:auto}
+.wcal{display:grid; grid-template-columns:repeat(7,minmax(122px,1fr)); border:1px solid var(--line-2)}
+.wday{display:flex; flex-direction:column; min-width:0; border-right:1px solid var(--line-2)}
+.wday:last-child{border-right:0}
+.wdh{display:flex; align-items:baseline; justify-content:center; gap:8px; padding:9px 6px 8px; border-bottom:1px solid var(--line-2); font-size:10.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--muted)}
+.wdh b{font-family:var(--display); font-size:19px; font-weight:600; letter-spacing:0; color:var(--ink); font-variant-numeric:lining-nums}
+.wday.today .wdh{background:var(--ink); color:#0A0A0A}
+.wday.today .wdh b{color:#0A0A0A}
+.wdb{display:flex; flex-direction:column; padding:6px 0 10px; min-height:230px}
+.wev{display:grid; grid-template-columns:2px minmax(0,1fr); gap:9px; padding:6px 10px}
+.wev i{background:var(--line-2); border-radius:2px}
+.wev[data-k="class"] i,.wev[data-k="study"] i,.wev[data-k="fixed"] i{background:var(--ink)}
+.wev[data-k="work"] i{background:var(--copper)}
+.wev[data-k="gym"] i{background:var(--ok)}
+.wev[data-k="social"] i{background:var(--warn)}
+.wev[data-k="due"] i{background:var(--accent)}
+.wev time{display:block; font-family:var(--util); font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+.wev span{display:block; font-size:12.5px; line-height:1.3; overflow-wrap:break-word}
+.wev[data-k="commute"] span{color:var(--muted)}
+.wev[data-k="due"] time{color:var(--accent)}
+.wnone{padding:10px; font-size:12.5px; color:var(--muted)}
 .mustline{display:flex; align-items:center; gap:12px; padding:2px 0 14px; border-bottom:1px solid var(--line); margin-bottom:2px}
 .mustline div{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px}
 .mustline p{font-size:16px; font-weight:650; overflow-wrap:break-word}
@@ -473,9 +500,12 @@ input[type=checkbox]:checked::after{transform:translateY(-1px) rotate(-45deg) sc
     <section id="view-week" class="grid cols" hidden>
       <div class="pagehead wide"><h1>The week</h1><p>Fixed commitments and the Sunday review.</p></div>
       <div class="panel wide" id="flagbox-week" hidden></div>
-      <div class="panel wide">
-        <header><h2>Fixed commitments</h2><span class="right">Sep 1 – Oct 12 test window</span></header>
-        <div class="body"><ul class="tl" id="weekgrid"></ul></div>
+      <div class="panel wide wk">
+        <header><h2>Fixed commitments</h2><span class="right" id="wkrange"></span></header>
+        <div class="body">
+          <div class="wcaltitle" id="wkmonth"></div>
+          <div class="wcalwrap"><div class="wcal" id="weekcal"></div></div>
+        </div>
       </div>
       <div class="panel wide">
         <header><h2>Sunday review</h2><span class="right" id="wkstate"></span></header>
@@ -822,6 +852,7 @@ function rail(){
   const h=S.habits[todayISO()]||{};
   $("#n-habits").textContent=HABITS.filter(x=>h[x.id]).length+"/3";
   home();
+  weekCal();
 }
 
 function today(){
@@ -901,9 +932,27 @@ function weekLine(d,extra){
   if(extra){ const g=(c.gymTime||{})[d]; if(g)bits.push(g+" Gym — "+((c.split||{})[d]||"")); const s=(c.schoolwork||{})[d]; if(s)bits.push(s+" Schoolwork"); }
   return '<li data-k="'+(b[0]?b[0].k:"study")+'"'+(d===wd?' class="now"':'')+'><time class="mono">'+DL[d]+'</time><i class="bar"></i><div class="lab"><small>'+esc(bits.length?bits.join(" · "):"Open")+'</small></div></li>';
 }
+function weekCal(){
+  const el=document.getElementById("weekcal"); if(!el)return;
+  const iso=todayISO(),mon=mondayOf(iso),sun=shift(mon,6),c=cfg();
+  $("#wkmonth").textContent=fmt(iso,{month:"long"});
+  $("#wkrange").textContent=fmt(mon,{month:"short",day:"numeric"})+" – "+fmt(sun,mon.slice(0,7)===sun.slice(0,7)?{day:"numeric"}:{month:"short",day:"numeric"});
+  el.innerHTML=ORDER.map((d,i)=>{
+    const day=shift(mon,i);
+    const ev=((c.week||{})[d]||[]).map(b=>({t:b.t,l:b.l,k:b.k}));
+    const gt=(c.gymTime||{})[d],sw=(c.schoolwork||{})[d];
+    if(gt)ev.push({t:gt+"–"+plus(gt,95),l:"Gym — "+((c.split||{})[d]||"training"),k:"gym"});
+    if(sw)ev.push({t:sw+"–"+plus(sw,60),l:"Schoolwork hour",k:"study"});
+    ev.sort((a,b)=>startMin(a.t)-startMin(b.t));
+    S.tasks.filter(t=>t.status!=="done"&&t.due===day).forEach(t=>ev.push({t:"Due",l:t.title,k:"due"}));
+    return '<div class="wday'+(day===iso?" today":"")+'"><div class="wdh">'+DL[d]+'<b>'+(+day.slice(8))+'</b></div><div class="wdb">'
+      +(ev.length?ev.map(b=>'<div class="wev" data-k="'+esc(b.k)+'"><i></i><div><time>'+esc(b.t)+'</time><span>'+esc(b.l)+'</span></div></div>').join(""):'<div class="wnone">Open</div>')
+      +'</div></div>';
+  }).join("");
+}
 function week(){
   home();
-  $("#weekgrid").innerHTML=ORDER.map(d=>weekLine(d,true)).join("");
+  weekCal();
   const c=cfg(),items=(c.review||FALLBACK.review);
   const wk=S.week||{},checks=Array.isArray(wk.checks)&&wk.checks.length?wk.checks:items.map(l=>({label:l,done:false}));
   $("#wkcheck").innerHTML=checks.map((it,i)=>'<li class="'+(it.done?"on":"")+'"><input type="checkbox" id="wk'+i+'" data-wk="'+i+'"'+(it.done?" checked":"")+'><label for="wk'+i+'">'+esc(it.label)+'</label></li>').join("");
