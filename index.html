@@ -1032,13 +1032,16 @@ function weekLine(d,extra){
   if(extra){ const g=(c.gymTime||{})[d]; if(g)bits.push(g+" Gym — "+((c.split||{})[d]||"")); const s=(c.schoolwork||{})[d]; if(s)bits.push(s+" Schoolwork"); }
   return '<li data-k="'+(b[0]?b[0].k:"study")+'"'+(d===wd?' class="now"':'')+'><time class="mono">'+DL[d]+'</time><i class="bar"></i><div class="lab"><small>'+esc(bits.length?bits.join(" · "):"Open")+'</small></div></li>';
 }
-/* Thirteen figures. ART maps a figure to a drawing in img/ once one exists; until then the card shows an ink panel. */
-const FIG={socrates:"Socrates",plato:"Plato",alexander:"Alexander",aristotle:"Aristotle",atlas:"Atlas",hercules:"Hercules",caesar:"Caesar",augustus:"Augustus","marcus-aurelius":"Marcus Aurelius",icarus:"Icarus",homer:"Homer",perseus:"Perseus",achilles:"Achilles"};
+/* Twenty-six figures, none repeated. ART maps a figure to a drawing in img/ once one exists; until then the card shows an ink panel. */
+const FIG={socrates:"Socrates",plato:"Plato",alexander:"Alexander",aristotle:"Aristotle",atlas:"Atlas",hercules:"Hercules",caesar:"Caesar",augustus:"Augustus","marcus-aurelius":"Marcus Aurelius",icarus:"Icarus",homer:"Homer",perseus:"Perseus",
+  artemis:"Artemis",ares:"Ares",hermes:"Hermes",zeus:"Zeus",aphrodite:"Aphrodite",cronus:"Cronus",apollo:"Apollo",
+  achilles:"Achilles",odysseus:"Odysseus",leonidas:"Leonidas",prometheus:"Prometheus",theseus:"Theseus",hector:"Hector",athena:"Athena"};
 const ART={};
-const DAY_FIGS=["alexander","atlas","socrates","icarus","marcus-aurelius","hercules","perseus"];
+/* days follow the planets the weekdays are named for: Moon, Mars, Mercury, Jupiter, Venus, Saturn, Sun */
+const DAY_FIGS=["artemis","ares","hermes","zeus","aphrodite","cronus","apollo"];
 const MONTH_FIGS=["socrates","plato","alexander","aristotle","atlas","hercules","caesar","augustus","marcus-aurelius","icarus","homer","perseus"];
-const WEEK_FIGS=["plato","aristotle","caesar","augustus","homer","achilles"];
-const YEAR_FIG="alexander";
+const WEEK_FIGS=["achilles","odysseus","leonidas","prometheus","theseus","hector"];
+const YEAR_FIG="athena";
 const WEEK_SLOTS=["s1","s4","s2","s5","s3","s6"];
 function seeded(str){
   let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
