@@ -195,7 +195,20 @@ body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:
 .dcard[data-slot="front"] .dmore{display:none}
 .wnone{font-size:12.5px; color:var(--muted)}
 .dimg{position:relative; min-width:0; background:var(--ground) center/cover no-repeat; overflow:hidden}
-.dimg img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 22%; filter:grayscale(1) contrast(1.06); display:block}
+.dimg img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 22%; filter:grayscale(1) contrast(1.04); display:block}
+/* week cards carry wide drawings, so on wide screens the picture runs across the top */
+@media (min-width:981px){
+  .deck .dcard.wkcard{grid-template-columns:minmax(0,1fr); grid-template-rows:47% minmax(0,1fr)}
+  .deck .dcard.wkcard .dimg{order:-1}
+  .deck .dcard.wkcard .dtext{padding:11px 16px 10px}
+  .deck .dcard.wkcard[data-slot="s1"] .dtext,.deck .dcard.wkcard[data-slot="s2"] .dtext,.deck .dcard.wkcard[data-slot="s3"] .dtext{padding-right:56px}
+  .deck .dcard.wkcard[data-slot="s4"] .dtext,.deck .dcard.wkcard[data-slot="s5"] .dtext,.deck .dcard.wkcard[data-slot="s6"] .dtext{padding-left:60px}
+  .deck .dcard.wkcard .dhead{flex-direction:row; align-items:baseline; justify-content:space-between; gap:8px; padding-bottom:5px}
+  .deck .dcard.wkcard .dname{font-size:16px; white-space:nowrap}
+  .deck .dcard.wkcard .ddate{text-align:right}
+  .deck .dcard.wkcard .wev:nth-child(n+3){display:none}
+  .deck .dcard.wkcard .dmore{display:none}
+}
 
 .dcap{position:absolute; left:0; right:0; bottom:0; padding:22px 10px 8px; font-size:8.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#fff; text-decoration:none; background:linear-gradient(180deg,transparent,rgba(0,0,0,.82) 70%); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
@@ -1038,6 +1051,11 @@ const FIG={socrates:"Socrates",plato:"Plato",alexander:"Alexander",aristotle:"Ar
   achilles:"Achilles",odysseus:"Odysseus",leonidas:"Leonidas",prometheus:"Prometheus",theseus:"Theseus",hector:"Hector",athena:"Athena",
   napoleon:"Napoleon",hannibal:"Hannibal","genghis-khan":"Genghis Khan",leonardo:"Leonardo da Vinci","sun-tzu":"Sun Tzu",musashi:"Miyamoto Musashi"};
 const ART={};
+/* where the face sits in each drawing (x% y%), so a narrow frame crops around it */
+const FOCUS={socrates:"50% 22%",plato:"50% 20%",alexander:"40% 20%",aristotle:"50% 22%",atlas:"50% 50%",hercules:"56% 25%",caesar:"49% 22%",augustus:"48% 22%","marcus-aurelius":"47% 25%",icarus:"50% 45%",homer:"48% 22%",perseus:"52% 35%",
+  napoleon:"50% 20%",hannibal:"51% 20%","genghis-khan":"51% 20%",leonardo:"42% 25%","sun-tzu":"50% 20%",musashi:"48% 25%",achilles:"45% 20%",odysseus:"48% 20%",leonidas:"48% 20%",prometheus:"46% 20%",theseus:"39% 20%",hector:"47% 20%",
+  artemis:"44% 20%",ares:"59% 18%",hermes:"65% 20%",zeus:"68% 22%",aphrodite:"42% 22%",cronus:"52% 22%",apollo:"45% 22%"};
+Object.keys(FOCUS).forEach(k=>{ART[k]="img/"+k+".jpg";});
 /* days follow the planets the weekdays are named for: Moon, Mars, Mercury, Jupiter, Venus, Saturn, Sun */
 const DAY_FIGS=["artemis","ares","hermes","zeus","aphrodite","cronus","apollo"];
 const MONTH_FIGS=["socrates","plato","alexander","aristotle","atlas","hercules","caesar","augustus","marcus-aurelius","icarus","homer","perseus"];
@@ -1083,7 +1101,7 @@ function inkPanel(key){
 }
 function figBox(key){
   const art=ART[key];
-  return '<div class="dimg"'+(art?'':' style="background-image:url(\''+inkPanel(key)+'\')"')+'>'+(art?'<img alt="" src="'+esc(art)+'">':'')
+  return '<div class="dimg"'+(art?'':' style="background-image:url(\''+inkPanel(key)+'\')"')+'>'+(art?'<img alt="" loading="lazy" src="'+esc(art)+'" style="object-position:'+(FOCUS[key]||"50% 22%")+'">':'')
     +'<span class="dcap">'+esc(FIG[key]||key)+'</span></div>';
 }
 /* the calendar follows today until something is picked; "Back to today" lets go again */
@@ -1139,7 +1157,7 @@ function weekCards(c){
     +'<span class="ddate">'+c.ym.slice(0,4)+' · '+(dueM?dueM+" due":"nothing due")+'</span><span class="drule"></span></div></div>';
   wks.forEach((w,i)=>{
     const end=shift(w,6),due=dueIn(w,end);
-    h+='<div class="dcard" role="button" tabindex="0" data-slot="'+WEEK_SLOTS[i]+'" data-act="week:'+w+'" aria-label="Week '+(i+1)+', '+esc(rangeText(w,end))+'">'
+    h+='<div class="dcard wkcard" role="button" tabindex="0" data-slot="'+WEEK_SLOTS[i]+'" data-act="week:'+w+'" aria-label="Week '+(i+1)+', '+esc(rangeText(w,end))+'">'
       +'<div class="dtext"><div class="dhead"><span class="dname">Week '+(i+1)+'</span><span class="ddate">'+esc(rangeText(w,end))+(w===cur?' · <span class="dtoday">This week</span>':'')+'</span></div>'
       +'<div class="dlist">'+(due.length?due.map(t=>'<div class="wev" data-k="due"><i></i><time></time><span>'+esc(fmt(t.due,{weekday:"short"})+" · "+t.title)+'</span></div>').join(""):'<div class="wnone">Nothing due</div>')+'</div>'
       +(due.length>4?'<div class="dmore">+'+(due.length-4)+' more</div>':'')+'</div>'+figBox((mi%2?WEEK_FIGS_HIST:WEEK_FIGS_MYTH)[i%6])+'</div>';
