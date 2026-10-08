@@ -138,10 +138,15 @@ body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:
 .tl li[data-k="due"] .bar{background:var(--accent)}
 
 /* week deck: seven paper cards, one per day; the chosen day sits in front, the rest fan out behind it */
-.crumbs{display:flex; justify-content:center; align-items:center; gap:4px 10px; flex-wrap:wrap; padding-bottom:8px; color:var(--muted); font-size:11px}
-.crumbs button{background:none; border:0; padding:4px 2px; font-size:10px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); cursor:pointer}
-.crumbs button:hover{color:var(--ink); text-decoration:underline; text-underline-offset:4px}
-.crumbs button[aria-current="true"]{color:var(--ink); cursor:default; text-decoration:none}
+.crumbs{display:flex; justify-content:center; padding-bottom:16px}
+.crumbs{gap:0}
+.crumbs button{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:112px; background:var(--paper); border:1px solid var(--line-2); border-left-width:0; padding:8px 18px 9px; font-family:var(--display); font-size:16px; font-weight:600; letter-spacing:.08em; color:var(--ink); cursor:pointer; transition:background .15s, color .15s}
+.crumbs button:first-child{border-left-width:1px; border-radius:10px 0 0 10px}
+.crumbs button:last-child{border-radius:0 10px 10px 0}
+.crumbs button small{font-family:var(--sans); font-size:8.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:var(--muted)}
+.crumbs button:hover{background:var(--ground)}
+.crumbs button[aria-current="true"]{background:var(--ink); border-color:var(--ink); color:var(--paper); cursor:default}
+.crumbs button[aria-current="true"] small{color:rgba(255,255,255,.65)}
 .follow{display:inline-flex; align-items:center; gap:7px; font-size:11.5px; font-weight:600; color:var(--ink); background:var(--paper); border:1px solid var(--line-2); border-radius:999px; padding:5px 13px; cursor:pointer}
 .follow::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--line-2)}
 .follow:hover{border-color:var(--ink)}
@@ -189,14 +194,14 @@ body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:
 .dmore{font-size:11px; color:var(--muted); padding-top:4px}
 .dcard[data-slot="front"] .dmore{display:none}
 .wnone{font-size:12.5px; color:var(--muted)}
-.dimg{position:relative; min-width:0; background:var(--ground); overflow:hidden}
+.dimg{position:relative; min-width:0; background:var(--ground) center/cover no-repeat; overflow:hidden}
 .dimg img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 22%; filter:grayscale(1) contrast(1.06); display:block}
-.dimg img:not([src]){display:none}
-.dcap{position:absolute; left:0; right:0; bottom:0; padding:22px 10px 8px; font-size:8.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#fff; text-decoration:none; background:linear-gradient(180deg,transparent,rgba(0,0,0,.55)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.dimg.noimg .dcap{color:var(--muted); background:none}
+
+.dcap{position:absolute; left:0; right:0; bottom:0; padding:22px 10px 8px; font-size:8.5px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; color:#fff; text-decoration:none; background:linear-gradient(180deg,transparent,rgba(0,0,0,.82) 70%); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
 .dcard[data-slot="s4"] .dcap,.dcard[data-slot="s5"] .dcap,.dcard[data-slot="s6"] .dcap{text-align:right}
-a.dcap:hover{text-decoration:underline}
-.deckcredit{font-size:11.5px; padding-top:14px}
+
+
 /* title cards (the year, the month) and the month and week cards */
 .dcard.title{cursor:default; grid-template-columns:44% minmax(0,1fr)}
 .dcard.title .dimg{order:-1}
@@ -240,6 +245,7 @@ a.dcap:hover{text-decoration:underline}
   .dcard:not([data-slot="front"]) .wev:nth-child(n+4){display:none}
 }
 @media (max-width:520px){
+  .crumbs button{min-width:0; flex:1 1 0; padding:8px 6px 9px; font-size:14px}
   .deck{grid-template-columns:minmax(0,1fr)}
   .deck .dcard{height:128px; grid-template-columns:minmax(0,1fr) 30%}
   .deck .dcard.title,.deck .dcard.title[data-slot="front"]{grid-template-columns:38% minmax(0,1fr); grid-template-rows:none; min-height:170px}
@@ -599,7 +605,6 @@ input[type=checkbox]:checked::after{transform:translateY(-1px) rotate(-45deg) sc
           <div class="wcaltitle" id="wkmonth"></div>
           <div class="wcalsub" id="wksub"></div>
           <div class="deck" id="weekcal"></div>
-          <p class="hlegend deckcredit">Pictures come from Wikipedia. Open a figure's name for its source, author and license.</p>
         </div>
       </div>
       <div class="panel wide">
@@ -1027,40 +1032,53 @@ function weekLine(d,extra){
   if(extra){ const g=(c.gymTime||{})[d]; if(g)bits.push(g+" Gym — "+((c.split||{})[d]||"")); const s=(c.schoolwork||{})[d]; if(s)bits.push(s+" Schoolwork"); }
   return '<li data-k="'+(b[0]?b[0].k:"study")+'"'+(d===wd?' class="now"':'')+'><time class="mono">'+DL[d]+'</time><i class="bar"></i><div class="lab"><small>'+esc(bits.length?bits.join(" · "):"Open")+'</small></div></li>';
 }
-const DAY_FIGS=[["Alexander","Alexander the Great"],["Atlas","Farnese Atlas"],["Socrates","Socrates"],["Icarus","Icarus"],["Marcus Aurelius","Marcus Aurelius"],["Hercules","Farnese Hercules"],["Perseus","Perseus with the Head of Medusa"]];
-const MONTH_FIGS=[["Socrates","Socrates"],["Plato","Plato"],["Alexander","Alexander the Great"],["Aristotle","Aristotle"],["Atlas","Farnese Atlas"],["Hercules","Farnese Hercules"],["Caesar","Julius Caesar"],["Augustus","Augustus of Prima Porta"],["Marcus Aurelius","Marcus Aurelius"],["Icarus","Icarus"],["Homer","Homer"],["Perseus","Perseus with the Head of Medusa"]];
-const WEEK_FIGS=[["Parthenon","Parthenon"],["Laocoön","Laocoön and His Sons"],["Discobolus","Discobolus"],["Winged Victory","Winged Victory of Samothrace"],["Venus de Milo","Venus de Milo"],["Apollo","Apollo Belvedere"]];
-const YEAR_FIG=["Pericles","Pericles"];
+/* Thirteen figures. ART maps a figure to a drawing in img/ once one exists; until then the card shows an ink panel. */
+const FIG={socrates:"Socrates",plato:"Plato",alexander:"Alexander",aristotle:"Aristotle",atlas:"Atlas",hercules:"Hercules",caesar:"Caesar",augustus:"Augustus","marcus-aurelius":"Marcus Aurelius",icarus:"Icarus",homer:"Homer",perseus:"Perseus",achilles:"Achilles"};
+const ART={};
+const DAY_FIGS=["alexander","atlas","socrates","icarus","marcus-aurelius","hercules","perseus"];
+const MONTH_FIGS=["socrates","plato","alexander","aristotle","atlas","hercules","caesar","augustus","marcus-aurelius","icarus","homer","perseus"];
+const WEEK_FIGS=["plato","aristotle","caesar","augustus","homer","achilles"];
+const YEAR_FIG="alexander";
 const WEEK_SLOTS=["s1","s4","s2","s5","s3","s6"];
-const figURL={},figAsked={};
-function paintFigs(){
-  document.querySelectorAll("#weekcal img[data-fig]").forEach(im=>{
-    const u=figURL[im.dataset.fig];
-    if(u&&im.getAttribute("src")!==u){im.src=u;im.parentNode.classList.remove("noimg");}
+function seeded(str){
+  let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}
+  let a=h>>>0;
+  return ()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+}
+const inkMemo={};
+/* a black-and-white manga panel drawn in code: speed lines from a sun, screentone, curling clouds */
+function inkPanel(key){
+  if(inkMemo[key])return inkMemo[key];
+  const r=seeded(key),dark=r()<.5,bg=dark?"#0c0c0c":"#f6f5f1",fg=dark?"#f6f5f1":"#0c0c0c",ink="#0c0c0c",n=v=>v.toFixed(1);
+  const fx=80+r()*140,fy=95+r()*110;
+  let v='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice"><rect width="300" height="400" fill="'+bg+'"/>';
+  const N=38+Math.floor(r()*20);
+  for(let i=0;i<N;i++){
+    const a=(i+r()*.8)/N*Math.PI*2,w=.004+r()*.02,r0=60+r()*70,R=640;
+    v+='<polygon fill="'+fg+'" points="'+n(fx+Math.cos(a)*r0)+','+n(fy+Math.sin(a)*r0)+' '+n(fx+Math.cos(a-w)*R)+','+n(fy+Math.sin(a-w)*R)+' '+n(fx+Math.cos(a+w)*R)+','+n(fy+Math.sin(a+w)*R)+'"/>';
+  }
+  v+='<defs>'+[1.1,1.9,2.7].map((d,i)=>'<pattern id="h'+i+'" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="'+d+'" fill="'+fg+'"/></pattern>').join("")+'</defs>';
+  v+='<rect y="286" width="300" height="38" fill="url(#h0)"/><rect y="324" width="300" height="38" fill="url(#h1)"/><rect y="362" width="300" height="38" fill="url(#h2)"/>';
+  const sr=22+r()*16;
+  v+='<circle cx="'+n(fx)+'" cy="'+n(fy)+'" r="'+n(sr+8)+'" fill="'+bg+'"/><circle cx="'+n(fx)+'" cy="'+n(fy)+'" r="'+n(sr)+'" fill="#ffffff" stroke="'+ink+'" stroke-width="3.2"/>';
+  [[42,306],[258,262],[150,372]].forEach(c=>{
+    const cx=c[0]+(r()-.5)*56,cy=c[1]+(r()-.5)*44,k=5+Math.floor(r()*3),bl=[];
+    for(let i=0;i<k;i++)bl.push([cx+(i-(k-1)/2)*25+(r()-.5)*10,cy+(r()-.5)*24,17+r()*20]);
+    bl.forEach(b=>{v+='<circle cx="'+n(b[0])+'" cy="'+n(b[1])+'" r="'+n(b[2]+3.4)+'" fill="'+ink+'"/>';});
+    bl.forEach(b=>{v+='<circle cx="'+n(b[0])+'" cy="'+n(b[1])+'" r="'+n(b[2])+'" fill="#ffffff"/>';});
+    bl.forEach((b,i)=>{
+      if(i%2)return;
+      const q=b[2]*.5;
+      v+='<path fill="none" stroke="'+ink+'" stroke-width="2.4" stroke-linecap="round" d="M'+n(b[0]-q)+' '+n(b[1])+' a'+n(q)+' '+n(q)+' 0 1 1 '+n(q)+' '+n(q)+' a'+n(q*.55)+' '+n(q*.55)+' 0 1 1 '+n(-q*.55)+' '+n(-q*.55)+'"/>';
+    });
   });
+  v+='</svg>';
+  return inkMemo[key]="data:image/svg+xml,"+encodeURIComponent(v).replace(/'/g,"%27");
 }
-function loadFigs(){
-  try{const c=JSON.parse(localStorage.getItem("afo-figs-v2")||"{}");Object.keys(c).forEach(k=>{figURL[k]=c[k];});}catch(e){}
-}
-function needFigs(titles){
-  const want=titles.filter((t,i)=>!figURL[t]&&!figAsked[t]&&titles.indexOf(t)===i);
-  if(!want.length)return;
-  want.forEach(t=>{figAsked[t]=1;});
-  fetch("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=640&pilimit=50&titles="+encodeURIComponent(want.join("|")))
-    .then(r=>r.json())
-    .then(j=>{
-      const q=(j&&j.query)||{},map={},src={};
-      (q.normalized||[]).concat(q.redirects||[]).forEach(n=>{map[n.from]=n.to;});
-      Object.keys(q.pages||{}).forEach(k=>{const pg=q.pages[k];if(pg&&pg.thumbnail&&pg.thumbnail.source)src[pg.title]=pg.thumbnail.source;});
-      want.forEach(t=>{let k=t;for(let i=0;i<4&&map[k];i++)k=map[k];if(src[k])figURL[t]=src[k];});
-      try{localStorage.setItem("afo-figs-v2",JSON.stringify(figURL));}catch(e){}
-      paintFigs();
-    }).catch(()=>{want.forEach(t=>{delete figAsked[t];});});
-}
-function figBox(f){
-  const u=figURL[f[1]];
-  return '<div class="dimg'+(u?'':' noimg')+'"><img alt="" data-fig="'+esc(f[1])+'"'+(u?' src="'+esc(u)+'"':'')+'>'
-    +'<a class="dcap" href="https://en.wikipedia.org/wiki/'+encodeURIComponent(f[1].replace(/ /g,"_"))+'" target="_blank" rel="noopener">'+esc(f[0])+'</a></div>';
+function figBox(key){
+  const art=ART[key];
+  return '<div class="dimg"'+(art?'':' style="background-image:url(\''+inkPanel(key)+'\')"')+'>'+(art?'<img alt="" src="'+esc(art)+'">':'')
+    +'<span class="dcap">'+esc(FIG[key]||key)+'</span></div>';
 }
 /* the calendar follows today until something is picked; "Back to today" lets go again */
 function calState(){
@@ -1076,11 +1094,8 @@ function dueIn(a,b){return S.tasks.filter(t=>t.status!=="done"&&t.due&&t.due>=a&
 function calChrome(){
   const c=S.cal,year=c.ym.slice(0,4),mName=fmt(c.ym+"-01",{month:"long"});
   const wks=weeksOf(c.ym),wi=wks.indexOf(c.week);
-  const crumb=(lvl,label,cur)=>'<button type="button" data-crumb="'+lvl+'"'+(cur?' aria-current="true"':'')+'>'+esc(label)+'</button>';
-  let h=crumb("months",year,c.level==="months");
-  if(c.level!=="months")h+='<span aria-hidden="true">›</span>'+crumb("weeks",mName,c.level==="weeks");
-  if(c.level==="days")h+='<span aria-hidden="true">›</span>'+crumb("days",wi>=0?"Week "+(wi+1):"Week",true);
-  $("#wkcrumbs").innerHTML=h;
+  const seg=(lvl,small,label)=>'<button type="button" data-crumb="'+lvl+'"'+(c.level===lvl?' aria-current="true"':'')+'><small>'+small+'</small>'+esc(label)+'</button>';
+  $("#wkcrumbs").innerHTML=seg("months","Year",year)+seg("weeks","Month",mName)+seg("days","Week",wi>=0?"Week "+(wi+1):rangeText(c.week,shift(c.week,6)));
   $("#wkmonth").textContent=c.level==="months"?year:mName;
   $("#wksub").textContent=c.level==="months"?"Pick a month":c.level==="weeks"?plural(wks.length,"week")+" · pick one":rangeText(c.week,shift(c.week,6));
   const f=$("#wkfollow");f.disabled=!c.pinned;f.textContent=c.pinned?"Back to today":"Following today";
@@ -1154,7 +1169,6 @@ function weekCal(){
   calChrome();
   el.classList.remove("enter");
   if(fresh){void el.offsetWidth;el.classList.add("enter");}
-  needFigs(Array.from(el.querySelectorAll("img[data-fig]")).map(im=>im.dataset.fig));
 }
 function week(){
   home();
@@ -1364,10 +1378,11 @@ document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>g
   };
   deck.addEventListener("click",pick);
   deck.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("dcard")){e.preventDefault();pick(e);}});
-  deck.addEventListener("error",e=>{const im=e.target;if(im&&im.tagName==="IMG"){delete figURL[im.dataset.fig];im.removeAttribute("src");im.parentNode.classList.add("noimg");}},true);
   document.getElementById("wkcrumbs").addEventListener("click",e=>{
     const b=e.target.closest("[data-crumb]"); if(!b||b.getAttribute("aria-current")==="true")return;
-    S.cal.level=b.dataset.crumb;S.cal.pinned=true;weekCal();
+    const c=S.cal;
+    if(b.dataset.crumb==="days"&&weeksOf(c.ym).indexOf(c.week)<0){c.week=weeksOf(c.ym)[0];c.day=c.week;}
+    c.level=b.dataset.crumb;c.pinned=true;weekCal();
   });
   document.getElementById("wkfollow").addEventListener("click",()=>{S.cal.pinned=false;weekCal();});
 })();
@@ -1719,7 +1734,6 @@ $("#gateform").addEventListener("submit",async e=>{
 });
 $("#signout").addEventListener("click",async()=>{await sb.auth.signOut();location.reload();});
 sb.auth.getSession().then(r=>gate(r.data&&r.data.session)).catch(()=>gate(null));
-loadFigs();
 })();
 </script>
 </body>
