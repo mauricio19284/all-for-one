@@ -1,7 +1,7 @@
 # All For One
 
 A personal command center: a home page with calendar and to-dos, plus a page per section
-(Today, Week, School, Learning, Money, Gym, Projects, Habits, Review, Notes).
+(Today, Week, School, Learning, Money, Finance, Gym, Projects, Habits, Review, Notes).
 
 ## How it is put together
 
@@ -9,7 +9,8 @@ A personal command center: a home page with calendar and to-dos, plus a page per
 - Data lives in a Supabase project, in one table: `public.docs (collection, id, data jsonb, updated_at)`.
   Each record is addressed as `collection/id`:
   `tasks/<id>`, `notes/<id>`, `gymlog/<YYYY-MM-DD>`, `daily/<YYYY-MM-DD>`, `weekly/<monday YYYY-MM-DD>`,
-  `habits/log`, `meta/config`, `meta/roadmap`, `meta/investing`, `insights/<YYYY-MM-DD>`.
+  `habits/log`, `meta/config`, `meta/roadmap`, `meta/investing`, `insights/<YYYY-MM-DD>`,
+  `finacct/<id>`, `finsub/<id>`, `fintx/<YYYY-MM>`, `meta/finance`.
 - Sign-in is Supabase email + password. Row-level security lets only the address listed in
   `public.app_owner` read or write (`supabase/schema.sql`).
 - The capture box's auto-filing and the Review page's "read my notes" call the `ai` edge function
@@ -32,3 +33,17 @@ A personal command center: a home page with calendar and to-dos, plus a page per
 - gymlog: `{date, split, note, loggedAt}`
 - habits/log: `{"YYYY-MM-DD": {morning, shutdown, lights}}`
 - meta/config: `{week, schoolwork, gymTime, split, shutdown, review, flags}`
+- finacct: `{name, type: bank|credit|savings|invest|cash, cur: MXN|USD|EUR, bal, asOf, hist: [{d, b}], createdAt}`
+  (for a credit card, `bal` is what is owed)
+- finsub: `{name, amt, cur, every: month|year|week, day, mon, since: "YYYY-MM-DD", status: active|trial|paused, cat, match, createdAt}`
+  (`since` is the first charge date; `match` is comma-separated words that identify the charge on a statement)
+- fintx (one record per month): `{items: {<id>: {d, m, a, t: out|in, c, cat, acct, src: manual|upload|gmail, b?}}}`
+  (`a` is always positive; `cat: "transfer"` is left out of the totals)
+- meta/finance: `{display: MXN|USD, fx: {USD, EUR}, fxAt}` (pesos per unit)
+
+## Finance tab
+
+Nothing connects to a bank. Balances are typed. Transactions are typed, or read in the browser from a CSV or
+Excel statement and saved only after the preview is approved. Each subscription adds one automatic row per
+charge date unless a real transaction matching its `match` words exists within a few days. No personal
+financial data belongs in this repository; it lives only in the `docs` table.
