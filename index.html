@@ -951,8 +951,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
       <button class="navbtn" data-view="week" aria-current="false">Week<span class="n"></span></button>
       <button class="navbtn" data-view="school" aria-current="false">School<span class="n" id="n-school"></span></button>
       <button class="navbtn" data-view="learning" aria-current="false">Learning<span class="n" id="n-learning"></span></button>
-      <button class="navbtn" data-view="money" aria-current="false">Money<span class="n" id="n-money"></span></button>
-      <button class="navbtn" data-view="finance" aria-current="false">Finance<span class="n"></span></button>
+      <button class="navbtn" data-view="finance" aria-current="false">Finance<span class="n" id="n-finance"></span></button>
       <button class="navbtn" data-view="gym" aria-current="false">Gym<span class="n" id="n-gym"></span></button>
       <button class="navbtn" data-view="projects" aria-current="false">Projects<span class="n" id="n-projects"></span></button>
       <button class="navbtn" data-view="habits" aria-current="false">Habits<span class="n" id="n-habits"></span></button>
@@ -979,7 +978,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
               <option value="auto">Auto-file</option>
               <option value="school">School</option>
               <option value="learning">Learning &amp; AI</option>
-              <option value="money">Work &amp; money</option>
+              <option value="money">Finance</option>
               <option value="gym">Gym</option>
               <option value="projects">Projects</option>
               <option value="note">Save as note</option>
@@ -993,7 +992,6 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
           <button class="hex" data-go="week"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.2" y="4.8" width="17.6" height="15.4" rx="2"/><path d="M3.2 9.6h17.6M8.2 2.8v3.6M15.8 2.8v3.6"/></svg><b id="ht-week"></b><em>Week</em></span></button>
           <button class="hex" data-go="school"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.6C10.3 5.2 7.9 4.6 3.6 4.6v13c4.3 0 6.7.6 8.4 2 1.7-1.4 4.1-2 8.4-2v-13c-4.3 0-6.7.6-8.4 2Z"/><path d="M12 6.6v13"/></svg><b id="ht-school"></b><em>School</em></span></button>
           <button class="hex" data-go="learning"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.8 9 12 14l10.2-5L12 4Z"/><path d="M5.6 11.1v5.1c0 1.6 2.9 3 6.4 3s6.4-1.4 6.4-3v-5.1M22.2 9v5.4"/></svg><b id="ht-learning"></b><em>Learning</em></span></button>
-          <button class="hex" data-go="money"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.6h17.2"/><rect x="4.6" y="12.4" width="3.8" height="6"/><rect x="10.1" y="7.6" width="3.8" height="10.8"/><rect x="15.6" y="3.8" width="3.8" height="14.6"/></svg><b id="ht-money"></b><em>Money</em></span></button>
           <button class="hex" data-go="finance"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.2c0-1.6 3.6-2.8 8-2.8s8 1.2 8 2.8-3.6 2.8-8 2.8-8-1.2-8-2.8z"/><path d="M4 7.2V12c0 1.6 3.6 2.8 8 2.8s8-1.2 8-2.8V7.2"/><path d="M4 12v4.8c0 1.6 3.6 2.8 8 2.8s8-1.2 8-2.8V12"/></svg><b id="ht-finance"></b><em>Finance</em></span></button>
           <button class="hex" data-go="gym"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.4 9v6M4.4 10.2v3.6M16.6 9v6M19.6 10.2v3.6M7.4 12h9.2M1.8 11.4v1.2M22.2 11.4v1.2"/></svg><b id="ht-gym"></b><em>Gym</em></span></button>
           <button class="hex" data-go="projects"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 3.4 7.4v9.2L12 21.2l8.6-4.6V7.4L12 2.8Z"/><path d="M3.4 7.4 12 12l8.6-4.6M12 12v9.2"/></svg><b id="ht-projects"></b><em>Projects</em></span></button>
@@ -1171,27 +1169,6 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
       </div>
     </section>
 
-    <!-- MONEY -->
-    <section id="view-money" class="grid cols" hidden>
-      <div class="pagehead wide"><h1>Work &amp; money</h1><p>The job, the budget and the investing roadmap.</p></div>
-      <div class="panel wide" id="flagbox-money" hidden></div>
-      <div class="panel">
-        <header><h2>Work &amp; money actions</h2><span class="right" id="moneycount"></span></header>
-        <div class="body">
-          <ul class="rows" id="money-list"></ul>
-          <form class="addform" id="money-add">
-            <input type="text" name="title" placeholder="Next action" required>
-            <select name="kind"><option value="task">To do</option><option value="work">Work</option><option value="budget">Budget</option><option value="watch">Watchlist</option><option value="lesson">Lesson</option></select>
-            <input type="date" name="due">
-            <button class="btn">Add</button>
-          </form>
-        </div>
-      </div>
-      <div class="panel">
-        <header><h2>Investing roadmap</h2><span class="right" id="invpct"></span></header>
-        <div class="body" id="invroad"></div>
-      </div>
-    </section>
 
     <!-- FINANCE -->
     <section id="view-finance" hidden>
@@ -1205,6 +1182,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
           <button type="button" data-sub="budget">Budget</button>
           <button type="button" data-sub="tx">Transactions</button>
           <button type="button" data-sub="goals">Goals<span class="n" id="fin-n-goals"></span></button>
+          <button type="button" data-sub="grow">Grow<span class="n" id="fin-n-grow"></span></button>
         </nav>
         <p class="fmotto">Discipline creates freedom.</p>
       </aside>
@@ -1261,7 +1239,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
             <div class="gbody"><ul class="rl ups" id="fin-ovup"></ul><p class="fnote" id="fin-ovupnote"></p></div>
           </div>
           <div class="glass span2">
-            <header><h2>Focus this month</h2><button type="button" class="more" data-go="money" aria-label="Open the Money list">&middot;&middot;&middot;</button></header>
+            <header><h2>Focus this month</h2><button type="button" class="more" data-sub="grow" aria-label="Open Grow">&middot;&middot;&middot;</button></header>
             <div class="gbody focus">
               <ul class="rows" id="fin-ovfocus"></ul>
               <div class="side" id="fin-ovmonth"></div>
@@ -1408,6 +1386,56 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
         </form>
         <div class="glass"><div class="flog bare" data-log="goal"></div></div>
       </div>
+      <!-- grow: the old Money tab, now a planner for making more -->
+      <div data-fv="grow" hidden>
+        <div class="glass" id="flagbox-money" hidden></div>
+        <div class="fgrid">
+          <div class="glass">
+            <header><h2>Next actions</h2><span class="right" id="moneycount"></span></header>
+            <div class="gbody">
+              <ul class="rows" id="money-list"></ul>
+              <form class="addform" id="money-add">
+                <input type="text" name="title" placeholder="Next action" required>
+                <select name="kind"><option value="task">To do</option><option value="work">Work</option><option value="budget">Budget</option><option value="watch">Watchlist</option><option value="lesson">Lesson</option></select>
+                <input type="date" name="due">
+                <button class="btn">Add</button>
+              </form>
+            </div>
+          </div>
+          <div class="glass">
+            <header><h2>Investing roadmap</h2><span class="right" id="invpct"></span></header>
+            <div class="gbody" id="invroad"></div>
+          </div>
+        </div>
+        <div class="glass">
+          <header><h2>Ways to make more</h2><span class="right" id="fin-projsum"></span></header>
+          <div class="gbody">
+            <div class="goals" id="fin-projs"></div>
+            <div class="fsub" id="fin-projformtitle">Add a project</div>
+            <form class="fform" id="fin-projform">
+              <input type="hidden" name="pid">
+              <input type="text" name="name" class="grow" placeholder="Name — “Tutoring”, “Resell sneakers”, “Index fund”" required maxlength="60">
+              <select name="kind" aria-label="Kind"><option value="side">Side project</option><option value="job">Job</option><option value="invest">Investing</option><option value="sell">Selling</option><option value="other">Other</option></select>
+              <select name="status" aria-label="Status"><option value="idea">Idea</option><option value="active">Active</option><option value="paused">Paused</option><option value="done">Done</option></select>
+              <input type="text" name="monthly" class="num" inputmode="decimal" placeholder="Target per month">
+              <select name="cur" aria-label="Currency"><option>MXN</option><option>USD</option><option>EUR</option></select>
+              <input type="text" name="next" class="grow" placeholder="Next step — one physical action" maxlength="140">
+              <button class="btn" id="fin-projsave">Add</button><button type="button" class="btn ghost" id="fin-projcancel" hidden>Cancel</button>
+            </form>
+            <p class="fnote">Earnings you log on a project are also saved as money in, so they show in the charts and the budget.</p>
+          </div>
+          <div class="flog" data-log="grow"></div>
+        </div>
+        <div class="glass">
+          <header><h2>Suggestions</h2><span class="right" id="fin-sugdate"></span></header>
+          <div class="gbody">
+            <div class="gl" id="fin-sug"></div>
+            <div class="savebar"><button class="btn" id="fin-sugbtn">Suggest what to do next</button><span id="fin-sugstate"></span></div>
+            <p class="fnote">Sends a short summary of your numbers to your own AI function: income, spending by category, subscriptions, net worth, goals and projects, rounded, with no account names or transactions. The three suggestions come back here and stay until you ask again.</p>
+          </div>
+        </div>
+      </div>
+
       <div class="ftip" id="fin-tip" hidden></div>
       </div>
     </section>
@@ -1508,14 +1536,14 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
           <h2>Everything you've stored</h2>
           <span class="right"><select id="notefilter" aria-label="Filter by folder">
             <option value="">All folders</option><option value="inbox">Inbox</option><option value="school">School</option><option value="learning">Learning &amp; AI</option>
-            <option value="money">Work &amp; money</option><option value="gym">Gym</option><option value="projects">Projects</option>
+            <option value="money">Finance</option><option value="gym">Gym</option><option value="projects">Projects</option>
           </select></span>
         </header>
         <div class="body">
           <div id="notelist"></div>
           <form class="addform" id="note-add">
             <input type="text" name="title" placeholder="Title" required>
-            <select name="folder"><option value="inbox">Inbox</option><option value="school">School</option><option value="learning">Learning &amp; AI</option><option value="money">Work &amp; money</option><option value="gym">Gym</option><option value="projects">Projects</option></select>
+            <select name="folder"><option value="inbox">Inbox</option><option value="school">School</option><option value="learning">Learning &amp; AI</option><option value="money">Finance</option><option value="gym">Gym</option><option value="projects">Projects</option></select>
             <textarea name="body" placeholder="Reference material, waiting-fors, anything you want Claude to be able to read back later."></textarea>
             <button class="btn">Save note</button>
           </form>
@@ -1659,7 +1687,7 @@ function header(){
 }
 const openIn=f=>S.tasks.filter(t=>t.folder===f&&t.status!=="done").length;
 function rail(){
-  ["school","learning","money","projects"].forEach(f=>{$("#n-"+f).textContent=openIn(f)||"";});
+  ["school","learning","money","projects"].forEach(f=>{const el=$("#n-"+(f==="money"?"finance":f));if(el)el.textContent=openIn(f)||"";});
   $("#n-gym").textContent=S.gym.length||"";
   $("#n-notes").textContent=S.notes.length||"";
   $("#n-today").textContent=S.tasks.filter(t=>t.status!=="done"&&t.due&&daysUntil(t.due)<=0).length||"";
@@ -2098,8 +2126,9 @@ async function writeWeek(patch){
 }
 
 /* ---------- events ---------- */
-const VIEWS=["home","today","week","school","learning","money","finance","gym","projects","habits","review","notes"];
+const VIEWS=["home","today","week","school","learning","finance","gym","projects","habits","review","notes"];
 function go(v){
+  if(v==="money"){S.fin.sub="grow";v="finance";}
   if(VIEWS.indexOf(v)<0)return;
   S.view=v;
   document.querySelectorAll(".navbtn").forEach(x=>{
@@ -2350,7 +2379,7 @@ async function fileIt(){
           r=await S.sample.json(
             "Today is "+todayISO()+" (America/Mexico_City). A university student is emptying his pocket notebook into a planner. Classify one entry.\n"+
             "Entry: "+JSON.stringify(text)+"\n"+
-            "Folders: school (classes, homework, tests, tutor), learning (courses, programming, AI projects), money (job, budget, investing), gym (training, sport), projects (everything else he is building).\n"+
+            "Folders: school (classes, homework, tests, tutor), learning (courses, programming, AI projects), money (job, budget, investing, finance), gym (training, sport), projects (everything else he is building).\n"+
             'Return ONLY JSON: {"folder":"school|learning|money|gym|projects","kind":"homework|test|event|task|course|work|budget|watch|lesson","title":"short imperative next physical action","detail":"course, project or ticker, else empty","due":"YYYY-MM-DD or empty","asNote":false}\n'+
             'asNote true when it is information or an observation rather than something to do. Resolve relative dates like "friday" against today.',
             {modelTier:"quick"});
@@ -2401,7 +2430,7 @@ function guessCat(desc,t){
   for(const r of FRULES)if(r[1].test(s))return r[0];
   return "other";
 }
-S.fin={sub:"overview",wr:"1M",goals:[],log:[],logOpen:{},plan:null,applying:false,loaded:false,accts:[],subs:[],tx:[],meta:{},period:"month",q:"",cat:"",more:60,up:null,upnote:null,lastBatch:null,armed:null,editAcct:null,addAcct:false,tips:{},fxTried:false};
+S.fin={sub:"overview",wr:"1M",projs:[],goals:[],log:[],logOpen:{},plan:null,applying:false,loaded:false,accts:[],subs:[],tx:[],meta:{},period:"month",q:"",cat:"",more:60,up:null,upnote:null,lastBatch:null,armed:null,editAcct:null,addAcct:false,tips:{},fxTried:false};
 const F=()=>S.fin;
 const fxRate=c=>c==="MXN"||!c?1:(+((F().meta.fx||{})[c])||FXD[c]||1);
 const fdisp=()=>F().meta.display==="USD"?"USD":"MXN";
@@ -2587,7 +2616,57 @@ function tipShow(tip,x,y){
 function niceMax(v){if(!(v>0))return 1;const p=Math.pow(10,Math.floor(Math.log10(v))),n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=4?4:n<=5?5:n<=8?8:10)*p;}
 const boxW=(sel,fb,pad)=>{const el=$(sel),w=el?el.clientWidth:0;return w>120?w-(pad==null?48:pad):fb;};
 
-const FSUBS=["overview","accounts","subs","budget","tx","goals"];
+/* ----- grow: projects that bring money in, and suggestions ----- */
+const PKIND={side:"Side project",job:"Job",invest:"Investing",sell:"Selling",other:"Other"},PSTAT={idea:"Idea",active:"Active",paused:"Paused",done:"Done"};
+function finGrow(){
+  const f=F(),box=$("#fin-projs");if(!box)return;
+  $("#fin-n-grow").textContent=openIn("money")||"";
+  if(box.contains(document.activeElement)&&document.activeElement.tagName==="INPUT")return;
+  const order={active:0,idea:1,paused:2,done:3};
+  const list=f.projs.slice().sort((a,b)=>(order[a.status]||0)-(order[b.status]||0)||String(a.createdAt||"").localeCompare(String(b.createdAt||"")));
+  const act=list.filter(p=>p.status==="active"),target=act.reduce((n,p)=>n+conv(p.monthly,p.cur),0);
+  $("#fin-projsum").textContent=act.length?act.length+" active · aiming at "+fmoney(target)+" a month":"";
+  box.innerHTML=list.length?list.map(p=>{
+    const earned=+p.earned||0;
+    return '<div class="glass goal'+(p.status==="done"||p.status==="paused"?" off":"")+'"><div class="top"><b>'+esc(p.name)+'</b><button class="x" data-f="proj-del:'+esc(p.id)+'" aria-label="Delete '+esc(p.name)+'" title="Delete">×</button></div>'
+      +'<div class="chips"><span class="chip">'+esc(PKIND[p.kind]||"Other")+'</span><span class="chip'+(p.status==="active"?" soon":"")+'">'+esc(PSTAT[p.status]||"Idea")+'</span></div>'
+      +'<div class="big">'+esc(orig(earned,p.cur))+' <small>earned so far'+(p.monthly>0?" · aiming at "+esc(orig(+p.monthly,p.cur))+" / mo":"")+'</small></div>'
+      +'<p>'+(p.next?"Next: "+esc(p.next):"No next step written yet.")+'</p>'
+      +'<form data-projadd="'+esc(p.id)+'"><input type="text" inputmode="decimal" name="amt" placeholder="Log earnings" aria-label="Log earnings for '+esc(p.name)+'"><button class="btn sm">Add</button></form>'
+      +'<div class="foot2"><button class="lnk" data-f="proj-edit:'+esc(p.id)+'">Edit</button>'+(f.armed==="proj:"+p.id?"<span>Click × again to delete</span>":"")+'</div></div>';
+  }).join(""):'<p class="fnone">Nothing here yet. Add the ways you could bring money in: a job, a side project, something to sell, an investment. Each one gets a target and a next step.</p>';
+  const sg=(f.meta&&f.meta.sug)||null;
+  $("#fin-sugdate").textContent=sg&&sg.at?"From "+fmt(sg.at.slice(0,10),{month:"short",day:"numeric"}):"";
+  $("#fin-sug").innerHTML=sg&&Array.isArray(sg.items)&&sg.items.length?sg.items.map((x,i)=>'<div><span class="ring">'+ico("goal")+'</span><b>'+esc(x.title||"")+'</b><em></em><small style="white-space:normal">'+esc(x.why||"")+(x.first_step?" First step: "+esc(x.first_step):"")+'</small><span></span><span style="grid-column:2/-1">'+(x.first_step?'<button class="lnk" data-f="sug-task:'+i+'">Make the first step an action</button>':"")+'</span></div>').join("")
+    :'<p class="fnone">No suggestions yet. Press the button and three come back, based on your numbers.</p>';
+}
+async function suggest(){
+  const f=F();if(needDb()||!S.sample)return;
+  const all=finRows(),t=todayISO(),p=planData(all),mo=t.slice(0,7);
+  const spent={};FCAT.forEach(c=>{if(p.avg[c[0]]>0)spent[c[1]]=Math.round(p.avg[c[0]]);});
+  const worth=f.accts.reduce((n,a)=>n+(a.type==="credit"?-1:1)*pesos(a.bal,a.cur),0);
+  const summary={currency:"MXN",monthly_income:Math.round(p.income),income_sources:(p.sources||[]).map(s=>s.name),
+    usual_monthly_spending_by_category:spent,subscriptions_per_month:Math.round(p.subsFixed),subscriptions:f.subs.filter(s=>s.status!=="paused").map(s=>s.name),
+    net_worth:Math.round(worth/1000)*1000,goals:f.goals.map(g=>({name:g.name,target:+g.target,progress_pct:Math.round(goalNow(g)/(+g.target||1)*100),by:g.by||""})),
+    projects:f.projs.map(x=>({name:x.name,kind:x.kind,status:x.status,target_per_month:+x.monthly||0,next:x.next||""})),
+    open_actions:S.tasks.filter(x=>x.folder==="money"&&x.status!=="done").map(x=>x.title).slice(0,10)};
+  $("#fin-sugbtn").disabled=true;$("#fin-sugstate").textContent="Thinking…";
+  try{
+    const out=await S.sample.json(
+      "A university student in Mexico City (classes Mon/Wed mornings, Tue/Thu until 3, a part-time risk-management job) wants to make more money and keep more of what he makes. Here is a summary of his finances in pesos:\n"
+      +JSON.stringify(summary)+"\n\n"
+      +'Return ONLY JSON: {"suggestions":[{"title":"...","why":"...","first_step":"..."},{...},{...}]}\n'
+      +"Exactly three suggestions. Mix earning more with keeping more; ground each one in a number from the summary (say which). The first_step is one physical action he can do this week in under an hour. Plain language, no hype, no generic advice like 'make a budget'.",
+      {modelTier:"complex"});
+    const items=(out.suggestions||[]).slice(0,3).map(x=>({title:String(x.title||"").slice(0,120),why:String(x.why||"").slice(0,400),first_step:String(x.first_step||"").slice(0,200)}));
+    if(!items.length)throw new Error("empty");
+    await finMeta({sug:{at:new Date().toISOString(),items:items}});
+    await flog("grow","Asked for suggestions; three came back.");
+    $("#fin-sugstate").textContent="";
+  }catch(e){$("#fin-sugstate").textContent="Couldn't get suggestions just now.";}
+  $("#fin-sugbtn").disabled=false;
+}
+const FSUBS=["overview","accounts","subs","budget","tx","goals","grow"];
 function finance(){
   const view=$("#view-finance");if(!view)return;
   const f=F();f.tips={};
@@ -2603,7 +2682,7 @@ function finance(){
   const all=finRows(),rg=finRange(f.period),rows=all.filter(r=>r.d>=rg[0]&&r.d<=rg[1]);
   const mo=todayISO().slice(0,7),hex=document.getElementById("ht-finance");
   if(hex){const sp=sumOf(all.filter(r=>r.d.slice(0,7)===mo),"out");hex.textContent=sp>0?compact(sp):"";}
-  finOverview(all);finAccts();finDonut(rows);finMonths(all);finWorth();finMerch(rows);finSubs();finTx(rows);finSelects();finUp();finPlan(all);finGoals();finLog();
+  finOverview(all);finAccts();finDonut(rows);finMonths(all);finWorth();finMerch(rows);finSubs();finTx(rows);finSelects();finUp();finPlan(all);finGoals();finGrow();finLog();
 }
 /* line icons, one path each */
 const ICON={
@@ -2659,7 +2738,7 @@ function finOverview(all){
   $("#fin-ovupnote").textContent=act.length?fmoney(perMo)+" a month, "+fmoney(perMo*12)+" a year, across "+act.length+" subscription"+(act.length===1?"":"s")+(subs.length>6?". Showing the next 6 of "+subs.length+".":"."):"";
   const todo=S.tasks.filter(x=>x.folder==="money"&&x.status!=="done").sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999")).slice(0,4);
   $("#fin-ovfocus").innerHTML=todo.length?todo.map(x=>'<li><input type="checkbox" data-task="'+esc(x.id)+'" aria-label="Mark done"><div class="t"><b>'+esc(x.title)+'</b></div>'+dueChip(x.due)+'</li>').join("")
-    :'<li><div class="t"><small>Nothing on your money list. Add next actions in the Money tab and they appear here.</small></div></li>';
+    :'<li><div class="t"><small>Nothing on your list. Add next actions under Grow and they appear here.</small></div></li>';
   const month=all.filter(r=>r.d.slice(0,7)===mo),out=sumOf(month,"out"),inn=sumOf(month,"in"),net=inn-out;
   $("#fin-ovmonth").innerHTML='<div><span>Spent this month</span><b>'+esc(fmoney(out))+'</b></div><div><span>Came in</span><b>'+esc(fmoney(inn))+'</b></div>'
     +'<div><span>'+(net>=0?"Left over":"Over by")+'</span><b>'+esc(fmoney(Math.abs(net)))+'</b></div><div><span>Subscriptions</span><b>'+esc(fmoney(perMo))+' / mo</b></div>';
@@ -2977,7 +3056,7 @@ function finGoals(){
       +'<div class="foot2"><button class="lnk" data-f="goal-edit:'+esc(g.id)+'">Edit</button>'+(f.armed==="goal:"+g.id?"<span>Click × again to delete</span>":"")+'</div></div>';
   }).join("");
 }
-const LOGT={acct:"What changed in your balances, and why",sub:"What changed in subscriptions",tx:"What changed in transactions",plan:"What changed in income and limits",goal:"What changed in goals"};
+const LOGT={acct:"What changed in your balances, and why",sub:"What changed in subscriptions",tx:"What changed in transactions",plan:"What changed in income and limits",goal:"What changed in goals",grow:"What changed in projects and suggestions"};
 function finLog(){
   const f=F();
   document.querySelectorAll("#view-finance [data-log]").forEach(el=>{
@@ -3141,6 +3220,8 @@ async function setLimit(cat,valPesos,how){
       if(e.target.id==="fin-acctcancel"){f.addAcct=false;$("#fin-acctform").reset();finance();return;}
       if(e.target.id==="fin-subcancel"){subFormReset();return;}
       if(e.target.id==="fin-goalcancel"){goalFormReset();return;}
+      if(e.target.id==="fin-projcancel"){const pf=$("#fin-projform");pf.reset();pf.elements.pid.value="";$("#fin-projsave").textContent="Add";$("#fin-projcancel").hidden=true;$("#fin-projformtitle").textContent="Add a project";return;}
+      if(e.target.id==="fin-sugbtn"){await suggest();return;}
       if(!a)return;
       const i=a.dataset.f.indexOf(":"),act=i<0?a.dataset.f:a.dataset.f.slice(0,i),arg=i<0?"":a.dataset.f.slice(i+1);
       if(act==="log-more"){f.logOpen[arg]=!f.logOpen[arg];finLog();}
@@ -3186,6 +3267,20 @@ async function setLimit(cat,valPesos,how){
         const g=f.goals.find(x=>x.id===arg),el=$("#fin-goalform").elements;if(!g)return;
         el.gid.value=g.id;el.name.value=g.name||"";el.target.value=g.target||"";el.cur.value=g.cur||"MXN";el.acct.value=f.accts.some(x=>x.id===g.acct)?g.acct:"";el.by.value=g.by||"";
         $("#fin-goalsave").textContent="Save goal";$("#fin-goalcancel").hidden=false;el.target.focus();
+      }
+      if(act==="proj-edit"){
+        const p=f.projs.find(x=>x.id===arg),el=$("#fin-projform").elements;if(!p)return;
+        el.pid.value=p.id;el.name.value=p.name||"";el.kind.value=p.kind||"side";el.status.value=p.status||"idea";el.monthly.value=p.monthly||"";el.cur.value=p.cur||"MXN";el.next.value=p.next||"";
+        $("#fin-projsave").textContent="Save";$("#fin-projcancel").hidden=false;$("#fin-projformtitle").textContent="Edit "+p.name;el.next.focus();
+      }
+      if(act==="proj-del"){
+        if(needDb())return;
+        if(finArm("proj:"+arg)){const p=f.projs.find(x=>x.id===arg);await S.db.doc("finproj/"+arg).delete();if(p)await flog("grow",p.name+" removed by you.");}
+      }
+      if(act==="sug-task"){
+        const sg=(f.meta&&f.meta.sug)||{},x=(sg.items||[])[+arg];if(!x||!x.first_step)return;
+        await addTask({folder:"money",kind:"task",title:x.first_step.slice(0,120),detail:x.title});
+        await flog("grow","Added as a next action: "+x.first_step.slice(0,80));say("Added to your next actions.");
       }
       if(act==="goal-del"){
         if(needDb())return;
@@ -3255,6 +3350,19 @@ async function setLimit(cat,valPesos,how){
         if(old){await S.db.doc("fingoal/"+old.id).set(doc);await flog("goal",name+" updated by you: target "+orig(doc.target,d.cur)+(d.by?", by "+fmt(d.by,{month:"short",day:"numeric",year:"numeric"}):"")+".");}
         else{await S.db.collection("fingoal").add(doc);await flog("goal","Goal added by you: "+name+", target "+orig(doc.target,d.cur)+(d.by?" by "+fmt(d.by,{month:"short",day:"numeric",year:"numeric"}):"")+".");}
         goalFormReset();
+      }else if(fid==="fin-projform"){
+        const old=d.pid?f.projs.find(x=>x.id===d.pid):null,name=d.name.trim(),monthly=d.monthly?parseAmt(d.monthly):0;
+        const doc={name:name,kind:d.kind,status:d.status,monthly:monthly>0?round2(monthly):0,cur:d.cur,next:d.next.trim(),earned:old?+old.earned||0:0,createdAt:(old&&old.createdAt)||new Date().toISOString()};
+        if(old){await S.db.doc("finproj/"+old.id).set(doc);await flog("grow",name+" updated by you ("+PSTAT[d.status]+(doc.monthly?", aiming at "+orig(doc.monthly,d.cur)+" a month":"")+").");}
+        else{await S.db.collection("finproj").add(doc);await flog("grow","Project added by you: "+name+" ("+PKIND[d.kind]+", "+PSTAT[d.status]+(doc.monthly?", aiming at "+orig(doc.monthly,d.cur)+" a month":"")+").");}
+        form.reset();form.elements.pid.value="";$("#fin-projsave").textContent="Add";$("#fin-projcancel").hidden=true;$("#fin-projformtitle").textContent="Add a project";
+      }else if(form.dataset.projadd){
+        const p=f.projs.find(x=>x.id===form.dataset.projadd),amt=parseAmt(d.amt);
+        if(!p||!(amt>0)){say("Type the amount as a number.",true);return;}
+        blur();const to=round2((+p.earned||0)+amt),date=todayISO(),id="m"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+        await txPatch(date.slice(0,7),items=>{items[id]={d:date,m:p.name,a:round2(amt),t:"in",c:p.cur||"MXN",cat:"otherin",acct:"",src:"manual",proj:p.id};});
+        await S.db.doc("finproj/"+p.id).update({earned:to});
+        await flog("grow",p.name+": +"+orig(round2(amt),p.cur)+" earned, "+orig(to,p.cur)+" so far. Also saved as money in.");
       }else if(form.dataset.goaladd){
         const g=f.goals.find(x=>x.id===form.dataset.goaladd),amt=parseAmt(d.amt);
         if(!g||!amt){say("Type the amount as a number.",true);return;}
@@ -3396,6 +3504,7 @@ async function start(){
   db.collection("daily").limit(200).onSnapshot(s=>{S.days=s.docs.map(d=>Object.assign({id:d.id},d.data()));review();lastNight();},bad);
   db.collection("finacct").onSnapshot(s=>{S.fin.accts=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));finance();},bad);
   db.collection("finsub").onSnapshot(s=>{S.fin.subs=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));finance();},bad);
+  db.collection("finproj").onSnapshot(s=>{S.fin.projs=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));finance();},bad);
   db.collection("fingoal").onSnapshot(s=>{S.fin.goals=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));finance();},bad);
   db.collection("fintx").onSnapshot(s=>{const all=[];s.docs.forEach(d=>{const it=(d.data()||{}).items||{};Object.keys(it).forEach(id=>all.push(Object.assign({},it[id],{id:id,ym:d.id})));});S.fin.tx=all;finance();},bad);
   db.doc("meta/finance").onSnapshot(s=>{S.fin.meta=s.exists?s.data():{};finance();},bad);
