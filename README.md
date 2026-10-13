@@ -1,7 +1,7 @@
 # All For One
 
 A personal command center: a home page with calendar and to-dos, plus a page per section
-(Today, Week, School, Learning, Money, Finance, Gym, Projects, Habits, Review, Notes).
+(Today, Week, School, Learning, Finance, Gym, Projects, Habits, Review, Notes). The old Money tab lives on as Finance › Grow.
 
 ## How it is put together
 
@@ -10,7 +10,7 @@ A personal command center: a home page with calendar and to-dos, plus a page per
   Each record is addressed as `collection/id`:
   `tasks/<id>`, `notes/<id>`, `gymlog/<YYYY-MM-DD>`, `daily/<YYYY-MM-DD>`, `weekly/<monday YYYY-MM-DD>`,
   `habits/log`, `meta/config`, `meta/roadmap`, `meta/investing`, `insights/<YYYY-MM-DD>`,
-  `finacct/<id>`, `finsub/<id>`, `fintx/<YYYY-MM>`, `meta/finance`.
+  `finacct/<id>`, `finsub/<id>`, `fintx/<YYYY-MM>`, `fingoal/<id>`, `finproj/<id>`, `meta/finance`, `meta/finlog`.
 - Sign-in is Supabase email + password. Row-level security lets only the address listed in
   `public.app_owner` read or write (`supabase/schema.sql`).
 - The capture box's auto-filing and the Review page's "read my notes" call the `ai` edge function
@@ -39,7 +39,10 @@ A personal command center: a home page with calendar and to-dos, plus a page per
   (`since` is the first charge date; `match` is comma-separated words that identify the charge on a statement)
 - fintx (one record per month): `{items: {<id>: {d, m, a, t: out|in, c, cat, acct, src: manual|upload|gmail, b?}}}`
   (`a` is always positive; `cat: "transfer"` is left out of the totals)
-- meta/finance: `{display: MXN|USD, fx: {USD, EUR}, fxAt}` (pesos per unit)
+- fingoal: `{name, target, cur, saved, acct, by, createdAt}`
+- finproj: `{name, kind, status, monthly, cur, next, earned, createdAt}` (ways to make more; logged earnings also become fintx rows)
+- meta/finance: `{display, fx: {USD, EUR}, fxAt, income: [...], limits: {<cat>: pesos}, sug: {at, items}}`
+- meta/finlog: `{items: [{at, sec, text}]}` — the change log shown under each Finance section
 
 ## Finance tab
 

@@ -2630,7 +2630,7 @@ function finGrow(){
     const earned=+p.earned||0;
     return '<div class="glass goal'+(p.status==="done"||p.status==="paused"?" off":"")+'"><div class="top"><b>'+esc(p.name)+'</b><button class="x" data-f="proj-del:'+esc(p.id)+'" aria-label="Delete '+esc(p.name)+'" title="Delete">×</button></div>'
       +'<div class="chips"><span class="chip">'+esc(PKIND[p.kind]||"Other")+'</span><span class="chip'+(p.status==="active"?" soon":"")+'">'+esc(PSTAT[p.status]||"Idea")+'</span></div>'
-      +'<div class="big">'+esc(orig(earned,p.cur))+' <small>earned so far</small></div>'+(p.monthly>0?'<p>Aiming at '+esc(orig(+p.monthly,p.cur))+' a month.</p>':"")
+      +'<div class="big">'+esc(orig(earned,p.cur))+' <small>earned so far'+(p.monthly>0?" · aiming at "+esc(orig(+p.monthly,p.cur))+" / mo":"")+'</small></div>'
       +'<p>'+(p.next?"Next: "+esc(p.next):"No next step written yet.")+'</p>'
       +'<form data-projadd="'+esc(p.id)+'"><input type="text" inputmode="decimal" name="amt" placeholder="Log earnings" aria-label="Log earnings for '+esc(p.name)+'"><button class="btn sm">Add</button></form>'
       +'<div class="foot2"><button class="lnk" data-f="proj-edit:'+esc(p.id)+'">Edit</button>'+(f.armed==="proj:"+p.id?"<span>Click × again to delete</span>":"")+'</div></div>';
