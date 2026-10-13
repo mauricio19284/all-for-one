@@ -71,54 +71,123 @@ button,input,select,textarea{font:inherit; color:inherit}
 .stage{min-width:0; max-width:1180px; margin:0 auto; padding-block:0 40px; padding-inline:28px; display:flex; flex-direction:column; gap:0}
 .stage > section{padding-top:36px}
 
-/* ---------- home: black, big type, discs and hexagons ---------- */
+/* ---------- home: one image, glass laid over it ---------- */
 body{position:relative}
 body:has(#view-home:not([hidden])){
-  color-scheme:dark;
-  --ground:#070707; --paper:#121212; --ink:#F4F3EF; --ink-2:#D3D2CD; --muted:#9C9B96;
-  --line:rgba(255,255,255,.1); --line-2:rgba(255,255,255,.28);
-  --glass:rgba(20,20,20,.62); --glass-strong:#1A1A1A; --field:rgba(255,255,255,.06); --surface-2:rgba(255,255,255,.06);
-  --bar:rgba(10,10,10,.62);
-  --shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 20px 50px rgba(0,0,0,.5);
-  --shadow-up:0 1px 0 rgba(255,255,255,.08) inset, 0 24px 60px rgba(0,0,0,.6);
-  --accent:#F06A6A; --accent-fill:#F4F3EF; --accent-ink:#0A0A0A; --accent-soft:rgba(240,106,106,.16);
-  --copper:#D9B36A; --copper-soft:rgba(217,179,106,.14);
-  --ok:#6FCF97; --warn:#E5C15A; --crit:#F0616D;
-  background:linear-gradient(180deg,#2A2A2A 0,#0C0C0C 520px,#070707 900px) #070707;
+  /* the homepage photograph. One file, never rotated. Swap this line to change it. */
+  --hero:url("img/hero.jpg");
+  --hero-pos:52% 46%;
+  --ground:#EDEBE6;
+  --glass:rgba(252,251,248,.70); --glass-strong:rgba(252,251,248,.92);
+  --line:rgba(28,27,25,.07); --line-2:rgba(28,27,25,.16);
+  --bar:transparent;
+  --shadow:0 2px 6px rgba(20,18,14,.06), 0 28px 70px rgba(20,18,14,.16);
+  --shadow-up:0 2px 6px rgba(20,18,14,.08), 0 34px 80px rgba(20,18,14,.22);
+  background:var(--ground);
 }
-body:has(#view-home:not([hidden]))::before{content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221600%22 height=%221500%22 viewBox=%220 0 1600 1500%22%3E%3Cdefs%3E%3ClinearGradient id=%22a%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%234a4a4a%22/%3E%3Cstop offset=%22.55%22 stop-color=%22%231b1b1b%22/%3E%3Cstop offset=%221%22 stop-color=%22%230a0a0a%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22b%22 x1=%221%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23333%22/%3E%3Cstop offset=%22.7%22 stop-color=%22%230d0d0d%22/%3E%3Cstop offset=%221%22 stop-color=%22%23080808%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx=%221330%22 cy=%22330%22 r=%22400%22 fill=%22url(%23a)%22/%3E%3Ccircle cx=%2260%22 cy=%221130%22 r=%22380%22 fill=%22url(%23b)%22/%3E%3Ccircle cx=%221470%22 cy=%221480%22 r=%22300%22 fill=%22url(%23a)%22 opacity=%22.8%22/%3E%3Cpolygon points=%22205.0,490.0 334.9,565.0 334.9,715.0 205.0,790.0 75.1,715.0 75.1,565.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpolygon points=%22465.0,640.0 594.9,715.0 594.9,865.0 465.0,940.0 335.1,865.0 335.1,715.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%220.07%22 stroke-width=%221.2%22/%3E%3Cpolygon points=%22205.0,790.0 334.9,865.0 334.9,1015.0 205.0,1090.0 75.1,1015.0 75.1,865.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%220.05%22 stroke-width=%221.2%22/%3E%3Cpolygon points=%221395.0,785.0 1498.9,845.0 1498.9,965.0 1395.0,1025.0 1291.1,965.0 1291.1,845.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%220.09%22 stroke-width=%221.2%22/%3E%3Cpolygon points=%221187.0,905.0 1290.9,965.0 1290.9,1085.0 1187.0,1145.0 1083.1,1085.0 1083.1,965.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%220.06%22 stroke-width=%221.2%22/%3E%3Cpolygon points=%221395.0,1025.0 1498.9,1085.0 1498.9,1205.0 1395.0,1265.0 1291.1,1205.0 1291.1,1085.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%220.05%22 stroke-width=%221.2%22/%3E%3Cpolygon points=%2296.0,86.0 151.4,118.0 151.4,182.0 96.0,214.0 40.6,182.0 40.6,118.0%22 fill=%22none%22 stroke=%22%23fff%22 stroke-opacity=%220.1%22 stroke-width=%221.2%22/%3E%3Cpolygon points=%22465.0,340.0 594.9,415.0 594.9,565.0 465.0,640.0 335.1,565.0 335.1,415.0%22 fill=%22%23fff%22 fill-opacity=%22.035%22/%3E%3Cpolygon points=%221187.0,665.0 1290.9,725.0 1290.9,845.0 1187.0,905.0 1083.1,845.0 1083.1,725.0%22 fill=%22%23fff%22 fill-opacity=%22.03%22/%3E%3C/svg%3E") center top / 1600px auto no-repeat}
+/* the art, held still behind the whole page */
+body:has(#view-home:not([hidden]))::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:var(--hero) var(--hero-pos) / cover no-repeat;
+}
+/* light wash so white type reads at the top and the glass cards read at the bottom */
+body:has(#view-home:not([hidden]))::after{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    linear-gradient(100deg, rgba(14,12,9,.30) 0, rgba(14,12,9,.10) 30%, rgba(14,12,9,0) 50%),
+    linear-gradient(260deg, rgba(14,12,9,.20) 0, rgba(14,12,9,.04) 18%, rgba(14,12,9,0) 34%),
+    linear-gradient(180deg, rgba(18,16,12,.26) 0, rgba(18,16,12,.07) 24%, rgba(18,16,12,0) 44%),
+    linear-gradient(180deg, rgba(237,235,230,0) 52%, rgba(237,235,230,.44) 74%, rgba(237,235,230,.86) 100%);
+}
 .shell{position:relative; z-index:1}
-#view-home .panel{-webkit-backdrop-filter:blur(20px) saturate(140%); backdrop-filter:blur(20px) saturate(140%)}
-.hero{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:28px 40px; align-items:center; padding:30px 0 44px}
-.herotext{display:flex; flex-direction:column; gap:18px; min-width:0}
-.eyebrow{display:flex; gap:6px 18px; flex-wrap:wrap}
-.sub{font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.24em; text-transform:uppercase}
+
+/* the bar floats over the picture on home only */
+body:has(#view-home:not([hidden])) .nav{background:transparent; border-bottom:0; -webkit-backdrop-filter:none; backdrop-filter:none}
+body:has(#view-home:not([hidden])) .navin{min-height:76px; gap:6px 28px; max-width:1340px}
+body:has(#view-home:not([hidden])) .navbtn{padding:0 10px}
+body:has(#view-home:not([hidden])) .navbtn::after{left:10px; right:10px}
+body:has(#view-home:not([hidden])) .brand{color:#fff; font-weight:400; letter-spacing:.38em; text-shadow:0 1px 18px rgba(0,0,0,.4)}
+body:has(#view-home:not([hidden])) .navbtn{color:rgba(255,255,255,.72); font-size:10px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; text-shadow:0 1px 14px rgba(0,0,0,.35)}
+body:has(#view-home:not([hidden])) .navbtn:hover,
+body:has(#view-home:not([hidden])) .navbtn[aria-current="true"]{color:#fff}
+body:has(#view-home:not([hidden])) .navbtn[aria-current="true"]::after{background:#fff}
+body:has(#view-home:not([hidden])) .navbtn .n{color:rgba(255,255,255,.62); font-weight:500}
+body:has(#view-home:not([hidden])) .stage{max-width:1340px}
+body:has(#view-home:not([hidden])) .foot{border-top:1px solid rgba(28,27,25,.12); color:rgba(28,27,25,.5); font-size:10px; letter-spacing:.2em; text-transform:uppercase}
+body:has(#view-home:not([hidden])) .foot b{color:rgba(28,27,25,.75); letter-spacing:.3em}
+.navdate{display:none}
+body:has(#view-home:not([hidden])) .navdate{display:flex; align-items:center; align-self:center; margin-left:auto; padding-left:26px; border-left:1px solid rgba(255,255,255,.3);
+  color:rgba(255,255,255,.82); font-size:10px; font-weight:500; letter-spacing:.2em; text-transform:uppercase; white-space:nowrap; text-shadow:0 1px 14px rgba(0,0,0,.35)}
+
+/* ---------- hero ---------- */
+.hero{display:grid; grid-template-columns:minmax(0,1.05fr) auto; gap:36px 60px; align-items:center;
+  min-height:min(76vh,720px); padding:10px 0 64px; position:relative}
+.herotext{display:flex; flex-direction:column; gap:20px; min-width:0; color:#fff}
+.hquote{margin:0; max-width:36ch}
+.hquote p{font-family:var(--display); font-style:italic; font-weight:400; font-size:15px; line-height:1.6;
+  letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.9); text-shadow:0 1px 20px rgba(0,0,0,.45)}
+.hquote cite{display:block; margin-top:9px; font-style:normal; font-size:9.5px; font-weight:500;
+  letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.7); text-shadow:0 1px 16px rgba(0,0,0,.45)}
+.eyebrow{display:flex; gap:6px 20px; flex-wrap:wrap}
+.sub{font-size:10.5px; font-weight:500; color:rgba(255,255,255,.82); letter-spacing:.26em; text-transform:uppercase; text-shadow:0 1px 16px rgba(0,0,0,.45)}
 .sub:empty{display:none}
-.hero h1{font-family:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif; font-stretch:125%; font-weight:900; font-size:clamp(40px,5.6vw,74px); line-height:.95; letter-spacing:-.01em; text-transform:uppercase}
-.capture{display:flex; gap:8px; flex-wrap:wrap; align-items:center; width:100%; max-width:600px; background:var(--glass); border:1px solid var(--line); border-radius:14px; padding:7px; box-shadow:var(--shadow); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px)}
-.capture input[type=text]{flex:1 1 200px; min-width:0; background:transparent; border-color:transparent; font-size:15px; padding:8px 12px}
-.capture input[type=text]:focus{box-shadow:none; border-color:transparent}
-.capture select{min-width:0; max-width:100%; padding:8px 10px}
+.hero h1{font-family:var(--display); font-stretch:normal; font-weight:300; font-size:clamp(56px,8.6vw,124px);
+  line-height:.92; letter-spacing:-.012em; text-transform:none; color:#fff; text-shadow:0 2px 40px rgba(0,0,0,.4)}
+.motto{display:flex; align-items:center; gap:20px; font-size:9.5px; font-weight:500; letter-spacing:.3em;
+  text-transform:uppercase; color:rgba(255,255,255,.88); text-shadow:0 1px 16px rgba(0,0,0,.45)}
+.motto i{display:block; width:68px; height:1px; background:rgba(255,255,255,.55); flex:none}
+.capture{display:flex; gap:8px; flex-wrap:wrap; align-items:center; width:100%; max-width:640px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.34); border-radius:6px; padding:6px;
+  box-shadow:0 10px 40px rgba(0,0,0,.18); -webkit-backdrop-filter:blur(16px) saturate(140%); backdrop-filter:blur(16px) saturate(140%)}
+.capture input[type=text]{flex:1 1 220px; min-width:0; background:transparent; border:0; color:#fff; font-size:14.5px; padding:9px 12px}
+.capture input[type=text]::placeholder{color:rgba(255,255,255,.72)}
+.capture input[type=text]:focus{box-shadow:none; border:0}
+.capture select{min-width:0; max-width:100%; padding:9px 10px; background:transparent; border:0; color:#fff;
+  font-size:10.5px; letter-spacing:.14em; text-transform:uppercase}
+.capture select option{color:#1C1B19}
+.capture .btn{background:rgba(255,255,255,.94); color:#161513; border:0; border-radius:4px; padding:11px 24px;
+  font-size:9.5px; font-weight:600; letter-spacing:.22em}
+.capture .btn:hover{background:#fff}
 .label{font-size:9.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--muted)}
 
-.hive{--hw:118px; --hh:calc(var(--hw) * 1.1547); display:grid; grid-template-columns:repeat(8,calc(var(--hw) / 2)); grid-auto-rows:calc(var(--hh) * .75); padding-bottom:calc(var(--hh) * .25)}
+/* the standing note at the right edge */
+.heroside{display:flex; flex-direction:column; align-items:flex-end; gap:24px; min-width:0}
+.sideline{max-width:150px; padding-left:16px;
+  border-left:1px solid rgba(255,255,255,.42); color:rgba(255,255,255,.8);
+  font-size:9px; font-weight:500; letter-spacing:.24em; text-transform:uppercase; line-height:2.1;
+  text-shadow:0 1px 3px rgba(0,0,0,.5), 0 1px 18px rgba(0,0,0,.55)}
+
+/* ---------- the hexagons ---------- */
+.hive{--hw:124px; --hh:calc(var(--hw) * 1.1547); display:grid; grid-template-columns:repeat(8,calc(var(--hw) / 2)); grid-auto-rows:calc(var(--hh) * .75); padding-bottom:calc(var(--hh) * .25)}
 .hex{grid-column:span 2; width:var(--hw); height:var(--hh); padding:3px; background:none; border:0; cursor:pointer}
 .hex:nth-child(1){grid-area:1/2/auto/span 2} .hex:nth-child(2){grid-area:1/4/auto/span 2} .hex:nth-child(3){grid-area:1/6/auto/span 2}
 .hex:nth-child(4){grid-area:2/1/auto/span 2} .hex:nth-child(5){grid-area:2/3/auto/span 2} .hex:nth-child(6){grid-area:2/5/auto/span 2} .hex:nth-child(7){grid-area:2/7/auto/span 2}
 .hex:nth-child(8){grid-area:3/2/auto/span 2} .hex:nth-child(9){grid-area:3/4/auto/span 2} .hex:nth-child(10){grid-area:3/6/auto/span 2}
-.hx{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; width:100%; height:100%; background:var(--line-2); color:var(--ink); clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); transition:color .15s, background .15s, transform .15s}
-.hx::before{content:""; position:absolute; inset:1.5px; background:#0C0C0C; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); transition:background .15s}
-.hx b,.hx em{position:relative}
-.hx em{font-family:"Archivo","Helvetica Neue",Arial,sans-serif; font-stretch:125%; font-style:normal; font-weight:700; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase}
-.hx b{font-family:"Archivo","Helvetica Neue",Arial,sans-serif; font-stretch:125%; font-weight:900; font-size:19px; line-height:1; font-variant-numeric:tabular-nums}
+.hx{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px;
+  width:100%; height:100%; background:rgba(255,255,255,.62); color:#161412;
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); transition:color .2s, background .2s, transform .2s}
+.hx::before{content:""; position:absolute; inset:1px; background:rgba(255,255,255,.52);
+  -webkit-backdrop-filter:blur(10px) saturate(130%); backdrop-filter:blur(10px) saturate(130%);
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); transition:background .2s}
+.hx svg,.hx b,.hx em{position:relative}
+.hx svg{width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:1.25; stroke-linecap:round; stroke-linejoin:round; opacity:.95}
+.hx em{font-family:var(--sans); font-stretch:normal; font-style:normal; font-weight:500; font-size:8.5px; letter-spacing:.22em; text-transform:uppercase; text-align:center; padding-inline:6px}
+.hx b{font-family:var(--sans); font-stretch:normal; font-weight:500; font-size:13px; line-height:1; font-variant-numeric:tabular-nums; letter-spacing:.04em}
 .hx b:empty{display:none}
-.hex:hover .hx,.hex.primary .hx{color:#0A0A0A; background:var(--ink)}
-.hex:hover .hx::before,.hex.primary .hx::before{background:var(--ink)}
-.hex:hover .hx{transform:scale(1.04)}
+.hex:hover .hx{background:rgba(255,255,255,.98); transform:scale(1.035)}
+.hex:hover .hx::before{background:#fff}
+.hex.primary .hx{background:rgba(255,255,255,.9)}
+.hex.primary .hx::before{background:rgba(255,255,255,.78)}
 .hex:focus-visible{outline:0}
-.hex:focus-visible .hx{background:var(--accent)}
+.hex:focus-visible .hx::before{background:rgba(255,255,255,.7)}
 
-.homegrid{display:grid; grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); gap:16px; align-items:start}
+/* ---------- the two glass cards ---------- */
+.homegrid{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:18px; align-items:start; padding-bottom:12px}
+#view-home .panel{border:1px solid rgba(255,255,255,.55); border-radius:20px;
+  -webkit-backdrop-filter:blur(30px) saturate(150%); backdrop-filter:blur(30px) saturate(150%)}
+#view-home .panel > header{padding:20px 26px 10px}
+#view-home .panel > header h2{font-family:var(--display); font-size:15px; font-weight:600; letter-spacing:.24em}
+#view-home .panel .body{padding:6px 26px 22px}
 .calnav{margin-left:auto; display:flex; align-items:center; gap:2px}
 .calnav button{background:none; border:1px solid transparent; border-radius:8px; color:var(--ink); cursor:pointer; min-width:30px; height:30px; padding:0 8px; font-size:13px}
 .calnav button:hover{border-color:var(--line-2)}
@@ -498,7 +567,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 .fside nav button[aria-pressed="true"]{color:#fff; background:rgba(255,255,255,.2); box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
 .fside nav button:focus-visible{outline:2px solid #fff; outline-offset:-2px}
 .fside nav .n{margin-left:auto; font-size:10.5px; letter-spacing:.04em; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums}
-.fside .motto{padding:18px 22px 22px; margin-top:6px; border-top:1px solid rgba(255,255,255,.16); font-family:var(--display); font-style:italic; font-size:15px; letter-spacing:.12em; line-height:1.5; color:rgba(255,255,255,.78)}
+.fside .fmotto{padding:18px 22px 22px; margin-top:6px; border-top:1px solid rgba(255,255,255,.16); font-family:var(--display); font-style:italic; font-size:15px; letter-spacing:.12em; line-height:1.5; color:rgba(255,255,255,.78)}
 .fmain{min-width:0; display:flex; flex-direction:column; gap:18px}
 .fhead{display:flex; align-items:flex-end; justify-content:space-between; gap:16px 24px; flex-wrap:wrap; padding:14px 4px 8px}
 .fhead h1{font-family:var(--display); font-weight:500; font-size:clamp(60px,8vw,116px); line-height:.92; letter-spacing:-.01em; color:#1a1815; text-transform:none}
@@ -713,7 +782,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 @media (max-width:980px){
   #view-finance{grid-template-columns:minmax(0,1fr); gap:14px}
   .fside{position:static; flex-direction:row; align-items:center}
-  .fside .fbust,.fside h2,.fside .motto{display:none}
+  .fside .fbust,.fside h2,.fside .fmotto{display:none}
   .fside nav{flex-direction:row; overflow-x:auto; padding:6px; gap:2px; scrollbar-width:none}
   .fside nav::-webkit-scrollbar{display:none}
   .fside nav button{white-space:nowrap; padding:9px 12px; letter-spacing:.16em}
@@ -890,6 +959,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
       <button class="navbtn" data-view="review" aria-current="false">Review<span class="n" id="n-review"></span></button>
       <button class="navbtn" data-view="notes" aria-current="false">Notes<span class="n" id="n-notes"></span></button>
     </nav>
+    <span class="navdate" id="navdate"></span>
   </div>
 </header>
 
@@ -899,8 +969,10 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
     <section id="view-home">
       <div class="hero">
         <div class="herotext">
+          <blockquote class="hquote"><p id="hq-text"></p><cite id="hq-who"></cite></blockquote>
           <div class="eyebrow"><span class="sub" id="datesub"></span><span class="sub" id="testweek"></span></div>
           <h1 id="dayname">Today</h1>
+          <div class="motto"><i></i>Discipline creates freedom</div>
           <div class="capture">
             <input type="text" id="cap" aria-label="Capture a task or note" placeholder="Capture a task or note…">
             <select id="capfolder" aria-label="Where it goes">
@@ -915,19 +987,22 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
             <button class="btn" id="capbtn">Add</button>
           </div>
         </div>
+        <div class="heroside">
         <nav class="hive" aria-label="Sections">
-          <button class="hex primary" data-go="today"><span class="hx"><b id="ht-today"></b><em>Today</em></span></button>
-          <button class="hex" data-go="week"><span class="hx"><b id="ht-week"></b><em>Week</em></span></button>
-          <button class="hex" data-go="school"><span class="hx"><b id="ht-school"></b><em>School</em></span></button>
-          <button class="hex" data-go="learning"><span class="hx"><b id="ht-learning"></b><em>Learning</em></span></button>
-          <button class="hex" data-go="money"><span class="hx"><b id="ht-money"></b><em>Money</em></span></button>
-          <button class="hex" data-go="finance"><span class="hx"><b id="ht-finance"></b><em>Finance</em></span></button>
-          <button class="hex" data-go="gym"><span class="hx"><b id="ht-gym"></b><em>Gym</em></span></button>
-          <button class="hex" data-go="projects"><span class="hx"><b id="ht-projects"></b><em>Projects</em></span></button>
-          <button class="hex" data-go="habits"><span class="hx"><b id="ht-habits"></b><em>Habits</em></span></button>
-          <button class="hex" data-go="review"><span class="hx"><b id="ht-review"></b><em>Review</em></span></button>
-          <button class="hex" data-go="notes"><span class="hx"><b id="ht-notes"></b><em>Notes</em></span></button>
+          <button class="hex primary" data-go="today"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.6M12 19v2.6M2.4 12h2.6M19 12h2.6M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9"/></svg><b id="ht-today"></b><em>Today</em></span></button>
+          <button class="hex" data-go="week"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.2" y="4.8" width="17.6" height="15.4" rx="2"/><path d="M3.2 9.6h17.6M8.2 2.8v3.6M15.8 2.8v3.6"/></svg><b id="ht-week"></b><em>Week</em></span></button>
+          <button class="hex" data-go="school"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.6C10.3 5.2 7.9 4.6 3.6 4.6v13c4.3 0 6.7.6 8.4 2 1.7-1.4 4.1-2 8.4-2v-13c-4.3 0-6.7.6-8.4 2Z"/><path d="M12 6.6v13"/></svg><b id="ht-school"></b><em>School</em></span></button>
+          <button class="hex" data-go="learning"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 1.8 9 12 14l10.2-5L12 4Z"/><path d="M5.6 11.1v5.1c0 1.6 2.9 3 6.4 3s6.4-1.4 6.4-3v-5.1M22.2 9v5.4"/></svg><b id="ht-learning"></b><em>Learning</em></span></button>
+          <button class="hex" data-go="money"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.6h17.2"/><rect x="4.6" y="12.4" width="3.8" height="6"/><rect x="10.1" y="7.6" width="3.8" height="10.8"/><rect x="15.6" y="3.8" width="3.8" height="14.6"/></svg><b id="ht-money"></b><em>Money</em></span></button>
+          <button class="hex" data-go="finance"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.2c0-1.6 3.6-2.8 8-2.8s8 1.2 8 2.8-3.6 2.8-8 2.8-8-1.2-8-2.8z"/><path d="M4 7.2V12c0 1.6 3.6 2.8 8 2.8s8-1.2 8-2.8V7.2"/><path d="M4 12v4.8c0 1.6 3.6 2.8 8 2.8s8-1.2 8-2.8V12"/></svg><b id="ht-finance"></b><em>Finance</em></span></button>
+          <button class="hex" data-go="gym"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.4 9v6M4.4 10.2v3.6M16.6 9v6M19.6 10.2v3.6M7.4 12h9.2M1.8 11.4v1.2M22.2 11.4v1.2"/></svg><b id="ht-gym"></b><em>Gym</em></span></button>
+          <button class="hex" data-go="projects"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 3.4 7.4v9.2L12 21.2l8.6-4.6V7.4L12 2.8Z"/><path d="M3.4 7.4 12 12l8.6-4.6M12 12v9.2"/></svg><b id="ht-projects"></b><em>Projects</em></span></button>
+          <button class="hex" data-go="habits"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.1 12.2 2.7 2.7 5.1-5.3"/></svg><b id="ht-habits"></b><em>Habits</em></span></button>
+          <button class="hex" data-go="review"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2.9H6.4a1.8 1.8 0 0 0-1.8 1.8v14.6a1.8 1.8 0 0 0 1.8 1.8h11.2a1.8 1.8 0 0 0 1.8-1.8V8.2L14 2.9Z"/><path d="M14 2.9v5.3h5.4M8.2 13h7.6M8.2 16.6h5.2"/></svg><b id="ht-review"></b><em>Review</em></span></button>
+          <button class="hex" data-go="notes"><span class="hx"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 3.6H3.6v16.8h10.2l6.6-6.6V3.6Z"/><path d="M20.4 13.8h-6.6v6.6"/></svg><b id="ht-notes"></b><em>Notes</em></span></button>
         </nav>
+        <div class="sideline">Same principles.<br>A different battlefield.</div>
+        </div>
       </div>
 
       <div class="homegrid">
@@ -1131,7 +1206,7 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
           <button type="button" data-sub="tx">Transactions</button>
           <button type="button" data-sub="goals">Goals<span class="n" id="fin-n-goals"></span></button>
         </nav>
-        <p class="motto">Discipline creates freedom.</p>
+        <p class="fmotto">Discipline creates freedom.</p>
       </aside>
       <div class="fmain">
       <div class="fhead">
@@ -1578,6 +1653,7 @@ function header(){
   $("#datesub").textContent=fmt(iso,{month:"long",day:"numeric",year:"numeric"}).toUpperCase();
   const w=Math.floor((Date.parse(iso+"T12:00:00Z")-Date.parse(TEST.firstMonday+"T12:00:00Z"))/(7*86400000))+1;
   $("#testweek").textContent=(w>=1&&w<=6)?"Week "+w+" of 6":"";
+  heroOfDay(iso);
   const m=nowMin();
   $("#nowlabel").textContent=String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
 }
@@ -1687,6 +1763,24 @@ const FOCUS={socrates:"50% 22%",plato:"50% 20%",alexander:"40% 20%",aristotle:"5
   napoleon:"50% 20%",hannibal:"51% 20%","genghis-khan":"51% 20%",leonardo:"42% 25%","sun-tzu":"50% 20%",musashi:"48% 25%",achilles:"45% 20%",odysseus:"48% 20%",leonidas:"48% 20%",prometheus:"46% 20%",theseus:"39% 20%",hector:"47% 20%",
   artemis:"44% 20%",ares:"59% 18%",hermes:"65% 20%",zeus:"68% 22%",aphrodite:"42% 22%",cronus:"52% 22%",apollo:"45% 22%",athena:"58% 18%"};
 Object.keys(FOCUS).forEach(k=>{ART[k]="img/"+k+".jpg";});
+/* the photograph is fixed in CSS; only the quote turns over, one line a day */
+const QUOTES=[
+  {t:"I came, I saw, I conquered.", w:"Julius Caesar"},
+  {t:"Fortune favors the bold.", w:"Virgil · traditional translation"},
+  {t:"There is nothing impossible to him who will try.", w:"Attributed to Alexander the Great · attribution uncertain"},
+  {t:"The world is not enough.", w:"Motto associated with the Bond family"},
+  {t:"If you want to shine like a sun, first burn like a sun.", w:"Often attributed to A. P. J. Abdul Kalam"},
+  {t:"The die is cast.", w:"Julius Caesar"},
+  {t:"He who has a why to live can bear almost any how.", w:"Friedrich Nietzsche"}
+];
+function dayIndex(iso){return Math.floor(Date.parse(iso+"T12:00:00Z")/86400000);}
+function pick(arr,n){return arr[((n%arr.length)+arr.length)%arr.length];}
+function heroOfDay(iso){
+  const q=pick(QUOTES,dayIndex(iso));
+  const qt=$("#hq-text"); if(qt)qt.textContent="“"+q.t+"”";
+  const qw=$("#hq-who"); if(qw)qw.textContent="— "+q.w;
+  const nd=$("#navdate"); if(nd)nd.textContent=fmt(iso,{weekday:"short",month:"short",day:"numeric"}).toUpperCase();
+}
 /* days follow the planets the weekdays are named for: Moon, Mars, Mercury, Jupiter, Venus, Saturn, Sun */
 const DAY_FIGS=["artemis","ares","hermes","zeus","aphrodite","cronus","apollo"];
 const MONTH_FIGS=["socrates","plato","alexander","aristotle","atlas","hercules","caesar","augustus","marcus-aurelius","icarus","homer","perseus"];
