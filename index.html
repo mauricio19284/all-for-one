@@ -821,6 +821,54 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 .hive:has(.hex:nth-child(11)) .hex:nth-child(5){grid-area:2/2/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(6){grid-area:2/4/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(7){grid-area:2/6/auto/span 2}
 .hive:has(.hex:nth-child(11)) .hex:nth-child(8){grid-area:3/1/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(9){grid-area:3/3/auto/span 2}
 .hive:has(.hex:nth-child(11)) .hex:nth-child(10){grid-area:3/5/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(11){grid-area:3/7/auto/span 2}
+/* ---------- themed pages: a photograph behind, white serif hero, the same frosted cards as Finance ---------- */
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])){background:#cfc6b7}
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden]))::before{content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--pbg) var(--pbg-pos,50% 40%) / cover no-repeat}
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden]))::after{content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:linear-gradient(180deg,rgba(18,16,12,.42) 0,rgba(18,16,12,.12) 30%,rgba(18,16,12,0) 50%),linear-gradient(180deg,rgba(60,54,46,0) 55%,rgba(60,54,46,.35) 100%)}
+body:has(#view-learning:not([hidden])){--pbg:url("img/bg-learning.jpg"); --pbg-pos:50% 30%}
+body:has(#view-school:not([hidden])){--pbg:url("img/bg-school.jpg"); --pbg-pos:50% 35%}
+body:has(#view-gym:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 40%}
+body:has(#view-projects:not([hidden])){--pbg:url("img/bg-projects.jpg"); --pbg-pos:50% 45%}
+body:has(#view-habits:not([hidden])){--pbg:url("img/bg-habits.jpg"); --pbg-pos:50% 45%}
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .nav{background:transparent; border-bottom:0; -webkit-backdrop-filter:none; backdrop-filter:none; color:#fff; --ink:#fff; --muted:rgba(255,255,255,.74)}
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .brand{color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.4)}
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .navbtn[aria-current="true"]::after{background:#fff}
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot{color:rgba(255,255,255,.7); border-top-color:rgba(255,255,255,.2)}
+body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot b,body:has(:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot button{color:#fff}
+.phero{grid-column:1/-1; position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); grid-template-rows:auto minmax(0,1fr) auto; gap:20px 24px; min-height:min(58vh,560px); padding:8px 6px 28px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.45), 0 2px 24px rgba(0,0,0,.4)}
+.phero .pq{grid-column:1; grid-row:1; margin:0; max-width:30ch}
+.phero .pq p{font-family:var(--display); font-style:italic; font-weight:400; font-size:15px; line-height:1.6; letter-spacing:.06em; text-transform:uppercase}
+.phero .pq cite{display:block; margin-top:8px; font-style:normal; font-size:9.5px; font-weight:500; letter-spacing:.22em; text-transform:uppercase; color:rgba(255,255,255,.75)}
+.phero .pt{grid-column:2; grid-row:1/3; align-self:center; text-align:center; padding-top:40px}
+.phero .pt h1{font-family:var(--display); font-weight:400; font-size:clamp(56px,8vw,112px); line-height:.95; letter-spacing:-.01em; text-transform:none; color:#fff}
+.phero .ptag{display:flex; align-items:center; justify-content:center; gap:16px; padding-top:12px; font-size:10px; font-weight:500; letter-spacing:.32em; text-transform:uppercase; color:rgba(255,255,255,.9)}
+.phero .ptag i{display:block; width:40px; height:1px; background:rgba(255,255,255,.6)}
+.phero .pside{grid-column:3; grid-row:1; justify-self:end; max-width:150px; padding-left:14px; border-left:1px solid rgba(255,255,255,.45); font-size:9px; font-weight:500; letter-spacing:.24em; text-transform:uppercase; line-height:2.1; color:rgba(255,255,255,.85); text-align:left}
+.phero .pfoot{grid-column:1/-1; grid-row:3; display:flex; justify-content:space-between; gap:16px; font-size:9px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:rgba(255,255,255,.8)}
+.phero .pfoot span:first-child{padding-left:12px; border-left:1px solid rgba(255,255,255,.5)}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel{border-radius:8px; border:1px solid rgba(255,255,255,.6);
+  background:linear-gradient(170deg,rgba(246,242,235,.78) 0,rgba(238,233,225,.64) 55%,rgba(232,226,217,.58) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 1px rgba(40,34,26,.06), 0 14px 34px rgba(40,34,26,.18);
+  -webkit-backdrop-filter:blur(22px) saturate(140%); backdrop-filter:blur(22px) saturate(140%)}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel > header{padding:20px 24px 6px}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel > header h2{font-size:15px; font-weight:600; letter-spacing:.22em}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel .body{padding:8px 24px 22px}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .split div,:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .stat div{background:rgba(255,255,255,.42); border-radius:6px}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .hcell{background:rgba(255,255,255,.6)}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) input[type=text],:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) input[type=date],:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) select,:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) textarea{border-radius:6px; background:rgba(255,255,255,.5)}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .btn{border-radius:6px}
+:is(#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .btn.ghost{background:rgba(255,255,255,.5)}
+#view-habits .phero{margin-bottom:4px}
+@media (max-width:820px){
+  .phero{grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto auto auto; min-height:0; padding-bottom:18px; gap:14px}
+  .phero .pq{grid-column:1; grid-row:1; max-width:none}
+  .phero .pt{grid-column:1; grid-row:2; padding-top:4px}
+  .phero .pt h1{font-size:56px}
+  .phero .pside{grid-column:1; grid-row:3; justify-self:start; max-width:none; line-height:1.8}
+  .phero .pfoot{grid-row:4; flex-direction:column; gap:6px}
+  .phero .pfoot span:first-child{padding-left:0; border-left:0}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -1116,7 +1164,12 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 
     <!-- SCHOOL -->
     <section id="view-school" class="grid cols" hidden>
-      <div class="pagehead wide"><h1>School</h1><p>Tests, deadlines and class blocks.</p></div>
+      <div class="phero wide">
+        <blockquote class="pq"><p>“Education breeds confidence. Confidence breeds action.”</p><cite>— Attributed to Confucius · attribution uncertain</cite></blockquote>
+        <div class="pt"><h1>School</h1><p class="ptag"><i></i>Build today. Lead tomorrow.<i></i></p></div>
+        <div class="pside">Disciplina · Scientia · Virtus</div>
+        <div class="pfoot"><span>MMXXVI</span><span>A higher purpose.</span></div>
+      </div>
       <div class="panel">
         <header><h2>Tests &amp; deadlines</h2><span class="right" id="schoolnext"></span></header>
         <div class="body">
@@ -1140,7 +1193,12 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 
     <!-- LEARNING -->
     <section id="view-learning" class="grid cols" hidden>
-      <div class="pagehead wide"><h1>Learning &amp; AI</h1><p>Coursera, the Jarvis roadmap and next actions.</p></div>
+      <div class="phero wide">
+        <blockquote class="pq"><p>“The more you know, the more you see.”</p><cite>— Traditional saying</cite></blockquote>
+        <div class="pt"><h1>Learning</h1><p class="ptag"><i></i>A sharper mind. A wider world.<i></i></p></div>
+        <div class="pside">Discipline creates freedom.</div>
+        <div class="pfoot"><span>ΓΝΩΘΙ ΣΕΑΥΤΟΝ</span><span>Know yourself.</span></div>
+      </div>
       <div class="panel">
         <header><h2>Coursera run</h2><span class="right" id="cspct"></span></header>
         <div class="body">
@@ -1442,7 +1500,12 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 
     <!-- GYM -->
     <section id="view-gym" class="grid cols" hidden>
-      <div class="pagehead wide"><h1>Gym</h1><p>Today's session, the weekly split and the log.</p></div>
+      <div class="phero wide">
+        <blockquote class="pq"><p>“The first and greatest victory is to conquer yourself.”</p><cite>— Attributed to Plato</cite></blockquote>
+        <div class="pt"><h1>Gym</h1><p class="ptag"><i></i>A stronger self. A freer life.<i></i></p></div>
+        <div class="pside">Discipline builds kings.</div>
+        <div class="pfoot"><span>Mens sana in corpore sano</span><span>Same principles. A different battlefield.</span></div>
+      </div>
       <div class="panel wide">
         <header><h2>Today's session</h2><span class="right mono" id="gymtodaydate"></span></header>
         <div class="body" id="gymtodaybox"></div>
@@ -1480,7 +1543,12 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 
     <!-- PROJECTS -->
     <section id="view-projects" class="grid cols" hidden>
-      <div class="pagehead wide"><h1>Projects</h1><p>Open threads and what got finished.</p></div>
+      <div class="phero wide">
+        <blockquote class="pq"><p>“Vision without execution is hallucination.”</p><cite>— Attributed to Thomas Edison · attribution uncertain</cite></blockquote>
+        <div class="pt"><h1>Projects</h1><p class="ptag"><i></i>Ideas into impact.<i></i></p></div>
+        <div class="pside">Bigger ideas. A brighter tomorrow.</div>
+        <div class="pfoot"><span>ΠΑΝΤΑ ΡΕΙ</span><span>Everything flows.</span></div>
+      </div>
       <div class="panel wide" id="flagbox-projects" hidden></div>
       <div class="panel">
         <header><h2>Open threads</h2><span class="right" id="projcount"></span></header>
@@ -1502,7 +1570,12 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 
     <!-- HABITS -->
     <section id="view-habits" hidden>
-      <div class="pagehead"><h1>Habit tracker</h1><p>Three habits across the six-week test.</p></div>
+      <div class="phero">
+        <blockquote class="pq"><p>“We are what we repeatedly do. Excellence, then, is not an act but a habit.”</p><cite>— Will Durant, summarizing Aristotle</cite></blockquote>
+        <div class="pt"><h1>Habits</h1><p class="ptag"><i></i>Small disciplines. A greater self.<i></i></p></div>
+        <div class="pside">Better than yesterday.</div>
+        <div class="pfoot"><span>ΚΑΘ' ΗΜΕΡΑΝ</span><span>Discipline today. Freedom tomorrow.</span></div>
+      </div>
       <div class="panel">
         <header><h2>Six-week test</h2><span class="right" id="habpct"></span></header>
         <div class="body habits" id="habitbox"></div>
@@ -2630,7 +2703,7 @@ function finGrow(){
     const earned=+p.earned||0;
     return '<div class="glass goal'+(p.status==="done"||p.status==="paused"?" off":"")+'"><div class="top"><b>'+esc(p.name)+'</b><button class="x" data-f="proj-del:'+esc(p.id)+'" aria-label="Delete '+esc(p.name)+'" title="Delete">×</button></div>'
       +'<div class="chips"><span class="chip">'+esc(PKIND[p.kind]||"Other")+'</span><span class="chip'+(p.status==="active"?" soon":"")+'">'+esc(PSTAT[p.status]||"Idea")+'</span></div>'
-      +'<div class="big">'+esc(orig(earned,p.cur))+' <small>earned so far'+(p.monthly>0?" · aiming at "+esc(orig(+p.monthly,p.cur))+" / mo":"")+'</small></div>'
+      +'<div class="big">'+esc(orig(earned,p.cur))+' <small>earned so far</small></div>'+(p.monthly>0?'<p>Aiming at '+esc(orig(+p.monthly,p.cur))+' a month.</p>':"")
       +'<p>'+(p.next?"Next: "+esc(p.next):"No next step written yet.")+'</p>'
       +'<form data-projadd="'+esc(p.id)+'"><input type="text" inputmode="decimal" name="amt" placeholder="Log earnings" aria-label="Log earnings for '+esc(p.name)+'"><button class="btn sm">Add</button></form>'
       +'<div class="foot2"><button class="lnk" data-f="proj-edit:'+esc(p.id)+'">Edit</button>'+(f.armed==="proj:"+p.id?"<span>Click × again to delete</span>":"")+'</div></div>';
