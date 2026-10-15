@@ -942,6 +942,12 @@ body:has(#view-week:not([hidden])) .sea{display:block}
   mask:radial-gradient(ellipse 38% 28% at 50% 14%, #000 45%, transparent 100%), radial-gradient(ellipse 30% 45% at 88% 78%, #000 30%, transparent 100%)}
 .dimg img.windy{filter:url(#wind)}
 @media (max-width:820px){.fside .fbust .wind{display:none} .dimg img.windy{filter:none}}
+/* Home: the cape in the hero photo moves — a second copy of the photo, rippled and masked to the cloak */
+.cape{display:none; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--hero) var(--hero-pos) / cover no-repeat; filter:url(#capewind);
+  -webkit-mask:radial-gradient(ellipse 10% 31% at 30% 55%, #000 55%, transparent 100%);
+  mask:radial-gradient(ellipse 10% 31% at 30% 55%, #000 55%, transparent 100%)}
+body:has(#view-home:not([hidden])) .cape{display:block}
+@media (max-width:820px){.cape{display:none!important}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -1060,7 +1066,15 @@ body:has(#view-week:not([hidden])) .sea{display:block}
   </feTurbulence>
   <feOffset in="n" dx="0" dy="0" result="n2"><animate attributeName="dx" dur="7s" values="0;40;0" repeatCount="indefinite"/></feOffset>
   <feDisplacementMap in="SourceGraphic" in2="n2" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+</filter>
+<filter id="capewind" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.009" numOctaves="2" seed="3" result="n">
+    <animate attributeName="baseFrequency" dur="13s" values="0.0035 0.009;0.0048 0.012;0.0032 0.008;0.0035 0.009" repeatCount="indefinite"/>
+  </feTurbulence>
+  <feOffset in="n" dx="0" dy="0" result="n2"><animate attributeName="dy" dur="8s" values="0;-90;0" repeatCount="indefinite"/><animate attributeName="dx" dur="11s" values="0;50;0" repeatCount="indefinite"/></feOffset>
+  <feDisplacementMap in="SourceGraphic" in2="n2" scale="16" xChannelSelector="R" yChannelSelector="G"/>
 </filter></defs></svg>
+<div class="cape" aria-hidden="true"></div>
 <div class="sea" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="gate" id="gate" hidden>
   <form class="gatebox" id="gateform">
