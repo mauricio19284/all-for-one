@@ -858,7 +858,6 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
   background:linear-gradient(180deg,rgba(18,16,12,.42) 0,rgba(18,16,12,.12) 30%,rgba(18,16,12,0) 50%),linear-gradient(180deg,rgba(60,54,46,0) 55%,rgba(60,54,46,.35) 100%)}
 body:has(#view-today:not([hidden])){--pbg:url("img/bg-today.jpg"); --pbg-pos:50% 40%}
 body:has(#view-week:not([hidden])){--pbg:url("img/bg-week.jpg"); --pbg-pos:50% 60%}
-#view-week .pagehead h1,#view-week .pagehead p{color:#fff; text-shadow:0 1px 14px rgba(0,0,0,.35)}
 body:has(#view-learning:not([hidden])){--pbg:url("img/bg-learning.jpg"); --pbg-pos:50% 30%}
 body:has(#view-school:not([hidden])){--pbg:url("img/bg-school.jpg"); --pbg-pos:50% 35%}
 body:has(#view-gym:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 40%}
@@ -1180,8 +1179,12 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 
     <!-- WEEK -->
     <section id="view-week" class="grid cols" hidden>
-      <div class="pagehead wide"><h1>The week</h1><p>The calendar and the Sunday review.</p></div>
-      <div class="panel wide" id="flagbox-week" hidden></div>
+      <div class="phero wide">
+        <blockquote class="pq"><p>“Order and simplification are the first steps toward the mastery of a subject.”</p><cite>— Thomas Mann</cite></blockquote>
+        <div class="pt"><h1>The Week</h1><p class="ptag"><i></i>Seven days. Three outcomes.<i></i></p></div>
+        <div class="pside">Plan the week. Review on Sunday.</div>
+        <div class="pfoot"><span>Hebdomas</span><span>The calendar and the Sunday review.</span></div>
+      </div>
       <div class="panel wide wk">
         <header><h2>Calendar</h2><span class="right"><button class="follow" id="wkfollow" type="button"></button></span></header>
         <div class="body">
@@ -1191,6 +1194,7 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
           <div class="deck" id="weekcal"></div>
         </div>
       </div>
+      <div class="panel wide" id="flagbox-week" hidden></div>
       <div class="panel wide">
         <header><h2>Sunday review</h2><span class="right" id="wkstate"></span></header>
         <div class="body">
