@@ -852,21 +852,23 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 .hive:has(.hex:nth-child(11)) .hex:nth-child(8){grid-area:3/1/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(9){grid-area:3/3/auto/span 2}
 .hive:has(.hex:nth-child(11)) .hex:nth-child(10){grid-area:3/5/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(11){grid-area:3/7/auto/span 2}
 /* ---------- themed pages: a photograph behind, white serif hero, the same frosted cards as Finance ---------- */
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])){background:#cfc6b7}
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden]))::before{content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--pbg) var(--pbg-pos,50% 40%) / cover no-repeat}
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden]))::after{content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])){background:#cfc6b7}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden]))::before{content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--pbg) var(--pbg-pos,50% 40%) / cover no-repeat}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden]))::after{content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
   background:linear-gradient(180deg,rgba(18,16,12,.42) 0,rgba(18,16,12,.12) 30%,rgba(18,16,12,0) 50%),linear-gradient(180deg,rgba(60,54,46,0) 55%,rgba(60,54,46,.35) 100%)}
 body:has(#view-today:not([hidden])){--pbg:url("img/bg-today.jpg"); --pbg-pos:50% 40%}
+body:has(#view-week:not([hidden])){--pbg:url("img/bg-week.jpg"); --pbg-pos:50% 60%}
+#view-week .pagehead h1,#view-week .pagehead p{color:#fff; text-shadow:0 1px 14px rgba(0,0,0,.35)}
 body:has(#view-learning:not([hidden])){--pbg:url("img/bg-learning.jpg"); --pbg-pos:50% 30%}
 body:has(#view-school:not([hidden])){--pbg:url("img/bg-school.jpg"); --pbg-pos:50% 35%}
 body:has(#view-gym:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 40%}
 body:has(#view-projects:not([hidden])){--pbg:url("img/bg-projects.jpg"); --pbg-pos:50% 45%}
 body:has(#view-habits:not([hidden])){--pbg:url("img/bg-habits.jpg"); --pbg-pos:50% 45%}
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .nav{background:transparent; border-bottom:0; -webkit-backdrop-filter:none; backdrop-filter:none; color:#fff; --ink:#fff; --muted:rgba(255,255,255,.74)}
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .brand{color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.4)}
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .navbtn[aria-current="true"]::after{background:#fff}
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot{color:rgba(255,255,255,.7); border-top-color:rgba(255,255,255,.2)}
-body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot b,body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot button{color:#fff}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .nav{background:transparent; border-bottom:0; -webkit-backdrop-filter:none; backdrop-filter:none; color:#fff; --ink:#fff; --muted:rgba(255,255,255,.74)}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .brand{color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.4)}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .navbtn[aria-current="true"]::after{background:#fff}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot{color:rgba(255,255,255,.7); border-top-color:rgba(255,255,255,.2)}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot b,body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits):not([hidden])) .foot button{color:#fff}
 .phero{grid-column:1/-1; position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); grid-template-rows:auto minmax(0,1fr) auto; gap:20px 24px; min-height:min(58vh,560px); padding:8px 6px 28px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.45), 0 2px 24px rgba(0,0,0,.4)}
 .phero .pq{grid-column:1; grid-row:1; margin:0; max-width:30ch}
 .phero .pq p{font-family:var(--display); font-style:italic; font-weight:400; font-size:15px; line-height:1.6; letter-spacing:.06em; text-transform:uppercase}
@@ -878,18 +880,18 @@ body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#v
 .phero .pside{grid-column:3; grid-row:1; justify-self:end; max-width:150px; padding-left:14px; border-left:1px solid rgba(255,255,255,.45); font-size:9px; font-weight:500; letter-spacing:.24em; text-transform:uppercase; line-height:2.1; color:rgba(255,255,255,.85); text-align:left}
 .phero .pfoot{grid-column:1/-1; grid-row:3; display:flex; justify-content:space-between; gap:16px; font-size:9px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:rgba(255,255,255,.8)}
 .phero .pfoot span:first-child{padding-left:12px; border-left:1px solid rgba(255,255,255,.5)}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel{border-radius:8px; border:1px solid rgba(255,255,255,.6);
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel{border-radius:8px; border:1px solid rgba(255,255,255,.6);
   background:linear-gradient(170deg,rgba(246,242,235,.78) 0,rgba(238,233,225,.64) 55%,rgba(232,226,217,.58) 100%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 1px rgba(40,34,26,.06), 0 14px 34px rgba(40,34,26,.18);
   -webkit-backdrop-filter:blur(22px) saturate(140%); backdrop-filter:blur(22px) saturate(140%)}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel > header{padding:20px 24px 6px}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel > header h2{font-size:15px; font-weight:600; letter-spacing:.22em}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel .body{padding:8px 24px 22px}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .split div,:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .stat div{background:rgba(255,255,255,.42); border-radius:6px}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .hcell{background:rgba(255,255,255,.6)}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) input[type=text],:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) input[type=date],:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) select,:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) textarea{border-radius:6px; background:rgba(255,255,255,.5)}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .btn{border-radius:6px}
-:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .btn.ghost{background:rgba(255,255,255,.5)}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel > header{padding:20px 24px 6px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel > header h2{font-size:15px; font-weight:600; letter-spacing:.22em}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .panel .body{padding:8px 24px 22px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .split div,:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .stat div{background:rgba(255,255,255,.42); border-radius:6px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .hcell{background:rgba(255,255,255,.6)}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) input[type=text],:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) input[type=date],:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) select,:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) textarea{border-radius:6px; background:rgba(255,255,255,.5)}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .btn{border-radius:6px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits) .btn.ghost{background:rgba(255,255,255,.5)}
 #view-habits .phero{margin-bottom:4px}
 @media (max-width:820px){
   .phero{grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto auto auto; min-height:0; padding-bottom:18px; gap:14px}
