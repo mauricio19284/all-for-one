@@ -935,6 +935,13 @@ body:has(#view-week:not([hidden])) .sea{display:block}
 @keyframes twinkle{from{opacity:.28}to{opacity:.62}}
 @keyframes swell{from{transform:translateY(0) scaleY(1)}to{transform:translateY(14px) scaleY(1.06)}}
 @media (max-width:820px){.sea{display:none!important} body:has(#view-week:not([hidden]))::before{animation:none}}
+/* Wind: a second copy of the picture, rippled by an SVG displacement filter and masked to hair + cloak */
+.fside .fbust{position:relative}
+.fside .fbust .wind{position:absolute; inset:0; background:inherit; filter:url(#wind); pointer-events:none;
+  -webkit-mask:radial-gradient(ellipse 38% 28% at 50% 14%, #000 45%, transparent 100%), radial-gradient(ellipse 30% 45% at 88% 78%, #000 30%, transparent 100%);
+  mask:radial-gradient(ellipse 38% 28% at 50% 14%, #000 45%, transparent 100%), radial-gradient(ellipse 30% 45% at 88% 78%, #000 30%, transparent 100%)}
+.dimg img.windy{filter:url(#wind)}
+@media (max-width:820px){.fside .fbust .wind{display:none} .dimg img.windy{filter:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -1046,6 +1053,14 @@ body:has(#view-week:not([hidden])) .sea{display:block}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<filter id="wind" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.012 0.028" numOctaves="2" seed="7" result="n">
+    <animate attributeName="baseFrequency" dur="9s" values="0.012 0.028;0.018 0.036;0.011 0.024;0.012 0.028" repeatCount="indefinite"/>
+  </feTurbulence>
+  <feOffset in="n" dx="0" dy="0" result="n2"><animate attributeName="dx" dur="7s" values="0;40;0" repeatCount="indefinite"/></feOffset>
+  <feDisplacementMap in="SourceGraphic" in2="n2" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+</filter></defs></svg>
 <div class="sea" aria-hidden="true"><i></i><i></i><i></i></div>
 <div class="gate" id="gate" hidden>
   <form class="gatebox" id="gateform">
@@ -1308,7 +1323,7 @@ body:has(#view-week:not([hidden])) .sea{display:block}
     <!-- FINANCE -->
     <section id="view-finance" hidden>
       <aside class="fside">
-        <div class="fbust" style="background-image:url(img/alexander.jpg)" role="img" aria-label="Alexander the Great"></div>
+        <div class="fbust" style="background-image:url(img/alexander.jpg)" role="img" aria-label="Alexander the Great"><i class="wind" style="background-image:url(img/alexander.jpg)"></i></div>
         <h2>Finance</h2>
         <nav id="fin-sub" aria-label="Finance sections">
           <button type="button" data-sub="overview">Overview</button>
@@ -2005,7 +2020,7 @@ function inkPanel(key){
 }
 function figBox(key){
   const art=ART[key];
-  return '<div class="dimg"'+(art?'':' style="background-image:url(\''+inkPanel(key)+'\')"')+'>'+(art?'<img alt="" loading="lazy" src="'+esc(art)+'" style="object-position:'+(FOCUS[key]||"50% 22%")+'">':'')
+  return '<div class="dimg"'+(art?'':' style="background-image:url(\''+inkPanel(key)+'\')"')+'>'+(art?'<img alt="" loading="lazy"'+(key==="alexander"?' class="windy"':'')+' src="'+esc(art)+'" style="object-position:'+(FOCUS[key]||"50% 22%")+'">':'')
     +'<span class="dcap">'+esc(FIG[key]||key)+'</span></div>';
 }
 /* the calendar follows today until something is picked; "Back to today" lets go again */
