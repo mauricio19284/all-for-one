@@ -907,34 +907,11 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-today .panel.panel .body{padding:8px 24px 22px}
 #view-today #suggestbox.flag{border:1px solid var(--line); border-radius:6px; background:rgba(255,255,255,.4); padding:16px 18px}
 #view-today input[type=text].x,#view-today .must input[type=text],#view-today .kv input[type=text],#view-today .must textarea,#view-today textarea{background:rgba(255,255,255,.5); border:1px solid var(--line-2); border-radius:6px; padding:8px 12px}
-/* Week tab: living sea — slow breathing zoom on the photo, drifting glints masked to the water */
-body:has(#view-week:not([hidden]))::before{animation:seabreathe 46s ease-in-out infinite alternate; transform-origin:50% 60%; will-change:transform}
-@keyframes seabreathe{from{transform:scale(1)}to{transform:scale(1.045) translateY(-0.6%)}}
-.sea{display:none; position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-  -webkit-mask:radial-gradient(ellipse 48% 22% at 72% 50%, #000 35%, rgba(0,0,0,.55) 65%, transparent 100%);
-  mask:radial-gradient(ellipse 48% 22% at 72% 50%, #000 35%, rgba(0,0,0,.55) 65%, transparent 100%)}
-body:has(#view-week:not([hidden])) .sea{display:block}
-.sea i{position:absolute; inset:-20%; mix-blend-mode:screen; opacity:.5; will-change:transform, background-position}
-.sea i:nth-child(1){background:
-  radial-gradient(1.5px 1px at 20% 30%, rgba(255,250,235,.9), transparent 70%),
-  radial-gradient(2px 1px at 55% 60%, rgba(255,250,235,.8), transparent 70%),
-  radial-gradient(1.5px 1px at 80% 20%, rgba(255,250,235,.85), transparent 70%),
-  radial-gradient(1px 1px at 35% 75%, rgba(255,250,235,.7), transparent 70%),
-  radial-gradient(2px 1px at 68% 85%, rgba(255,250,235,.75), transparent 70%);
-  background-size:140px 70px; animation:glint1 11s linear infinite, twinkle 3.4s ease-in-out infinite alternate}
-.sea i:nth-child(2){background:
-  radial-gradient(2px 1px at 10% 50%, rgba(255,255,245,.85), transparent 70%),
-  radial-gradient(1.5px 1px at 45% 15%, rgba(255,255,245,.7), transparent 70%),
-  radial-gradient(1px 1px at 75% 70%, rgba(255,255,245,.8), transparent 70%),
-  radial-gradient(2px 1px at 90% 40%, rgba(255,255,245,.65), transparent 70%);
-  background-size:190px 95px; animation:glint2 17s linear infinite, twinkle 4.7s ease-in-out -1.6s infinite alternate}
-.sea i:nth-child(3){background:repeating-linear-gradient(176deg, transparent 0 18px, rgba(255,255,255,.055) 18px 21px, transparent 21px 44px);
-  opacity:.9; animation:swell 9s ease-in-out infinite alternate}
-@keyframes glint1{from{background-position:0 0}to{background-position:-140px 24px}}
-@keyframes glint2{from{background-position:0 0}to{background-position:190px -18px}}
-@keyframes twinkle{from{opacity:.28}to{opacity:.62}}
-@keyframes swell{from{transform:translateY(0) scaleY(1)}to{transform:translateY(14px) scaleY(1.06)}}
-@media (max-width:820px){.sea{display:none!important} body:has(#view-week:not([hidden]))::before{animation:none}}
+/* Week tab: living scene — the still photo stays underneath as the fallback, WebGL draws over it */
+.living{display:none; position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+.living canvas{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 60%}
+body:has(#view-week:not([hidden])) .living.on{display:block}
+@media (max-width:820px){.living{display:none!important}}
 /* Wind: a second copy of the picture, rippled by an SVG displacement filter and masked to hair + cloak */
 .fside .fbust{position:relative}
 .fside .fbust .wind{position:absolute; inset:0; background:inherit; filter:url(#wind); pointer-events:none;
@@ -1075,7 +1052,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
   <feDisplacementMap in="SourceGraphic" in2="n2" scale="16" xChannelSelector="R" yChannelSelector="G"/>
 </filter></defs></svg>
 <div class="cape" aria-hidden="true"></div>
-<div class="sea" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="living" aria-hidden="true"><canvas id="wkgl" width="1024" height="1022"></canvas><canvas id="wkfx" width="1024" height="1022"></canvas></div>
 <div class="gate" id="gate" hidden>
   <form class="gatebox" id="gateform">
     <h1>All For One</h1>
@@ -1735,6 +1712,355 @@ body:has(#view-home:not([hidden])) .cape{display:block}
 <div class="capnote" id="capnote" role="status"></div>
 
 <script>
+/* ===== Week tab: living Mediterranean scene (WebGL cinemagraph) ===== */
+(function(){
+  const glCanvas=document.getElementById("wkgl"),fxCanvas=document.getElementById("wkfx"),wrap=document.querySelector(".living");
+  if(!glCanvas||!wrap)return;
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches||window.innerWidth<=820)return;
+  const gl=glCanvas.getContext("webgl",{preserveDrawingBuffer:false,antialias:false});
+  if(!gl)return;
+  const fx=fxCanvas.getContext("2d");
+  const VS=`
+        attribute vec2 a_pos;
+        varying vec2 v_uv;
+        void main() {
+          v_uv = a_pos * 0.5 + 0.5;
+          v_uv.y = 1.0 - v_uv.y;
+          gl_Position = vec4(a_pos, 0.0, 1.0);
+        }
+      `;
+  const FS=`
+        precision highp float;
+        varying vec2 v_uv;
+        uniform sampler2D u_image;
+        uniform sampler2D u_mask;
+        uniform float u_time;
+        uniform float u_sea;
+        uniform float u_wind;
+        uniform float u_clouds;
+        uniform float u_sun;
+        uniform int u_viewMode;
+        uniform float u_splitX;
+        uniform vec2 u_pointer;
+        uniform float u_pointerActive;
+
+        // 2D Hash & Value Noise for FBM Clouds, Wind Field & Water Glints
+        float hash(vec2 p) {
+          p = fract(p * vec2(123.34, 456.21));
+          p += dot(p, p + 45.32);
+          return fract(p.x * p.y);
+        }
+
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(
+            mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
+            mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+            u.y
+          );
+        }
+
+        float fbm(vec2 p) {
+          float v = 0.0;
+          float a = 0.5;
+          mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
+          for (int i = 0; i < 4; i++) {
+            v += a * noise(p);
+            p = rot * p * 2.03 + vec2(17.1, 31.7);
+            a *= 0.5;
+          }
+          return v;
+        }
+
+        void main() {
+          vec2 uv = v_uv;
+          vec4 baseCol = texture2D(u_image, uv);
+          vec4 mask = texture2D(u_mask, uv);
+
+          // View Mode 2: Motion Segmentation Inspector
+          if (u_viewMode == 2) {
+            vec3 zoneCol = baseCol.rgb * 0.35;
+            zoneCol += vec3(0.95, 0.25, 0.45) * mask.r * 0.75; // Sea = Rose/Red
+            zoneCol += vec3(0.15, 0.90, 0.45) * mask.g * 0.75; // Foliage Wind = Emerald
+            zoneCol += vec3(0.20, 0.65, 1.00) * mask.b * 0.75; // Sky Clouds = Sky Blue
+            if (uv.y > 0.665) {
+              zoneCol += vec3(0.98, 0.75, 0.20) * mask.a * 0.65; // Dappled Shadows = Amber
+            }
+            gl_FragColor = vec4(zoneCol, 1.0);
+            return;
+          }
+
+          // View Mode 1: Split Compare (right side shows original static image)
+          if (u_viewMode == 1 && uv.x > u_splitX) {
+            gl_FragColor = baseCol;
+            return;
+          }
+
+          float seaWeight = mask.r;
+          float windWeight = mask.g;
+          float skyWeight = mask.b;
+          float auxWeight = mask.a;
+
+          vec2 finalUV = uv;
+          vec3 extraLight = vec3(0.0);
+          float shadowMod = 1.0;
+
+          // =========================================================
+          // 1. SKY & DRIFTING CLOUDS (skyWeight = mask.b)
+          // =========================================================
+          if (skyWeight > 0.005 && u_clouds > 0.001) {
+            // Dual-phase flow-map advection so real clouds drift continuously without stretching borders
+            float cycleSpeed = 0.045 * u_clouds;
+            float phase0 = fract(u_time * cycleSpeed);
+            float phase1 = fract(u_time * cycleSpeed + 0.5);
+            float blend = abs(2.0 * phase0 - 1.0);
+            blend = blend * blend * (3.0 - 2.0 * blend);
+
+            // Subtle billowing curl + horizontal drift from right to left / left to right
+            vec2 flowDir = vec2(-0.032, -0.003 * sin(uv.x * 8.0 + u_time * 0.4)) * skyWeight;
+            vec2 uv0 = clamp(uv + flowDir * (phase0 - 0.5), 0.002, 0.998);
+            vec2 uv1 = clamp(uv + flowDir * (phase1 - 0.5), 0.002, 0.998);
+
+            // Protect against sampling non-sky pixels (like olive branches or mountains)
+            float m0 = texture2D(u_mask, uv0).b;
+            float m1 = texture2D(u_mask, uv1).b;
+            uv0 = mix(uv, uv0, smoothstep(0.15, 0.6, m0));
+            uv1 = mix(uv, uv1, smoothstep(0.15, 0.6, m1));
+
+            vec3 skyCol0 = texture2D(u_image, uv0).rgb;
+            vec3 skyCol1 = texture2D(u_image, uv1).rgb;
+            vec3 advectedSky = mix(skyCol0, skyCol1, blend);
+
+            // Continuous Volumetric FBM Clouds drifting across the sky
+            // Perspective foreshortening toward mountain horizon (uv.y ~ 0.30)
+            float skyDepth = mix(1.0, 2.6, clamp(uv.y / 0.33, 0.0, 1.0));
+            vec2 cloudUV = vec2(uv.x * 3.2 * skyDepth - u_time * 0.038 * u_clouds, uv.y * 6.5 * skyDepth);
+            float c1 = fbm(cloudUV);
+            float c2 = fbm(cloudUV * 1.8 + vec2(u_time * 0.022 * u_clouds, -u_time * 0.01));
+            float cloudPuff = smoothstep(0.42, 0.78, c1 * 0.65 + c2 * 0.35);
+
+            // Warm golden sunlit cloud highlights on right, soft azure atmospheric tint on left
+            vec3 sunCloudTint = mix(vec3(0.96, 0.97, 1.0), vec3(1.0, 0.95, 0.86), smoothstep(0.4, 0.95, uv.x));
+            vec3 cloudLayer = mix(advectedSky, sunCloudTint, cloudPuff * 0.24 * skyWeight * min(u_clouds, 1.5));
+
+            baseCol.rgb = mix(baseCol.rgb, cloudLayer, skyWeight);
+          }
+
+          // =========================================================
+          // 2. SEA WAVES, FOAM & GOLDEN SUN SHIMMER (seaWeight = mask.r)
+          // =========================================================
+          if (seaWeight > 0.005 && u_sea > 0.001) {
+            // Perspective depth factor: horizon is at y = 0.344
+            float dy = max(uv.y - 0.338, 0.012);
+            float z = 1.0 / dy; // ~80 at horizon, ~3.1 in foreground water
+
+            // World-projected horizontal water coordinates (px, py)
+            vec2 wp = vec2((uv.x - 0.52) * z * 2.2, z * 1.35);
+
+            // 4-Wave directional swell + capillary chop
+            float t = u_time * (0.9 + 0.35 * u_sea);
+            float w1 = sin(wp.x * 1.9 + wp.y * 2.8 - t * 2.3);
+            float w2 = sin(wp.x * -1.4 + wp.y * 3.6 - t * 1.85 + 1.3);
+            float w3 = cos(wp.x * 3.3 + wp.y * 5.2 - t * 3.1 + 2.7) * 0.55;
+            float w4 = sin(wp.x * 6.5 - wp.y * 8.0 - t * 4.4) * 0.30;
+
+            // Fine high-frequency wind ripples
+            float ripple = noise(wp * 2.4 + vec2(-t * 1.2, t * 0.8)) * 2.0 - 1.0;
+
+            // Interactive pointer ripple on the sea
+            float ptrWave = 0.0;
+            if (u_pointerActive > 0.01) {
+              float dPtr = length((uv - u_pointer) * vec2(1.0, 1.6));
+              ptrWave = sin(dPtr * 95.0 - u_time * 9.0) * exp(-dPtr * 14.0) * u_pointerActive;
+            }
+
+            float waveHeight = (w1 + w2 + w3 + w4 + ripple * 0.45) * 0.28 + ptrWave * 1.4;
+
+            // Analytic-style surface slopes for refraction & specular glints
+            float slopeX = (
+              1.9 * cos(wp.x * 1.9 + wp.y * 2.8 - t * 2.3) -
+              1.4 * cos(wp.x * -1.4 + wp.y * 3.6 - t * 1.85 + 1.3) +
+              1.8 * -sin(wp.x * 3.3 + wp.y * 5.2 - t * 3.1 + 2.7)
+            ) * 0.25 + ripple * 0.35 + ptrWave * 2.0;
+
+            float slopeY = (
+              2.8 * cos(wp.x * 1.9 + wp.y * 2.8 - t * 2.3) +
+              3.6 * cos(wp.x * -1.4 + wp.y * 3.6 - t * 1.85 + 1.3) +
+              2.8 * -sin(wp.x * 3.3 + wp.y * 5.2 - t * 3.1 + 2.7)
+            ) * 0.25;
+
+            // Perspective-scaled UV refraction offset (stronger in foreground, fine near horizon)
+            float perspAmp = clamp((uv.y - 0.345) * 3.2, 0.08, 1.0);
+            vec2 seaOffset = vec2(slopeX * 0.0055, slopeY * 0.0024 * perspAmp) * perspAmp * seaWeight * u_sea;
+
+            vec2 seaUV = clamp(uv + seaOffset, 0.002, 0.998);
+            // Ensure displaced UV stays inside water mask so rocky coastline never bleeds into water
+            float targetSeaMask = texture2D(u_mask, seaUV).r;
+            seaUV = mix(uv, seaUV, smoothstep(0.05, 0.35, targetSeaMask));
+            vec3 waterCol = texture2D(u_image, seaUV).rgb;
+
+            // 3D Wave Crest & Trough Shading
+            float crestLight = clamp(waveHeight * 0.5 + slopeY * 0.25, -0.4, 0.6);
+            vec3 troughTint = vec3(0.08, 0.24, 0.42);
+            vec3 crestTint  = vec3(0.68, 0.85, 0.98);
+            waterCol += mix(troughTint * -0.06, crestTint * 0.065, crestLight + 0.5) * seaWeight * min(u_sea, 1.5);
+
+            // Whitecaps in stronger wind (when u_sea > 1.05 or u_wind > 1.1)
+            float chopFactor = clamp((u_sea * 0.6 + u_wind * 0.4) - 0.85, 0.0, 1.2);
+            float foamNoise = fbm(wp * 1.8 + vec2(u_time * 0.4, -u_time * 0.3));
+            float whitecap = smoothstep(0.52, 0.82, waveHeight * 0.65 + foamNoise * 0.55) * chopFactor * perspAmp;
+            waterCol = mix(waterCol, vec3(0.95, 0.97, 1.0), whitecap * 0.38 * seaWeight);
+
+            // Gentle shoreline surf lapping along the rocky peninsula edge (where seaWeight is 0.08..0.55 & u < 0.65)
+            float isShoreEdge = smoothstep(0.02, 0.22, seaWeight) * (1.0 - smoothstep(0.25, 0.62, seaWeight)) * smoothstep(0.68, 0.38, uv.x) * smoothstep(0.37, 0.42, uv.y);
+            float shorePulse = 0.5 + 0.5 * sin(u_time * 2.4 - uv.x * 28.0 + uv.y * 18.0 + foamNoise * 3.0);
+            float shoreFoam = isShoreEdge * smoothstep(0.55, 0.92, shorePulse) * min(u_sea, 1.5);
+            waterCol = mix(waterCol, vec3(0.94, 0.96, 0.99), shoreFoam * 0.42);
+
+            // Sparkling Golden Sun-Path Glints on the right side of the sea (auxWeight in sea region)
+            float sunZone = smoothstep(0.62, 0.92, uv.x) * seaWeight + auxWeight * 0.65;
+            if (sunZone > 0.01 && u_sun > 0.001) {
+              // Fast twinkling capillaryfacets
+              float glint1 = noise(wp * 5.5 + vec2(u_time * 2.8, -u_time * 2.1));
+              float glint2 = noise(wp * 7.2 + vec2(-u_time * 2.3, u_time * 3.0));
+              float sparkle = pow( clamp(glint1 * glint2 * 2.35, 0.0, 1.0), 5.0 );
+              float waveAlign = smoothstep(0.0, 0.65, slopeX + slopeY * 0.7 + 0.35);
+              vec3 goldGlint = vec3(1.0, 0.93, 0.72) * (sparkle * waveAlign * 0.85 + max(0.0, waveHeight) * 0.14);
+              waterCol += goldGlint * clamp(sunZone, 0.0, 1.0) * u_sun;
+            }
+
+            baseCol.rgb = mix(baseCol.rgb, clamp(waterCol, 0.0, 1.0), smoothstep(0.0, 0.25, seaWeight));
+          }
+
+          // =========================================================
+          // 3. WIND IN OLIVE BRANCHES & CYPRESS TREES (windWeight = mask.g)
+          // =========================================================
+          if (windWeight > 0.005 && u_wind > 0.001) {
+            float wt = u_time * (1.25 + 0.35 * u_wind);
+
+            // Interactive brush gust when cursor moves over branches
+            float ptrGust = 0.0;
+            if (u_pointerActive > 0.01) {
+              float dBranch = length(uv - u_pointer);
+              ptrGust = sin(u_time * 12.0 - dBranch * 30.0) * exp(-dBranch * 10.0) * u_pointerActive * 1.5;
+            }
+
+            vec2 windOffset = vec2(0.0);
+
+            if (uv.y < 0.298) {
+              // Top-left overhanging olive branches: cantilevered from left column (u = 0.175)
+              float branchReach = clamp((uv.x - 0.16) / 0.32, 0.15, 1.2);
+              // Primary slow coastal breeze swell
+              float swayX = sin(wt * 1.35 - uv.x * 4.5 + uv.y * 2.5) * 0.0052;
+              float swayY = cos(wt * 1.15 - uv.x * 5.2 + 0.6) * 0.0068 + sin(wt * 2.3 - uv.x * 7.0) * 0.0024;
+              // Secondary individual leaf flutter
+              float flutterX = sin(wt * 4.6 + uv.x * 38.0 + uv.y * 29.0) * 0.0016;
+              float flutterY = cos(wt * 5.1 + uv.x * 31.0 - uv.y * 35.0) * 0.0018;
+
+              windOffset = (vec2(swayX + flutterX, swayY + flutterY) * branchReach + vec2(ptrGust * 0.004, ptrGust * 0.005)) * windWeight * u_wind;
+            } else {
+              // Midground hillside trees & parapet cypress/olive bushes: travelling wind wave
+              float gustWave = sin(wt * 1.6 - uv.x * 8.5 + uv.y * 4.0);
+              float bushRustleX = (gustWave * 0.0034 + sin(wt * 4.2 + uv.x * 42.0 + uv.y * 36.0) * 0.0013);
+              float bushRustleY = cos(wt * 2.1 - uv.x * 10.0 + uv.y * 8.0) * 0.0018;
+              windOffset = (vec2(bushRustleX, bushRustleY) + vec2(ptrGust * 0.003, 0.0)) * windWeight * u_wind;
+            }
+
+            vec2 windUV = clamp(uv + windOffset, 0.002, 0.998);
+            // Protect the stone column on the left (u < 0.185) so stone flutes never warp
+            if (uv.x < 0.185) {
+              float targetLeaf = texture2D(u_mask, windUV).g;
+              windUV = mix(uv, windUV, smoothstep(0.08, 0.22, targetLeaf));
+            }
+
+            vec3 foliageCol = texture2D(u_image, windUV).rgb;
+            // Subtle silver-olive leaf shimmer when leaves catch the sun in the breeze
+            float leafFlash = sin(wt * 3.8 + uv.x * 32.0 + uv.y * 24.0) * 0.5 + 0.5;
+            foliageCol += vec3(0.04, 0.045, 0.025) * leafFlash * windWeight * min(u_wind, 1.5) * 0.45;
+
+            baseCol.rgb = mix(baseCol.rgb, foliageCol, smoothstep(0.0, 0.15, windWeight));
+          }
+
+          // =========================================================
+          // 4. DAPPLED OLIVE TREE SHADOWS ON STONE TERRACE (uv.y > 0.665)
+          // =========================================================
+          if (uv.y > 0.665 && auxWeight > 0.01 && u_wind > 0.001) {
+            float wt = u_time * (1.25 + 0.35 * u_wind);
+            // Match the overhead olive branch breeze frequency so ground shadows sway in sync!
+            float dapple1 = noise(uv * vec2(26.0, 38.0) + vec2(sin(wt * 1.35) * 0.65, cos(wt * 1.15) * 0.55));
+            float dapple2 = noise(uv * vec2(48.0, 64.0) - vec2(cos(wt * 2.6) * 0.45, sin(wt * 2.3) * 0.45));
+            float shadowWave = (dapple1 * 0.65 + dapple2 * 0.35) - 0.5;
+            float shadowShift = 1.0 + shadowWave * 0.16 * auxWeight * min(u_wind, 1.6);
+            baseCol.rgb *= shadowShift;
+          }
+
+          // =========================================================
+          // 5. GOLDEN HOUR SUNBEAMS (Crepuscular Rays from top-right sun)
+          // =========================================================
+          if (u_sun > 0.001) {
+            vec2 sunPos = vec2(1.06, 0.08);
+            vec2 delta = uv - sunPos;
+            float distSun = length(delta);
+            float angle = atan(delta.y, delta.x);
+
+            // Animated soft sunbeams fanning across the sky and bay
+            float ray1 = sin(angle * 14.0 + u_time * 0.35) * 0.5 + 0.5;
+            float ray2 = sin(angle * 23.0 - u_time * 0.52 + 1.7) * 0.5 + 0.5;
+            float rays = pow(ray1 * 0.6 + ray2 * 0.4, 2.5);
+            float radialFade = exp(-distSun * 1.65) * smoothstep(0.95, 0.15, uv.y) * smoothstep(0.12, 0.35, uv.x);
+
+            vec3 sunRayCol = vec3(1.0, 0.91, 0.70) * rays * radialFade * 0.14 * u_sun;
+            baseCol.rgb = clamp(baseCol.rgb + sunRayCol, 0.0, 1.0);
+          }
+
+          gl_FragColor = vec4(baseCol.rgb, 1.0);
+        }
+      `;
+  const st={sea:1,wind:1,clouds:1,sun:1,px:.65,py:.5,pa:0};
+  function sh(t,c){const x=gl.createShader(t);gl.shaderSource(x,c);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS)){console.warn(gl.getShaderInfoLog(x));return null;}return x;}
+  const v=sh(gl.VERTEX_SHADER,VS),f=sh(gl.FRAGMENT_SHADER,FS);if(!v||!f)return;
+  const prog=gl.createProgram();gl.attachShader(prog,v);gl.attachShader(prog,f);gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS))return;
+  gl.useProgram(prog);
+  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  const ap=gl.getAttribLocation(prog,"a_pos");gl.enableVertexAttribArray(ap);gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+  const U={};["u_image","u_mask","u_time","u_sea","u_wind","u_clouds","u_sun","u_viewMode","u_splitX","u_pointer","u_pointerActive"].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
+  function tex(img,unit){const t=gl.createTexture();gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,t);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);}
+  // pollen motes + a few drifting leaves
+  const P=[];for(let i=0;i<40;i++)P.push({x:Math.random()*1024,y:Math.random()*1022,r:1.1+Math.random()*2.1,vx:.25+Math.random()*.55,vy:-.15+Math.random()*.35,ph:Math.random()*6.283,a:.25+Math.random()*.55,leaf:i<4});
+  function motes(t,dt){fx.clearRect(0,0,1024,1022);
+    for(const p of P){p.x+=(p.vx+Math.sin(t*1.4+p.ph)*.35)*dt*60;p.y+=(p.vy+Math.cos(t*1.8+p.ph)*.25)*dt*60;
+      if(p.x>1040){p.x=-15;p.y=Math.random()*900;}if(p.y>1035)p.y=-10;if(p.y<-15)p.y=1030;
+      const tw=.55+.45*Math.sin(t*3.2+p.ph);
+      if(p.leaf){fx.save();fx.translate(p.x,p.y);fx.rotate(t*1.5+p.ph);fx.fillStyle="rgba(138,154,104,.55)";fx.beginPath();fx.ellipse(0,0,5.5,2.1,0,0,6.283);fx.fill();fx.restore();}
+      else{const a=p.a*tw,g=fx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*3.2);g.addColorStop(0,"rgba(255,248,210,"+a+")");g.addColorStop(.5,"rgba(255,225,145,"+a*.45+")");g.addColorStop(1,"rgba(255,220,130,0)");fx.fillStyle=g;fx.beginPath();fx.arc(p.x,p.y,p.r*3.2,0,6.283);fx.fill();}}}
+  // map the pointer through object-fit:cover so stirring the sea / brushing the leaves works
+  window.addEventListener("pointermove",e=>{if(!wrap.classList.contains("on"))return;
+    const W=innerWidth,H=innerHeight,sc=Math.max(W/1024,H/1022),dw=1024*sc,dh=1022*sc,ox=(W-dw)*.5,oy=(H-dh)*.6;
+    st.px=Math.max(0,Math.min(1,(e.clientX-ox)/dw));st.py=Math.max(0,Math.min(1,(e.clientY-oy)/dh));st.pa=1;},{passive:true});
+  let simT=0,last=performance.now(),ready=false;
+  function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+    const live=ready&&!document.getElementById("view-week").hidden&&!document.hidden;
+    if(live){simT+=dt;st.pa=Math.max(0,st.pa-dt*.85);
+      gl.viewport(0,0,1024,1022);gl.useProgram(prog);
+      gl.uniform1i(U.u_image,0);gl.uniform1i(U.u_mask,1);gl.uniform1f(U.u_time,simT);
+      gl.uniform1f(U.u_sea,st.sea);gl.uniform1f(U.u_wind,st.wind);gl.uniform1f(U.u_clouds,st.clouds);gl.uniform1f(U.u_sun,st.sun);
+      gl.uniform1i(U.u_viewMode,0);gl.uniform1f(U.u_splitX,.5);gl.uniform2f(U.u_pointer,st.px,st.py);gl.uniform1f(U.u_pointerActive,st.pa);
+      gl.drawArrays(gl.TRIANGLES,0,6);motes(simT,dt);}
+    requestAnimationFrame(frame);}
+  const scene=new Image(),mask=new Image();let n=0;
+  function got(){if(++n<2)return;try{tex(scene,0);tex(mask,1);}catch(e){console.warn("living scene off:",e.message);return;}ready=true;wrap.classList.add("on");}
+  scene.onload=got;mask.onload=got;scene.src="img/week-scene.jpg";mask.src="img/week-mask.png";
+  requestAnimationFrame(frame);
+})();
+
+
 (function(){
 "use strict";
 const TZ="America/Mexico_City";
