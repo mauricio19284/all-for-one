@@ -481,6 +481,29 @@ input[type=checkbox]:checked::after{transform:translateY(-1px) rotate(-45deg) sc
 .habrow{padding:14px 0 8px; border-bottom:1px solid var(--line)}
 .habrow:last-child{border-bottom:0}
 .habrow h3{font-family:var(--sans); font-size:14.5px; font-weight:650; margin-bottom:6px}
+.habrow .hhead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px}
+.habrow .hhead h3{margin-bottom:0}
+.habrow .hhead .hcount{font-size:12px; color:var(--muted); margin-left:auto}
+.habdots{background:transparent; border:1px solid transparent; border-radius:6px; color:var(--ink); cursor:pointer; font-size:18px; line-height:1; padding:2px 8px; letter-spacing:.1em}
+.habdots:hover,.habdots[aria-expanded="true"]{background:rgba(255,255,255,.6); border-color:var(--line-2)}
+.habnav{display:inline-flex; align-items:center; gap:8px}
+.habarrow{background:transparent; border:1px solid var(--line-2); border-radius:6px; color:var(--ink); cursor:pointer; font-size:17px; line-height:1; padding:1px 9px 3px}
+.habarrow:hover:not(:disabled){background:rgba(255,255,255,.6)}
+.habarrow:disabled{opacity:.3; cursor:default}
+.hcell.offmonth{visibility:hidden}
+.habtally{display:none; margin:8px 0 6px; padding:14px 16px; border-radius:6px; background:rgba(255,255,255,.42); border:1px solid var(--line)}
+.habtally.open{display:block}
+.habtally .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px; margin-bottom:12px}
+.habtally .tiles div{background:var(--paper); border-radius:6px; padding:10px 12px}
+.habtally .tiles b{font-family:var(--display); font-size:22px; display:block; line-height:1.1}
+.habtally .tiles span{font-size:11.5px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase}
+.habtally table{border-collapse:collapse; width:100%; font-size:13px}
+.habtally td{padding:5px 4px; border-top:1px solid var(--line)}
+.habtally td:first-child{font-weight:600}
+.habtally td.n{text-align:right; font-variant-numeric:tabular-nums; width:70px}
+.habtally td.bar{width:40%}
+.habtally .meter{height:6px; border-radius:3px; background:rgba(0,0,0,.08); overflow:hidden}
+.habtally .meter i{display:block; height:100%; background:var(--accent-fill)}
 
 .note{border-bottom:1px solid var(--line); padding:13px 0}
 .note:last-child{border-bottom:0}
@@ -1589,9 +1612,9 @@ body:has(:is(#view-today,#view-learning,#view-school,#view-gym,#view-projects,#v
         <div class="pfoot"><span>ΚΑΘ' ΗΜΕΡΑΝ</span><span>Discipline today. Freedom tomorrow.</span></div>
       </div>
       <div class="panel">
-        <header><h2>Six-week test</h2><span class="right" id="habpct"></span></header>
+        <header><h2 id="habtitle">Habits</h2><span class="right habnav"><button class="habarrow" id="habprev" aria-label="Previous month">‹</button><span class="mono" id="habpct"></span><button class="habarrow" id="habnext" aria-label="Next month">›</button></span></header>
         <div class="body habits" id="habitbox"></div>
-        <div class="body" style="padding-top:0"><div class="hlegend">A missed mark is information, not a broken streak. Pick it up at the next cue and don't add habits before October 12.</div></div>
+        <div class="body" style="padding-top:0"><div class="hlegend">The grid starts fresh every month. Old months stay saved — use ‹ › to look back, and ⋯ on a habit for its tallies.</div></div>
       </div>
     </section>
 
@@ -1649,6 +1672,7 @@ const ORDER=["mon","tue","wed","thu","fri","sat","sun"];
 const DL={sun:"Sun",mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat"};
 const HABITS=[{id:"morning",label:"Morning Command Center check"},{id:"shutdown",label:"Evening shutdown"},{id:"lights",label:"Lights out on time"}];
 const TEST={start:"2026-09-01", end:"2026-10-12", firstMonday:"2026-08-31"};
+const HAB={ym:null,open:{}}; // ym = month being viewed ("YYYY-MM"), open = which habit tallies are expanded
 
 const FALLBACK={week:{},schoolwork:{},gymTime:{},split:{},shutdown:[],review:[]};
 
@@ -2115,25 +2139,63 @@ function projects(){
   const done=S.tasks.filter(t=>t.folder==="projects"&&t.status==="done").sort((a,b)=>(b.doneAt||"").localeCompare(a.doneAt||"")).slice(0,8);
   $("#projects-done").innerHTML=done.length?done.map(taskRow).join(""):'<li><div class="t"><small>Finished work lands here.</small></div></li>';
 }
+const ymOf=iso=>iso.slice(0,7);
+const monthLabel=ym=>fmt(ym+"-01",{month:"long",year:"numeric"});
+function monthDays(ym){const [y,m]=ym.split("-").map(Number);const n=new Date(Date.UTC(y,m,0)).getUTCDate();const out=[];for(let d=1;d<=n;d++)out.push(ym+"-"+String(d).padStart(2,"0"));return out;}
+function shiftYM(ym,n){const [y,m]=ym.split("-").map(Number);const d=new Date(Date.UTC(y,m-1+n,1));return d.toISOString().slice(0,7);}
+function habTally(id){
+  const iso=todayISO(),log=S.habits||{};
+  const marked=Object.keys(log).filter(d=>log[d]&&log[d][id]&&d<=iso).sort();
+  const first=marked[0]||null;
+  // months from first mark (or this month) up to today
+  const months={};
+  let ym=first?ymOf(first):ymOf(iso);
+  while(ym<=ymOf(iso)){const days=monthDays(ym).filter(d=>d<=iso&&(!first||d>=first));months[ym]={done:0,of:days.length};ym=shiftYM(ym,1);}
+  marked.forEach(d=>{const k=ymOf(d);if(months[k])months[k].done++;});
+  // streaks
+  let cur=0,d=iso;
+  if(!(log[iso]&&log[iso][id]))d=shift(iso,-1); // today not marked yet doesn't break the streak
+  while(log[d]&&log[d][id]){cur++;d=shift(d,-1);}
+  let best=0,run=0,prev=null;
+  marked.forEach(x=>{run=(prev&&shift(prev,1)===x)?run+1:1;best=Math.max(best,run);prev=x;});
+  const tm=months[ymOf(iso)]||{done:0,of:0};
+  return {total:marked.length,cur,best,thisMonth:tm,months,first};
+}
 function habits(){
-  const iso=todayISO();let marks=0,slots=0;
+  const iso=todayISO(),cur=ymOf(iso);
+  if(!HAB.ym)HAB.ym=cur;
+  const ym=HAB.ym,days=monthDays(ym),viewing=ym===cur;
+  const firstDow=(new Date(ym+"-01T12:00:00Z").getUTCDay()+6)%7; // 0=Mon
+  const weeks=[];let row=new Array(firstDow).fill(null);
+  days.forEach(d=>{row.push(d);if(row.length===7){weeks.push(row);row=[];}});
+  if(row.length){while(row.length<7)row.push(null);weeks.push(row);}
+  let marks=0,slots=0;
   const html=HABITS.map(h=>{
-    let rows="";
-    for(let w=0;w<6;w++){
-      const start=shift(TEST.firstMonday,w*7);
-      let cells="";
-      for(let d=0;d<7;d++){
-        const day=shift(start,d), future=day>iso, out=day<TEST.start||day>TEST.end;
-        const on=!!((S.habits[day]||{})[h.id]);
-        if(!future&&!out){slots++;if(on)marks++;}
-        cells+='<td><button class="hcell'+(future?" future":"")+'" aria-pressed="'+on+'" data-hab="'+h.id+":"+day+'"'+((future||out)?" disabled":"")+' title="'+day+'"></button></td>';
-      }
-      rows+='<tr><th class="wk">'+fmt(start,{month:"short",day:"numeric"})+'</th>'+cells+'</tr>';
-    }
-    return '<div class="habrow"><h3>'+esc(h.label)+'</h3><table class="hgrid"><tr><th class="wk"></th>'+ORDER.map(d=>'<th>'+DL[d][0]+'</th>').join("")+'</tr>'+rows+'</table></div>';
+    let n=0;
+    const rows=weeks.map(w=>{
+      const cells=w.map(day=>{
+        if(!day)return '<td><button class="hcell offmonth" disabled tabindex="-1"></button></td>';
+        const future=day>iso,on=!!((S.habits[day]||{})[h.id]);
+        if(!future){slots++;if(on){marks++;n++;}}
+        return '<td><button class="hcell'+(future?" future":"")+'" aria-pressed="'+on+'" data-hab="'+h.id+":"+day+'"'+(future?" disabled":"")+' title="'+day+'"></button></td>';
+      }).join("");
+      const lbl=w.find(Boolean);
+      return '<tr><th class="wk">'+fmt(lbl,{month:"short",day:"numeric"})+'</th>'+cells+'</tr>';
+    }).join("");
+    const t=habTally(h.id),open=!!HAB.open[h.id];
+    const mrows=Object.keys(t.months).sort().reverse().map(k=>{const m=t.months[k],pct=m.of?Math.round(m.done/m.of*100):0;
+      return '<tr><td>'+esc(monthLabel(k))+'</td><td class="n">'+m.done+' / '+m.of+'</td><td class="bar"><div class="meter"><i style="width:'+pct+'%"></i></div></td><td class="n">'+pct+'%</td></tr>';}).join("");
+    const tally='<div class="habtally'+(open?" open":"")+'" id="tally-'+h.id+'">'+
+      '<div class="tiles">'+tile(t.thisMonth.done+"/"+t.thisMonth.of,"This month")+tile(t.cur,"Current streak")+tile(t.best,"Best streak")+tile(t.total,"All time")+'</div>'+
+      (mrows?'<table>'+mrows+'</table>':'<div class="hlegend" style="padding-top:0">No marks yet.</div>')+
+      (t.first?'<div class="hlegend" style="padding-top:8px">Tracking since '+esc(fmt(t.first,{month:"short",day:"numeric",year:"numeric"}))+'.</div>':"")+'</div>';
+    return '<div class="habrow"><div class="hhead"><h3>'+esc(h.label)+'</h3><span class="hcount">'+n+' this month</span><button class="habdots" data-tally="'+h.id+'" aria-expanded="'+open+'" aria-label="Show tallies" title="Tallies">⋯</button></div>'+tally+
+      '<table class="hgrid"><tr><th class="wk"></th>'+ORDER.map(d=>'<th>'+DL[d][0]+'</th>').join("")+'</tr>'+rows+'</table></div>';
   }).join("");
   $("#habitbox").innerHTML=html;
-  $("#habpct").textContent=slots?Math.round(marks/slots*100)+"% of days marked":"";
+  $("#habtitle").textContent=monthLabel(ym);
+  $("#habpct").textContent=slots?Math.round(marks/slots*100)+"% of days":(viewing?"":"no days yet");
+  $("#habnext").disabled=viewing||ym>cur;
 }
 function tile(v,l){return '<div><b>'+esc(String(v))+'</b><span>'+esc(l)+'</span></div>';}
 function dayHasContent(d){
@@ -2304,7 +2366,11 @@ document.addEventListener("click",async e=>{
       hb.setAttribute("aria-pressed",String(copy[day][id]));
       await S.db.doc("habits/log").set(copy);
     }
+    const tb=e.target.closest("[data-tally]");
+    if(tb){HAB.open[tb.dataset.tally]=!HAB.open[tb.dataset.tally];habits();return;}
     const id=e.target.id;
+    if(id==="habprev"){HAB.ym=shiftYM(HAB.ym||ymOf(todayISO()),-1);habits();return;}
+    if(id==="habnext"){HAB.ym=shiftYM(HAB.ym||ymOf(todayISO()),1);habits();return;}
     if(id==="gdid"){const n=$("#gnote");await logToday(n?n.value.trim():"");}
     if(id==="gnotebtn"){if(needDb())return;await S.db.doc("gymlog/"+todayISO()).update({note:$("#gnote").value.trim()});$("#impnote").textContent="";}
     if(id==="gundo"){if(needDb())return;await S.db.doc("gymlog/"+todayISO()).delete();}
