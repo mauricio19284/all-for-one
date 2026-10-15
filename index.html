@@ -471,6 +471,13 @@ input[type=checkbox]:checked::after{transform:translateY(-1px) rotate(-45deg) sc
 .hcell{width:22px; height:22px; border:1.5px solid var(--line-2); border-radius:50%; background:var(--paper); cursor:pointer; padding:0; transition:background .15s, border-color .15s}
 .hcell:hover:not(:disabled){border-color:var(--ink)}
 .hcell[aria-pressed="true"]{background:var(--accent-fill); border-color:var(--accent-fill)}
+/* Habits tab: a marked day is an iron tally stroke, an unmarked one a faint slot */
+#view-habits .hgrid td{padding:2px 2px}
+#view-habits .hcell{width:22px; height:34px; border-radius:4px; background:rgba(255,255,255,.55); border:1px solid rgba(0,0,0,.14); transition:none}
+#view-habits .hcell:hover:not(:disabled){border-color:rgba(0,0,0,.4)}
+#view-habits .hcell[aria-pressed="true"]{background:url("img/tally.png") center / auto 32px no-repeat; border-color:transparent}
+#view-habits .hcell[aria-pressed="true"]:hover:not(:disabled){background-color:rgba(255,255,255,.35)}
+#view-habits .hcell.future{background:transparent; border-style:dashed}
 .hcell:disabled{opacity:.3; cursor:default}
 .hcell.future{background:transparent; border-style:dashed}
 .hlegend{font-size:13px; color:var(--muted); padding-top:10px; max-width:66ch}
