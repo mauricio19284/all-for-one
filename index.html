@@ -863,7 +863,7 @@ body:has(#view-school:not([hidden])){--pbg:url("img/bg-school.jpg"); --pbg-pos:5
 body:has(#view-gym:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 40%}
 body:has(#view-projects:not([hidden])){--pbg:url("img/bg-projects.jpg"); --pbg-pos:50% 45%}
 body:has(#view-habits:not([hidden])){--pbg:url("img/bg-habits.jpg"); --pbg-pos:50% 45%}
-body:has(#view-stats:not([hidden])){--pbg:url("img/hercules.jpg"); --pbg-pos:50% 22%}
+body:has(#view-stats:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 65%}
 body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .nav{background:transparent; border-bottom:0; -webkit-backdrop-filter:none; backdrop-filter:none; color:#fff; --ink:#fff; --muted:rgba(255,255,255,.74)}
 body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .brand{color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.4)}
 body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .navbtn[aria-current="true"]::after{background:#fff}
@@ -894,17 +894,17 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 :is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .btn.ghost{background:rgba(255,255,255,.5)}
 #view-habits .phero{margin-bottom:4px}
 /* ---------- stats (character sheet) ---------- */
-#view-stats .meters{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px 20px; padding:6px 0 4px}
-#view-stats .meter{display:flex; flex-direction:column; gap:5px; min-width:0}
-#view-stats .meter .mh{display:flex; justify-content:space-between; align-items:baseline; gap:8px}
-#view-stats .meter .mh span{font-size:10px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
-#view-stats .meter .mh b{font-size:13px; font-weight:600; font-variant-numeric:tabular-nums}
-#view-stats .meter input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; margin:0; background:transparent; cursor:pointer}
-#view-stats .meter input[type=range]::-webkit-slider-runnable-track{height:8px; border-radius:999px; background:linear-gradient(90deg,var(--mc) 0 var(--mv),rgba(40,34,26,.12) var(--mv) 100%)}
-#view-stats .meter input[type=range]::-moz-range-track{height:8px; border-radius:999px; background:rgba(40,34,26,.12)}
-#view-stats .meter input[type=range]::-moz-range-progress{height:8px; border-radius:999px; background:var(--mc)}
-#view-stats .meter input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; margin-top:-4px; border-radius:50%; background:#fff; border:1px solid rgba(40,34,26,.35); box-shadow:0 1px 3px rgba(0,0,0,.2)}
-#view-stats .meter input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#fff; border:1px solid rgba(40,34,26,.35); box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#view-stats .vmeters{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px 20px; padding:6px 0 4px}
+#view-stats .vmeter{display:flex; flex-direction:column; gap:5px; min-width:0}
+#view-stats .vmeter .mh{display:flex; justify-content:space-between; align-items:baseline; gap:8px}
+#view-stats .vmeter .mh span{font-size:10px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
+#view-stats .vmeter .mh b{font-size:13px; font-weight:600; font-variant-numeric:tabular-nums}
+#view-stats .vmeter input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; margin:0; background:transparent; cursor:pointer}
+#view-stats .vmeter input[type=range]::-webkit-slider-runnable-track{height:8px; border-radius:999px; background:linear-gradient(90deg,var(--mc) 0 var(--mv),rgba(40,34,26,.12) var(--mv) 100%)}
+#view-stats .vmeter input[type=range]::-moz-range-track{height:8px; border-radius:999px; background:rgba(40,34,26,.12)}
+#view-stats .vmeter input[type=range]::-moz-range-progress{height:8px; border-radius:999px; background:var(--mc)}
+#view-stats .vmeter input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; margin-top:-4px; border-radius:50%; background:#fff; border:1px solid rgba(40,34,26,.35); box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#view-stats .vmeter input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#fff; border:1px solid rgba(40,34,26,.35); box-shadow:0 1px 3px rgba(0,0,0,.2)}
 #view-stats .quick{display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding-top:14px; border-top:1px solid var(--line); margin-top:10px}
 #view-stats .quick .btn{padding:8px 12px}
 #view-stats .qsleep{display:inline-flex; align-items:center; gap:6px}
@@ -2323,12 +2323,12 @@ function stats(){
   // meters
   const mt=stMeters(iso);
   $("#st-meterdate").textContent=fmt(iso,{weekday:"long",month:"short",day:"numeric"});
-  if(!view.querySelector("#st-meters .meter")||view.dataset.day!==iso){
+  if(!view.querySelector("#st-meters .vmeter")||view.dataset.day!==iso){
     view.dataset.day=iso;
-    $("#st-meters").innerHTML=METERS.map(([k,l])=>'<div class="meter" data-m="'+k+'"><div class="mh"><span>'+l+'</span><b></b></div><input type="range" min="0" max="100" step="1" aria-label="'+l+'"></div>').join("");
+    $("#st-meters").innerHTML=METERS.map(([k,l])=>'<div class="vmeter" data-m="'+k+'"><div class="mh"><span>'+l+'</span><b></b></div><input type="range" min="0" max="100" step="1" aria-label="'+l+'"></div>').join("");
   }
   METERS.forEach(([k])=>{
-    const el=view.querySelector('.meter[data-m="'+k+'"]'),inp=el.querySelector("input"),v=clamp(Math.round(mt[k]==null?50:mt[k]),0,100);
+    const el=view.querySelector('.vmeter[data-m="'+k+'"]'),inp=el.querySelector("input"),v=clamp(Math.round(mt[k]==null?50:mt[k]),0,100);
     if(document.activeElement!==inp)inp.value=v;
     el.querySelector("b").textContent=v;
     const good=k==="stress"?100-v:v,col=good>=60?"#2c6a43":good>=35?"#8a6412":"#8e3b2e";
@@ -2408,9 +2408,9 @@ async function stLog(text,statPick){
   const view=$("#view-stats");if(!view)return;
   let mT=null;
   view.addEventListener("input",e=>{
-    const inp=e.target.closest('.meter input[type=range]');if(!inp)return;
-    const k=inp.closest(".meter").dataset.m,v=+inp.value;
-    inp.closest(".meter").querySelector("b").textContent=v;
+    const inp=e.target.closest('.vmeter input[type=range]');if(!inp)return;
+    const k=inp.closest(".vmeter").dataset.m,v=+inp.value;
+    inp.closest(".vmeter").querySelector("b").textContent=v;
     const good=k==="stress"?100-v:v;inp.style.setProperty("--mc",good>=60?"#2c6a43":good>=35?"#8a6412":"#8e3b2e");inp.style.setProperty("--mv",v+"%");
     clearTimeout(mT);mT=setTimeout(()=>{stDayPatch(todayISO(),d=>{d.meters[k]=v;return d;}).catch(err=>say("Couldn't save the meter — "+((err&&err.code)||"try again"),true));},400);
   });
