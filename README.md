@@ -1,7 +1,7 @@
 # All For One
 
 A personal command center: a home page with calendar and to-dos, plus a page per section
-(Today, Week, School, Learning, Finance, Gym, Projects, Habits, Review, Notes). The old Money tab lives on as Finance › Grow.
+(Today, Week, School, Learning, Finance, Gym, Projects, Habits, Stats, Review, Notes). The old Money tab lives on as Finance › Grow.
 
 ## How it is put together
 
@@ -10,7 +10,8 @@ A personal command center: a home page with calendar and to-dos, plus a page per
   Each record is addressed as `collection/id`:
   `tasks/<id>`, `notes/<id>`, `gymlog/<YYYY-MM-DD>`, `daily/<YYYY-MM-DD>`, `weekly/<monday YYYY-MM-DD>`,
   `habits/log`, `meta/config`, `meta/roadmap`, `meta/investing`, `insights/<YYYY-MM-DD>`,
-  `finacct/<id>`, `finsub/<id>`, `fintx/<YYYY-MM>`, `fingoal/<id>`, `finproj/<id>`, `meta/finance`, `meta/finlog`.
+  `finacct/<id>`, `finsub/<id>`, `fintx/<YYYY-MM>`, `fingoal/<id>`, `finproj/<id>`, `meta/finance`, `meta/finlog`,
+  `meta/stats`, `statday/<YYYY-MM-DD>`.
 - Sign-in is Supabase email + password. Row-level security lets only the address listed in
   `public.app_owner` read or write (`supabase/schema.sql`).
 - The capture box's auto-filing and the Review page's "read my notes" call the `ai` edge function
@@ -50,3 +51,6 @@ Nothing connects to a bank. Balances are typed. Transactions are typed, or read 
 Excel statement and saved only after the preview is approved. Each subscription adds one automatic row per
 charge date unless a real transaction matching its `match` words exists within a few days. No personal
 financial data belongs in this repository; it lives only in the `docs` table.
+- meta/stats: `{base: {<stat>: {v, note}}, measuredAt, quests: [{id, label, stat, xp, auto?}]}` — the Stats tab's baseline (50 = world average) and daily quests
+- statday (one per day): `{meters: {health, energy, rest, hunger, hydration, hygiene, mood, stress, motivation, socialbat}, done: {<questId>: true}, log: [{at, text, stat, xp}], water, sleep}`
+  A stat shows as baseline + earned XP / 40, minus a quarter point per idle day after two.
