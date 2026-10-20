@@ -5,7 +5,7 @@ A personal command center: a home page with calendar and to-dos, plus a page per
 
 ## How it is put together
 
-- `index.html` is the whole site. It is static and can be served from any static host.
+- `index.html` is the whole site, plus `plans.js` (the Stats tab's yearly plans). Both are static and can be served from any static host.
 - Data lives in a Supabase project, in one table: `public.docs (collection, id, data jsonb, updated_at)`.
   Each record is addressed as `collection/id`:
   `tasks/<id>`, `notes/<id>`, `gymlog/<YYYY-MM-DD>`, `daily/<YYYY-MM-DD>`, `weekly/<monday YYYY-MM-DD>`,
@@ -51,6 +51,16 @@ Nothing connects to a bank. Balances are typed. Transactions are typed, or read 
 Excel statement and saved only after the preview is approved. Each subscription adds one automatic row per
 charge date unless a real transaction matching its `match` words exists within a few days. No personal
 financial data belongs in this repository; it lives only in the `docs` table.
-- meta/stats: `{base: {<stat>: {v, note}}, measuredAt, quests: [{id, label, stat, xp, auto?}]}` — the Stats tab's baseline (50 = world average) and daily quests
-- statday (one per day): `{meters: {health, energy, rest, hunger, hydration, hygiene, mood, stress, motivation, socialbat}, done: {<questId>: true}, log: [{at, text, stat, xp}], water, sleep}`
-  A stat shows as baseline + earned XP / 40, minus a quarter point per idle day after two.
+- meta/stats: `{base: {<stat>: {v, note}}, measuredAt, planStart: "YYYY-MM-DD", quests: [{id, label, stat, xp}]}` — the Stats tab's baseline (50 = world average), program day 1 of the yearly plans, and his own permanent quests
+- statday (one per day): `{meters: {health, energy, rest, hunger, hydration, hygiene, mood, stress, motivation, socialbat}, done: {<questId>: true | xp}, log: [{at, text, stat, xp}], water, sleep}`
+  A stat shows as baseline + earned XP / 60, minus a quarter point per idle day after two.
+
+## Stats tab quests
+
+Every stat owns a yearly plan in `plans.js` and sends exactly one quest a day. Gym (Strength) and the must-finish (Discipline) tick themselves.
+The plan functions take the day's context — program day, program week (every 4th is easier), planning month (blocks of 31/28/31… days),
+day and week inside that month, weekday — and return `{id: "pl_<stat>", label, detail, xp}`. Plan quest ids are stable, so the day record
+stores the XP earned under the id. Sources: Endurance, Speed & Agility, Looks, Knowledge & Leadership and Cognitive skills from his
+plan documents; Growth & Health (Height & Build), Critical thinking (Judgment), Focus, Creativity, Mindfulness (Emotional Control),
+Social skills, Influence & Leadership, Money & Income (Financial) and Discipline from his Google Docs; Practical Skills written for him.
+The start date is in `meta/stats.planStart` (⋯ next to the day counter), default 2026-10-20.
