@@ -1055,11 +1055,21 @@ body:has(#view-home:not([hidden])) .cape{display:block}
 #view-today .empty{font-style:italic}
 
 /* the morning draft */
-#view-today #suggestbox{display:block; background:transparent; border:0;
+#view-today #suggestbox,#view-today #tsuggestbox{display:block; background:transparent; border:0;
   border-top:1px solid var(--line); border-bottom:1px solid var(--line);
   border-radius:0; padding:22px 0 20px; margin-bottom:26px !important}
-#view-today #suggestbox > div > b{color:var(--ink-2); font-size:11.5px; font-weight:700;
+#view-today #tsuggestbox{border-top:0; padding-top:4px; margin-bottom:18px !important}
+#view-today #suggestbox > div > b,#view-today #tsuggestbox > div > b{color:var(--ink-2); font-size:11.5px; font-weight:700;
   letter-spacing:.2em; text-transform:uppercase; display:block; margin-bottom:0}
+#view-today #tsuggestbox .draftresult{font-size:clamp(19px,2vw,23px)}
+#view-today .prep{margin:14px 0 0; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:6px 10px}
+#view-today .prep li{font-size:12.5px; color:var(--ink-2); border:1px solid var(--line); border-radius:6px; padding:4px 10px}
+#view-today #t-daylabel{font-family:var(--serif); font-size:15px; color:var(--ink-2); font-weight:400}
+/* the shutdown panel is a narrow column, so the plan form stacks label over field */
+#view-today .tplan .must .line{flex-direction:column; gap:4px; padding:6px 0}
+#view-today .tplan .must .k{flex:none; padding-top:0}
+#view-today .tplan .must .line > input,#view-today .tplan .must .line > textarea,#view-today .tplan .must .line > .secondary{width:100%; flex:none}
+#view-today .tplan .must .result input{font-size:18px}
 #view-today .draftresult{font-family:var(--serif); font-size:clamp(22px,2.4vw,28px);
   font-weight:400; line-height:1.3; letter-spacing:-.003em; color:var(--ink);
   margin:12px 0 0; max-width:44ch}
@@ -1308,10 +1318,29 @@ body:has(#view-home:not([hidden])) .cape{display:block}
           <ul class="check" id="shutdown"></ul>
           <div class="kv" style="border-top:1px solid var(--line); margin-top:10px; padding-top:12px">
             <div class="line"><label class="k" for="r-resume">Resume at</label><input type="text" id="r-resume" placeholder="Exactly where you pick this up tomorrow"></div>
-            <div class="line"><label class="k" for="t-result">Tomorrow</label><input type="text" id="t-result" placeholder="Tomorrow's likely must-finish result"></div>
-            <div class="line"><label class="k" for="t-action">Its first move</label><input type="text" id="t-action" placeholder="The first physical action — this is what you'll see in the morning"></div>
           </div>
-          <div class="savebar"><button class="btn ghost" id="reflectsave">Close the day</button><span id="reflectstate"></span></div>
+          <div class="tplan" style="border-top:1px solid var(--line); margin-top:12px; padding-top:14px">
+            <div class="mustline" style="margin-bottom:10px"><div><span class="label">Tomorrow's must-finish</span><p id="t-daylabel" style="margin:2px 0 0; font-size:13px; color:var(--muted)"></p></div></div>
+            <div class="flag" id="tsuggestbox" hidden style="margin-bottom:14px">
+              <div style="flex:1"><b>Drafted for tomorrow</b>
+                <div id="tsuggesttext"></div>
+                <button class="btn ghost" id="usetsuggest" style="margin-top:8px">Use this draft</button>
+              </div>
+            </div>
+            <div class="must">
+              <div class="line result"><label class="k" for="t-result">Result</label><input type="text" id="t-result" placeholder="One thing that, done, makes tomorrow count — visible completion"></div>
+              <div class="line"><label class="k" for="t-action">First action</label><input type="text" id="t-action" placeholder="The first physical thing you do — this is what you'll see in the morning"></div>
+              <div class="line"><label class="k" for="t-block">When</label><input type="text" id="t-block" placeholder="The block on tomorrow's calendar it happens in"></div>
+              <div class="line"><label class="k" for="t-obstacle">If… then…</label><textarea id="t-obstacle" placeholder="If the most likely obstacle happens, then I will…"></textarea></div>
+              <div class="line"><span class="k">Secondary</span>
+                <div class="secondary" style="flex:1">
+                  <div class="row"><input type="text" id="ts0" placeholder="Secondary result (optional)"></div>
+                  <div class="row"><input type="text" id="ts1" placeholder="Secondary result (optional)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="savebar"><button class="btn" id="reflectsave">Close the day</button><span id="reflectstate"></span></div>
         </div>
       </div>
     </section>
@@ -2648,25 +2677,29 @@ function today(){
     $("#s1").value=(sec[1]&&sec[1].label)||""; $("#s1-done").checked=!!(sec[1]&&sec[1].done);
     const r=d.reflection||{};
     $("#r-resume").value=r.resume||"";
-    const tm=d.tomorrow||{};
-    $("#t-result").value=tm.result||""; $("#t-action").value=tm.firstAction||"";
     $("#muststate").textContent=mu.done?"Finished ✓":"";
     $("#mustsaved").textContent=d.savedAt?"saved "+d.savedAt.slice(11,16):"";
     const sg=d.suggestion;
-    $("#suggestbox").hidden=!(sg&&sg.result&&!mu.result);
+    $("#suggestbox").hidden=!(sg&&sg.result&&!mu.done);
     if(sg&&sg.result){
-      const sx=(Array.isArray(sg.secondary)?sg.secondary:[]).filter(Boolean);
-      const extra=(sg.why?'<p>'+esc(sg.why)+'</p>':"")
-        +(sg.obstacle?'<p class="sm">If… then… '+esc(sg.obstacle)+'</p>':"")
-        +(sx.length?'<p class="sm">If there is room: '+esc(sx.join(" · "))+'</p>':"");
-      $("#suggesttext").innerHTML='<p class="draftresult">'+esc(sg.result)+'</p>'
-        +'<dl class="draftmeta">'
-        +(sg.firstAction?'<div><dt>Start with</dt><dd>'+esc(sg.firstAction)+'</dd></div>':"")
-        +(sg.block?'<div><dt>In this block</dt><dd>'+esc(sg.block)+'</dd></div>':"")
-        +'</dl>'
-        +(extra?'<details class="draftwhy"><summary>Why this one</summary><div class="inner">'+extra+'</div></details>':"");
+      $("#suggesttext").innerHTML=draftHTML(sg);
+      $("#usesuggest").textContent=mu.result?"Use this draft instead":"Use this draft";
     }
   }
+  if(!S.tdirty){
+    // tomorrow's plan lives in tomorrow's own document, so the morning opens already filled in
+    const t=S.tomorrow||{},tmu=t.must||{},tsec=t.secondary||[],tsg=t.suggestion;
+    $("#t-result").value=tmu.result||""; $("#t-action").value=tmu.firstAction||"";
+    $("#t-block").value=tmu.block||""; $("#t-obstacle").value=tmu.obstacle||"";
+    $("#ts0").value=(tsec[0]&&tsec[0].label)||""; $("#ts1").value=(tsec[1]&&tsec[1].label)||"";
+    $("#reflectstate").textContent=tmu.result?"Saved for the morning.":"";
+    $("#tsuggestbox").hidden=!(tsg&&tsg.result);
+    if(tsg&&tsg.result){
+      $("#tsuggesttext").innerHTML=draftHTML(tsg,t.prep);
+      $("#usetsuggest").textContent=tmu.result?"Use this draft instead":"Use this draft";
+    }
+  }
+  $("#t-daylabel").textContent=fmt(shift(todayISO(),1),{weekday:"long",month:"short",day:"numeric"});
 
   const list=(S.daily&&Array.isArray(S.daily.shutdown)&&S.daily.shutdown.length)?S.daily.shutdown:cfg().shutdown.map(l=>({label:l,done:false}));
   $("#shutdown").innerHTML=list.map((it,i)=>'<li class="'+(it.done?"on":"")+'"><input type="checkbox" id="sd'+i+'" data-sd="'+i+'"'+(it.done?" checked":"")+'><label for="sd'+i+'">'+esc(it.label)+'</label></li>').join("");
@@ -2675,18 +2708,32 @@ function today(){
   home();
 }
 
+function draftHTML(sg,prep){
+  const sx=(Array.isArray(sg.secondary)?sg.secondary:[]).filter(Boolean);
+  const extra=(sg.why?'<p>'+esc(sg.why)+'</p>':"")
+    +(sg.obstacle?'<p class="sm">If\u2026 then\u2026 '+esc(sg.obstacle)+'</p>':"")
+    +(sx.length?'<p class="sm">If there is room: '+esc(sx.join(" \u00b7 "))+'</p>':"");
+  const pl=(Array.isArray(prep)?prep:[]).filter(Boolean);
+  return '<p class="draftresult">'+esc(sg.result)+'</p>'
+    +'<dl class="draftmeta">'
+    +(sg.firstAction?'<div><dt>Start with</dt><dd>'+esc(sg.firstAction)+'</dd></div>':"")
+    +(sg.block?'<div><dt>In this block</dt><dd>'+esc(sg.block)+'</dd></div>':"")
+    +'</dl>'
+    +(pl.length?'<ul class="prep">'+pl.map(p=>'<li>'+esc(p)+'</li>').join("")+'</ul>':"")
+    +(extra?'<details class="draftwhy"><summary>Why this one</summary><div class="inner">'+extra+'</div></details>':"");
+}
 function lastNight(){
   const y=shift(todayISO(),-1), d=(S.days||[]).find(x=>x.date===y), box=$("#lastnightbox");
   if(!d){$("#lastnight").hidden=true;return;}
   const tm=d.tomorrow||{}, r=d.reflection||{}, mu=d.must||{}, rows=[];
-  if(tm.result)rows.push(["You planned this for today",tm.result+(tm.firstAction?" \u2014 start by: "+tm.firstAction:"")]);
+  const cur=$("#m-result").value.trim();
+  if(tm.result&&!cur)rows.push(["You planned this for today",tm.result+(tm.firstAction?" \u2014 start by: "+tm.firstAction:"")]);
   if(mu.result&&!mu.done)rows.push(["Unfinished yesterday",mu.result]);
   if(r.resume)rows.push(["Resume at",r.resume]);
   if(r.interfered)rows.push(["What got in the way",r.interfered]);
   if(!rows.length){$("#lastnight").hidden=true;return;}
   $("#lastnight").hidden=false;
   $("#lastnightdate").textContent=fmt(y,{weekday:"short",month:"short",day:"numeric"});
-  const cur=$("#m-result").value.trim();
   box.innerHTML='<div class="kv">'+rows.map(x=>'<div class="line"><span class="k">'+esc(x[0])+'</span><div style="flex:1;padding-top:5px;font-size:14.5px">'+esc(x[1])+'</div></div>').join("")+'</div>'
     +(tm.result&&!cur?'<div class="savebar"><button class="btn ghost" id="uselast">Make it today\u2019s must-finish</button></div>':"");
 }
@@ -3081,10 +3128,11 @@ async function addNote(o){
   if(needDb())return;
   await S.db.collection("notes").add({folder:o.folder||"inbox",title:o.title,body:o.body||"",mark:o.mark||"",createdAt:new Date().toISOString()});
 }
-async function writeDaily(patch){
+async function writeDaily(patch,date){
   if(needDb())return;
-  const ref=S.db.doc("daily/"+todayISO()),snap=await ref.get();
-  const base=snap.exists?Object.assign({},snap.data()):{date:todayISO(),shutdown:cfg().shutdown.map(l=>({label:l,done:false}))};
+  const iso=date||todayISO();
+  const ref=S.db.doc("daily/"+iso),snap=await ref.get();
+  const base=snap.exists?Object.assign({},snap.data()):{date:iso,shutdown:cfg().shutdown.map(l=>({label:l,done:false}))};
   await ref.set(Object.assign(base,patch,{savedAt:new Date().toISOString()}));
 }
 async function writeWeek(patch){
@@ -3145,6 +3193,7 @@ document.addEventListener("click",e=>{
   }
 });
 ["m-result","m-action","m-block","m-obstacle","s0","s1"].forEach(id=>$("#"+id).addEventListener("input",()=>{S.dirty=true;$("#mustsaved").textContent="unsaved";}));
+["t-result","t-action","t-block","t-obstacle","ts0","ts1"].forEach(id=>$("#"+id).addEventListener("input",()=>{S.tdirty=true;$("#reflectstate").textContent="unsaved";}));
 
 document.addEventListener("change",async e=>{
   const t=e.target;
@@ -3311,12 +3360,30 @@ $("#mustdone").addEventListener("click",async()=>{
     S.dirty=false;
   }catch(e){say("Couldn't update that.",true);}
 });
+$("#usetsuggest").addEventListener("click",async()=>{
+  const sg=(S.tomorrow&&S.tomorrow.suggestion)||{};
+  $("#t-result").value=sg.result||"";$("#t-action").value=sg.firstAction||"";
+  $("#t-block").value=sg.block||"";if(sg.obstacle)$("#t-obstacle").value=sg.obstacle;
+  if(Array.isArray(sg.secondary)){if(sg.secondary[0])$("#ts0").value=sg.secondary[0];if(sg.secondary[1])$("#ts1").value=sg.secondary[1];}
+  S.tdirty=true;
+  try{await saveTomorrow();say("Draft accepted for tomorrow — edit anything and close the day again.");}catch(e){say("Couldn't save tomorrow's plan.",true);}
+});
+async function saveTomorrow(){
+  const iso=shift(todayISO(),1), prev=(S.tomorrow&&S.tomorrow.must)||{};
+  const result=$("#t-result").value.trim();
+  const sec=[$("#ts0").value.trim(),$("#ts1").value.trim()].filter(Boolean).map(l=>({label:l,done:false}));
+  // only the plan fields move; suggestion, prep and the checklist on tomorrow's document stay as they are
+  await writeDaily({must:{result:result,firstAction:$("#t-action").value.trim(),block:$("#t-block").value.trim(),obstacle:$("#t-obstacle").value.trim(),done:!!prev.done&&!!result},secondary:sec},iso);
+  S.tdirty=false;
+}
 $("#reflectsave").addEventListener("click",async()=>{
   try{
     const prev=(S.daily&&S.daily.reflection)||{};
     await writeDaily({reflection:Object.assign({},prev,{resume:$("#r-resume").value.trim()}),
       tomorrow:{result:$("#t-result").value.trim(),firstAction:$("#t-action").value.trim()}});
-    $("#reflectstate").textContent="Day closed.";
+    const typed=["t-result","t-action","t-block","t-obstacle","ts0","ts1"].some(id=>$("#"+id).value.trim());
+    if(typed||(S.tomorrow&&S.tomorrow.must&&S.tomorrow.must.result))await saveTomorrow();
+    $("#reflectstate").textContent=typed?"Day closed — tomorrow is set.":"Day closed.";
   }catch(e){say("Couldn't close the day.",true);}
 });
 $("#wksave").addEventListener("click",async()=>{
@@ -4469,6 +4536,7 @@ async function start(){
   db.collection("notes").limit(400).onSnapshot(s=>{S.notes=s.docs.map(d=>Object.assign({id:d.id},d.data()));rail();notes();},bad);
   db.collection("gymlog").limit(400).onSnapshot(s=>{S.gym=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(g=>g.date);rail();gym();stats();},bad);
   db.doc("daily/"+todayISO()).onSnapshot(s=>{S.daily=s.exists?s.data():null;today();stats();},bad);
+  db.doc("daily/"+shift(todayISO(),1)).onSnapshot(s=>{S.tomorrow=s.exists?s.data():null;today();},bad);
   db.doc("weekly/"+mondayOf(todayISO())).onSnapshot(s=>{S.week=s.exists?s.data():null;week();},bad);
   db.doc("habits/log").onSnapshot(s=>{S.habits=s.exists?s.data():{};rail();habits();},bad);
   db.doc("meta/config").onSnapshot(s=>{if(s.exists)S.config=s.data();renderAll();},bad);
