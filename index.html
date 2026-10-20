@@ -1830,7 +1830,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
               <input type="number" name="xp" min="1" max="50" value="10" title="XP" style="width:70px">
               <button class="btn ghost">Add</button>
             </form>
-            <div class="hlegend">Two fixed quests tick themselves; six are rolled fresh every day from a pool of 70, always including your two weakest stats and never repeating yesterday's unless they're repeatable. Quests you add here stay every day. 40 XP moves a stat one point; a stat ignored for more than two days starts slipping.</div>
+            <div class="hlegend">Two fixed quests tick themselves; eight are rolled fresh every day from a pool of 70 (ten quests a day), always including your two weakest stats and never repeating yesterday's unless they're repeatable. Quests you add here stay every day. 40 XP moves a stat one point; a stat ignored for more than two days starts slipping.</div>
           </div>
         </div>
       </div>
@@ -2401,7 +2401,7 @@ const QPOOL=[
   {id:"budget",label:"Set next month's limits in Finance",stat:"financial",xp:12}
 ];
 const QMAP={};QFIXED.concat(QPOOL).forEach(q=>QMAP[q.id]=q);
-const QROLL=6;
+const QROLL=8;
 const ST=()=>S.st;
 const stMeta=()=>Object.assign({base:BASE0,quests:[],measuredAt:"2026-10-19"},ST().meta||{});
 const stDay=iso=>ST().days.find(d=>d.id===iso)||null;
