@@ -1055,11 +1055,21 @@ body:has(#view-home:not([hidden])) .cape{display:block}
 #view-today .empty{font-style:italic}
 
 /* the morning draft */
-#view-today #suggestbox{display:block; background:transparent; border:0;
+#view-today #suggestbox,#view-today #tsuggestbox{display:block; background:transparent; border:0;
   border-top:1px solid var(--line); border-bottom:1px solid var(--line);
   border-radius:0; padding:22px 0 20px; margin-bottom:26px !important}
-#view-today #suggestbox > div > b{color:var(--ink-2); font-size:11.5px; font-weight:700;
+#view-today #tsuggestbox{border-top:0; padding-top:4px; margin-bottom:18px !important}
+#view-today #suggestbox > div > b,#view-today #tsuggestbox > div > b{color:var(--ink-2); font-size:11.5px; font-weight:700;
   letter-spacing:.2em; text-transform:uppercase; display:block; margin-bottom:0}
+#view-today #tsuggestbox .draftresult{font-size:clamp(19px,2vw,23px)}
+#view-today .prep{margin:14px 0 0; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:6px 10px}
+#view-today .prep li{font-size:12.5px; color:var(--ink-2); border:1px solid var(--line); border-radius:6px; padding:4px 10px}
+#view-today #t-daylabel{font-family:var(--serif); font-size:15px; color:var(--ink-2); font-weight:400}
+/* the shutdown panel is a narrow column, so the plan form stacks label over field */
+#view-today .tplan .must .line{flex-direction:column; gap:4px; padding:6px 0}
+#view-today .tplan .must .k{flex:none; padding-top:0}
+#view-today .tplan .must .line > input,#view-today .tplan .must .line > textarea,#view-today .tplan .must .line > .secondary{width:100%; flex:none}
+#view-today .tplan .must .result input{font-size:18px}
 #view-today .draftresult{font-family:var(--serif); font-size:clamp(22px,2.4vw,28px);
   font-weight:400; line-height:1.3; letter-spacing:-.003em; color:var(--ink);
   margin:12px 0 0; max-width:44ch}
@@ -1308,10 +1318,29 @@ body:has(#view-home:not([hidden])) .cape{display:block}
           <ul class="check" id="shutdown"></ul>
           <div class="kv" style="border-top:1px solid var(--line); margin-top:10px; padding-top:12px">
             <div class="line"><label class="k" for="r-resume">Resume at</label><input type="text" id="r-resume" placeholder="Exactly where you pick this up tomorrow"></div>
-            <div class="line"><label class="k" for="t-result">Tomorrow</label><input type="text" id="t-result" placeholder="Tomorrow's likely must-finish result"></div>
-            <div class="line"><label class="k" for="t-action">Its first move</label><input type="text" id="t-action" placeholder="The first physical action — this is what you'll see in the morning"></div>
           </div>
-          <div class="savebar"><button class="btn ghost" id="reflectsave">Close the day</button><span id="reflectstate"></span></div>
+          <div class="tplan" style="border-top:1px solid var(--line); margin-top:12px; padding-top:14px">
+            <div class="mustline" style="margin-bottom:10px"><div><span class="label">Tomorrow's must-finish</span><p id="t-daylabel" style="margin:2px 0 0; font-size:13px; color:var(--muted)"></p></div></div>
+            <div class="flag" id="tsuggestbox" hidden style="margin-bottom:14px">
+              <div style="flex:1"><b>Drafted for tomorrow</b>
+                <div id="tsuggesttext"></div>
+                <button class="btn ghost" id="usetsuggest" style="margin-top:8px">Use this draft</button>
+              </div>
+            </div>
+            <div class="must">
+              <div class="line result"><label class="k" for="t-result">Result</label><input type="text" id="t-result" placeholder="One thing that, done, makes tomorrow count — visible completion"></div>
+              <div class="line"><label class="k" for="t-action">First action</label><input type="text" id="t-action" placeholder="The first physical thing you do — this is what you'll see in the morning"></div>
+              <div class="line"><label class="k" for="t-block">When</label><input type="text" id="t-block" placeholder="The block on tomorrow's calendar it happens in"></div>
+              <div class="line"><label class="k" for="t-obstacle">If… then…</label><textarea id="t-obstacle" placeholder="If the most likely obstacle happens, then I will…"></textarea></div>
+              <div class="line"><span class="k">Secondary</span>
+                <div class="secondary" style="flex:1">
+                  <div class="row"><input type="text" id="ts0" placeholder="Secondary result (optional)"></div>
+                  <div class="row"><input type="text" id="ts1" placeholder="Secondary result (optional)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="savebar"><button class="btn" id="reflectsave">Close the day</button><span id="reflectstate"></span></div>
         </div>
       </div>
     </section>
@@ -1796,12 +1825,12 @@ body:has(#view-home:not([hidden])) .cape{display:block}
           <div class="gbody">
             <ul class="rows quests" id="st-quests"></ul>
             <form class="addform" id="st-questadd">
-              <input type="text" name="label" placeholder="New daily quest" required>
+              <input type="text" name="label" placeholder="Add a permanent daily quest" required>
               <select name="stat" id="st-queststat"></select>
               <input type="number" name="xp" min="1" max="50" value="10" title="XP" style="width:70px">
               <button class="btn ghost">Add</button>
             </form>
-            <div class="hlegend">Tick what you did today. Gym and the must-finish tick themselves. 40 XP moves a stat one point; a stat ignored for more than two days starts slipping.</div>
+            <div class="hlegend">Two fixed quests tick themselves; six are rolled fresh every day from a pool of 70, always including your two weakest stats and never repeating yesterday's unless they're repeatable. Quests you add here stay every day. 40 XP moves a stat one point; a stat ignored for more than two days starts slipping.</div>
           </div>
         </div>
       </div>
@@ -2290,26 +2319,91 @@ const BASE0={
   practical:{v:72,note:"Cooks real meals, handy, drives, codes / first aid / navigates without GPS."},
   financial:{v:50,note:"Saves some, no debt, tracks spending in Finance. Not investing yet — that is the next point."}
 };
-const QUESTS0=[
+/* Quests. Two are fixed and tick themselves; the rest are rolled fresh each day from the pool,
+   seeded by the date (same list all day, a new one tomorrow), weighted toward the weakest stats,
+   and never repeating yesterday's roll unless the quest is marked repeatable (rep). */
+const QFIXED=[
   {id:"gym",label:"Gym session",stat:"strength",xp:20,auto:"gym"},
-  {id:"must",label:"Finish the must-finish result",stat:"discipline",xp:15,auto:"must"},
-  {id:"cardio",label:"Run or 30 min of zone-2",stat:"endurance",xp:15},
-  {id:"sprint",label:"10 min sprints, jumps or sport",stat:"speed",xp:10},
-  {id:"read",label:"Read 20 pages",stat:"knowledge",xp:12},
-  {id:"school",label:"One hour of schoolwork",stat:"intellect",xp:10},
-  {id:"screen",label:"Phone under 4 h today",stat:"discipline",xp:15},
-  {id:"deep",label:"One 90-min deep-work block",stat:"focus",xp:15},
-  {id:"stranger",label:"Talk to someone new",stat:"social",xp:12},
-  {id:"post",label:"Post, share or teach something",stat:"influence",xp:10},
-  {id:"decision",label:"Write down one decision and how it went",stat:"judgment",xp:10},
-  {id:"calm",label:"5 min breathing or a walk when it spikes",stat:"emotion",xp:8},
-  {id:"money",label:"Log spending or read 10 min on investing",stat:"financial",xp:8},
-  {id:"make",label:"10 min sketching, designing or building",stat:"creativity",xp:10},
-  {id:"cook",label:"Cook a real meal",stat:"practical",xp:8},
-  {id:"skin",label:"Skincare AM + PM",stat:"looks",xp:8}
+  {id:"must",label:"Finish the must-finish result",stat:"discipline",xp:15,auto:"must"}
 ];
+const QPOOL=[
+  // body
+  {id:"cardio",label:"Run or 30 min of zone-2",stat:"endurance",xp:15,rep:1},
+  {id:"run5k",label:"Run 5 km, note the time",stat:"endurance",xp:20},
+  {id:"stairs",label:"Take stairs everywhere today",stat:"endurance",xp:8,rep:1},
+  {id:"steps",label:"10,000 steps",stat:"endurance",xp:12,rep:1},
+  {id:"sprint",label:"6 × 30 s sprints",stat:"speed",xp:12},
+  {id:"jump",label:"3 sets of box or broad jumps",stat:"speed",xp:10},
+  {id:"sport",label:"Play your sport for 30 min",stat:"speed",xp:15,rep:1},
+  {id:"mobility",label:"10 min hip and ankle mobility",stat:"speed",xp:8,rep:1},
+  {id:"squat",label:"Squat day: beat last top set by 2.5 kg",stat:"strength",xp:20},
+  {id:"pullup",label:"Pull-up ladder to 30 total",stat:"strength",xp:12},
+  {id:"grip",label:"Dead hang 3 × max",stat:"strength",xp:8},
+  {id:"protein",label:"Hit 150 g protein",stat:"build",xp:12,rep:1},
+  {id:"weigh",label:"Weigh in and log it",stat:"build",xp:5,rep:1},
+  {id:"calories",label:"Eat at a 300 kcal surplus today",stat:"build",xp:10,rep:1},
+  {id:"skin",label:"Skincare AM + PM",stat:"looks",xp:8,rep:1},
+  {id:"posture",label:"Posture check every hour, shoulders back",stat:"looks",xp:8},
+  {id:"outfit",label:"Plan tomorrow's outfit tonight",stat:"looks",xp:6},
+  {id:"haircut",label:"Book or get a haircut",stat:"looks",xp:12},
+  {id:"teeth",label:"Floss + whitening strip",stat:"looks",xp:5,rep:1},
+  // mind
+  {id:"read",label:"Read 20 pages",stat:"knowledge",xp:12,rep:1},
+  {id:"read40",label:"Read 40 pages",stat:"knowledge",xp:20},
+  {id:"podcast",label:"One podcast or documentary, write 3 lines on it",stat:"knowledge",xp:10},
+  {id:"wiki",label:"Learn one thing you can explain to a friend tonight",stat:"knowledge",xp:8},
+  {id:"school",label:"One hour of schoolwork",stat:"intellect",xp:10,rep:1},
+  {id:"ahead",label:"Read ahead one chapter before class",stat:"intellect",xp:12},
+  {id:"problems",label:"20 practice problems, timed",stat:"intellect",xp:15},
+  {id:"lang",label:"20 min in your third language",stat:"intellect",xp:10,rep:1},
+  {id:"decision",label:"Write down one decision and how it went",stat:"judgment",xp:10,rep:1},
+  {id:"premortem",label:"Pre-mortem tomorrow's plan: what breaks it?",stat:"judgment",xp:10},
+  {id:"review",label:"Review last week's decisions — which ones aged badly?",stat:"judgment",xp:12},
+  {id:"sleepon",label:"Sleep on one choice instead of deciding today",stat:"judgment",xp:8},
+  {id:"deep",label:"One 90-min deep-work block",stat:"focus",xp:15,rep:1},
+  {id:"deep2",label:"Two 60-min blocks, phone in another room",stat:"focus",xp:18},
+  {id:"nophone",label:"First hour awake without the phone",stat:"focus",xp:10,rep:1},
+  {id:"single",label:"No multitasking in class — one tab, notes by hand",stat:"focus",xp:10},
+  {id:"make",label:"10 min sketching, designing or building",stat:"creativity",xp:10,rep:1},
+  {id:"ship",label:"Ship one small thing (post it, send it, deploy it)",stat:"creativity",xp:15},
+  {id:"ideas",label:"Write 10 bad ideas for anything",stat:"creativity",xp:8},
+  {id:"redesign",label:"Redesign one screen of All For One on paper",stat:"creativity",xp:12},
+  // will
+  {id:"screen",label:"Phone under 4 h today",stat:"discipline",xp:15,rep:1},
+  {id:"screen3",label:"Phone under 3 h today",stat:"discipline",xp:20},
+  {id:"wake",label:"Up at the first alarm",stat:"discipline",xp:10,rep:1},
+  {id:"bed",label:"Lights out on time",stat:"discipline",xp:10,rep:1},
+  {id:"nosugar",label:"No sugar or junk today",stat:"discipline",xp:10},
+  {id:"shutdown",label:"Evening shutdown done before 10 pm",stat:"discipline",xp:10,rep:1},
+  {id:"calm",label:"5 min breathing when something spikes",stat:"emotion",xp:8,rep:1},
+  {id:"journal",label:"3 lines: what annoyed you today and why",stat:"emotion",xp:8},
+  {id:"pause",label:"Pause 10 s before replying to anything that irritates you",stat:"emotion",xp:10},
+  {id:"gratitude",label:"Name 3 things that went right today",stat:"emotion",xp:6},
+  {id:"cold",label:"Finish the shower cold, 60 s",stat:"emotion",xp:8,rep:1},
+  // world
+  {id:"stranger",label:"Talk to someone new",stat:"social",xp:12,rep:1},
+  {id:"compliment",label:"Give two real compliments",stat:"social",xp:8},
+  {id:"call",label:"Call a friend you haven't talked to in a month",stat:"social",xp:12},
+  {id:"invite",label:"Be the one who makes the plan tonight or this weekend",stat:"social",xp:12},
+  {id:"eyecontact",label:"Hold eye contact in every conversation today",stat:"social",xp:8},
+  {id:"post",label:"Post, share or teach something",stat:"influence",xp:10,rep:1},
+  {id:"help",label:"Help someone in your lane (training, looks, a game)",stat:"influence",xp:10},
+  {id:"speak",label:"Speak up once in class or at work",stat:"influence",xp:12},
+  {id:"lead",label:"Lead the group once today — pick, decide, organize",stat:"influence",xp:12},
+  {id:"cook",label:"Cook a real meal",stat:"practical",xp:8,rep:1},
+  {id:"fix",label:"Fix or clean one thing that's been bugging you",stat:"practical",xp:10},
+  {id:"mealprep",label:"Meal-prep 3 meals",stat:"practical",xp:15},
+  {id:"nogps",label:"Drive somewhere without GPS",stat:"practical",xp:8},
+  {id:"money",label:"Log spending in Finance",stat:"financial",xp:8,rep:1},
+  {id:"invest10",label:"Read 10 min on investing",stat:"financial",xp:8,rep:1},
+  {id:"subs",label:"Review subscriptions — cancel one",stat:"financial",xp:12},
+  {id:"nospend",label:"No-spend day",stat:"financial",xp:12},
+  {id:"budget",label:"Set next month's limits in Finance",stat:"financial",xp:12}
+];
+const QMAP={};QFIXED.concat(QPOOL).forEach(q=>QMAP[q.id]=q);
+const QROLL=6;
 const ST=()=>S.st;
-const stMeta=()=>Object.assign({base:BASE0,quests:QUESTS0,measuredAt:"2026-10-19"},ST().meta||{});
+const stMeta=()=>Object.assign({base:BASE0,quests:[],measuredAt:"2026-10-19"},ST().meta||{});
 const stDay=iso=>ST().days.find(d=>d.id===iso)||null;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function stAuto(q,iso){
@@ -2318,19 +2412,46 @@ function stAuto(q,iso){
   return false;
 }
 /* XP earned per stat and the last day each stat saw action */
-function stTotals(){
-  const m=stMeta(),xp={},last={},quests={};
+function stTotals(before){
+  const m=stMeta(),xp={},last={},quests=Object.assign({},QMAP);
   (m.quests||[]).forEach(q=>quests[q.id]=q);
   STATS.forEach(s=>{xp[s[0]]=0;last[s[0]]=m.measuredAt||"2026-10-19";});
   const bump=(stat,n,iso)=>{if(!(stat in xp))return;xp[stat]+=n;if(iso>last[stat])last[stat]=iso;};
   ST().days.forEach(d=>{
+    if(before&&d.id>=before)return;
     Object.keys(d.done||{}).forEach(id=>{const q=quests[id];if(q&&d.done[id])bump(q.stat,+q.xp||0,d.id);});
     (d.log||[]).forEach(l=>bump(l.stat,+l.xp||0,d.id));
   });
   // auto quests for today that are not written yet
   const t=todayISO(),td=stDay(t)||{};
-  (m.quests||[]).forEach(q=>{if(q.auto&&!(td.done||{})[q.id]&&stAuto(q,t))bump(q.stat,+q.xp||0,t);});
+  if(!before)QFIXED.forEach(q=>{if(q.auto&&!(td.done||{})[q.id]&&stAuto(q,t))bump(q.stat,+q.xp||0,t);});
   return {xp,last};
+}
+/* the day's roll: a seeded shuffle so the list is the same all day; the two weakest stats always get a quest */
+function dayRoll(iso,avoid){
+  const rnd=seeded(iso+"quests");
+  const tot=stTotals(iso),score={};STATS.forEach(s=>score[s[0]]=stScore(s[0],tot));
+  const weak=STATS.map(s=>s[0]).sort((a,b)=>score[a]-score[b]).slice(0,2);
+  const cand=QPOOL.filter(q=>!(avoid&&avoid.has(q.id)&&!q.rep));
+  const pick=[],used=new Set();
+  const take=list=>{if(!list.length)return;const q=list[Math.floor(rnd()*list.length)];pick.push(q);used.add(q.id);};
+  weak.forEach(k=>take(cand.filter(q=>q.stat===k&&!used.has(q.id))));
+  while(pick.length<QROLL){
+    const stats=new Set(pick.map(q=>q.stat));
+    let list=cand.filter(q=>!used.has(q.id)&&!stats.has(q.stat));
+    if(!list.length)list=cand.filter(q=>!used.has(q.id));
+    if(!list.length)break;
+    take(list);
+  }
+  return pick;
+}
+const rollMemo={};
+function dayQuests(iso){
+  if(!rollMemo[iso]||rollMemo[iso].n!==ST().days.length){
+    const y=new Set(dayRoll(shift(iso,-1),null).map(q=>q.id));
+    rollMemo[iso]={n:ST().days.length,list:dayRoll(iso,y)};
+  }
+  return QFIXED.concat(rollMemo[iso].list,stMeta().quests||[]);
 }
 function stScore(k,tot){
   const m=stMeta(),b=(m.base[k]||BASE0[k]||{v:50}).v;
@@ -2386,11 +2507,12 @@ function stats(){
   $("#st-vhealth").style.width=hv+"%";$("#st-vhealth-t").textContent=hv*10+" / 1000";
   $("#st-venergy").style.width=ev+"%";$("#st-venergy-t").textContent=ev*10+" / 1000";
   // quests
-  const qs=m.quests||[];let done=0;
-  $("#st-quests").innerHTML=qs.length?qs.map(q=>{
+  const qs=dayQuests(iso),mine=new Set((m.quests||[]).map(q=>q.id));let done=0;
+  $("#st-quests").innerHTML=qs.map(q=>{
     const on=!!((day.done||{})[q.id])||stAuto(q,iso);if(on)done++;
-    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+(q.auto?" · auto":"")+'</small></div><button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button></li>';
-  }).join(""):'<li class="none">No quests yet — add one below.</li>';
+    const tag=q.auto?" · auto":mine.has(q.id)?" · yours":QMAP[q.id]?" · rolled today":"";
+    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+tag+'</small></div>'+(mine.has(q.id)?'<button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button>':'')+'</li>';
+  }).join("");
   $("#st-questcount").textContent=done+" / "+qs.length+" today";
   const nq=$("#n-stats");if(nq)nq.textContent=done+"/"+qs.length;
   const opts=STATS.map(s=>'<option value="'+s[0]+'">'+esc(s[1])+'</option>').join("");
@@ -2648,25 +2770,29 @@ function today(){
     $("#s1").value=(sec[1]&&sec[1].label)||""; $("#s1-done").checked=!!(sec[1]&&sec[1].done);
     const r=d.reflection||{};
     $("#r-resume").value=r.resume||"";
-    const tm=d.tomorrow||{};
-    $("#t-result").value=tm.result||""; $("#t-action").value=tm.firstAction||"";
     $("#muststate").textContent=mu.done?"Finished ✓":"";
     $("#mustsaved").textContent=d.savedAt?"saved "+d.savedAt.slice(11,16):"";
     const sg=d.suggestion;
-    $("#suggestbox").hidden=!(sg&&sg.result&&!mu.result);
+    $("#suggestbox").hidden=!(sg&&sg.result&&!mu.done);
     if(sg&&sg.result){
-      const sx=(Array.isArray(sg.secondary)?sg.secondary:[]).filter(Boolean);
-      const extra=(sg.why?'<p>'+esc(sg.why)+'</p>':"")
-        +(sg.obstacle?'<p class="sm">If… then… '+esc(sg.obstacle)+'</p>':"")
-        +(sx.length?'<p class="sm">If there is room: '+esc(sx.join(" · "))+'</p>':"");
-      $("#suggesttext").innerHTML='<p class="draftresult">'+esc(sg.result)+'</p>'
-        +'<dl class="draftmeta">'
-        +(sg.firstAction?'<div><dt>Start with</dt><dd>'+esc(sg.firstAction)+'</dd></div>':"")
-        +(sg.block?'<div><dt>In this block</dt><dd>'+esc(sg.block)+'</dd></div>':"")
-        +'</dl>'
-        +(extra?'<details class="draftwhy"><summary>Why this one</summary><div class="inner">'+extra+'</div></details>':"");
+      $("#suggesttext").innerHTML=draftHTML(sg);
+      $("#usesuggest").textContent=mu.result?"Use this draft instead":"Use this draft";
     }
   }
+  if(!S.tdirty){
+    // tomorrow's plan lives in tomorrow's own document, so the morning opens already filled in
+    const t=S.tomorrow||{},tmu=t.must||{},tsec=t.secondary||[],tsg=t.suggestion;
+    $("#t-result").value=tmu.result||""; $("#t-action").value=tmu.firstAction||"";
+    $("#t-block").value=tmu.block||""; $("#t-obstacle").value=tmu.obstacle||"";
+    $("#ts0").value=(tsec[0]&&tsec[0].label)||""; $("#ts1").value=(tsec[1]&&tsec[1].label)||"";
+    $("#reflectstate").textContent=tmu.result?"Saved for the morning.":"";
+    $("#tsuggestbox").hidden=!(tsg&&tsg.result);
+    if(tsg&&tsg.result){
+      $("#tsuggesttext").innerHTML=draftHTML(tsg,t.prep);
+      $("#usetsuggest").textContent=tmu.result?"Use this draft instead":"Use this draft";
+    }
+  }
+  $("#t-daylabel").textContent=fmt(shift(todayISO(),1),{weekday:"long",month:"short",day:"numeric"});
 
   const list=(S.daily&&Array.isArray(S.daily.shutdown)&&S.daily.shutdown.length)?S.daily.shutdown:cfg().shutdown.map(l=>({label:l,done:false}));
   $("#shutdown").innerHTML=list.map((it,i)=>'<li class="'+(it.done?"on":"")+'"><input type="checkbox" id="sd'+i+'" data-sd="'+i+'"'+(it.done?" checked":"")+'><label for="sd'+i+'">'+esc(it.label)+'</label></li>').join("");
@@ -2675,18 +2801,32 @@ function today(){
   home();
 }
 
+function draftHTML(sg,prep){
+  const sx=(Array.isArray(sg.secondary)?sg.secondary:[]).filter(Boolean);
+  const extra=(sg.why?'<p>'+esc(sg.why)+'</p>':"")
+    +(sg.obstacle?'<p class="sm">If\u2026 then\u2026 '+esc(sg.obstacle)+'</p>':"")
+    +(sx.length?'<p class="sm">If there is room: '+esc(sx.join(" \u00b7 "))+'</p>':"");
+  const pl=(Array.isArray(prep)?prep:[]).filter(Boolean);
+  return '<p class="draftresult">'+esc(sg.result)+'</p>'
+    +'<dl class="draftmeta">'
+    +(sg.firstAction?'<div><dt>Start with</dt><dd>'+esc(sg.firstAction)+'</dd></div>':"")
+    +(sg.block?'<div><dt>In this block</dt><dd>'+esc(sg.block)+'</dd></div>':"")
+    +'</dl>'
+    +(pl.length?'<ul class="prep">'+pl.map(p=>'<li>'+esc(p)+'</li>').join("")+'</ul>':"")
+    +(extra?'<details class="draftwhy"><summary>Why this one</summary><div class="inner">'+extra+'</div></details>':"");
+}
 function lastNight(){
   const y=shift(todayISO(),-1), d=(S.days||[]).find(x=>x.date===y), box=$("#lastnightbox");
   if(!d){$("#lastnight").hidden=true;return;}
   const tm=d.tomorrow||{}, r=d.reflection||{}, mu=d.must||{}, rows=[];
-  if(tm.result)rows.push(["You planned this for today",tm.result+(tm.firstAction?" \u2014 start by: "+tm.firstAction:"")]);
+  const cur=$("#m-result").value.trim();
+  if(tm.result&&!cur)rows.push(["You planned this for today",tm.result+(tm.firstAction?" \u2014 start by: "+tm.firstAction:"")]);
   if(mu.result&&!mu.done)rows.push(["Unfinished yesterday",mu.result]);
   if(r.resume)rows.push(["Resume at",r.resume]);
   if(r.interfered)rows.push(["What got in the way",r.interfered]);
   if(!rows.length){$("#lastnight").hidden=true;return;}
   $("#lastnight").hidden=false;
   $("#lastnightdate").textContent=fmt(y,{weekday:"short",month:"short",day:"numeric"});
-  const cur=$("#m-result").value.trim();
   box.innerHTML='<div class="kv">'+rows.map(x=>'<div class="line"><span class="k">'+esc(x[0])+'</span><div style="flex:1;padding-top:5px;font-size:14.5px">'+esc(x[1])+'</div></div>').join("")+'</div>'
     +(tm.result&&!cur?'<div class="savebar"><button class="btn ghost" id="uselast">Make it today\u2019s must-finish</button></div>':"");
 }
@@ -3081,10 +3221,11 @@ async function addNote(o){
   if(needDb())return;
   await S.db.collection("notes").add({folder:o.folder||"inbox",title:o.title,body:o.body||"",mark:o.mark||"",createdAt:new Date().toISOString()});
 }
-async function writeDaily(patch){
+async function writeDaily(patch,date){
   if(needDb())return;
-  const ref=S.db.doc("daily/"+todayISO()),snap=await ref.get();
-  const base=snap.exists?Object.assign({},snap.data()):{date:todayISO(),shutdown:cfg().shutdown.map(l=>({label:l,done:false}))};
+  const iso=date||todayISO();
+  const ref=S.db.doc("daily/"+iso),snap=await ref.get();
+  const base=snap.exists?Object.assign({},snap.data()):{date:iso,shutdown:cfg().shutdown.map(l=>({label:l,done:false}))};
   await ref.set(Object.assign(base,patch,{savedAt:new Date().toISOString()}));
 }
 async function writeWeek(patch){
@@ -3145,6 +3286,7 @@ document.addEventListener("click",e=>{
   }
 });
 ["m-result","m-action","m-block","m-obstacle","s0","s1"].forEach(id=>$("#"+id).addEventListener("input",()=>{S.dirty=true;$("#mustsaved").textContent="unsaved";}));
+["t-result","t-action","t-block","t-obstacle","ts0","ts1"].forEach(id=>$("#"+id).addEventListener("input",()=>{S.tdirty=true;$("#reflectstate").textContent="unsaved";}));
 
 document.addEventListener("change",async e=>{
   const t=e.target;
@@ -3311,12 +3453,30 @@ $("#mustdone").addEventListener("click",async()=>{
     S.dirty=false;
   }catch(e){say("Couldn't update that.",true);}
 });
+$("#usetsuggest").addEventListener("click",async()=>{
+  const sg=(S.tomorrow&&S.tomorrow.suggestion)||{};
+  $("#t-result").value=sg.result||"";$("#t-action").value=sg.firstAction||"";
+  $("#t-block").value=sg.block||"";if(sg.obstacle)$("#t-obstacle").value=sg.obstacle;
+  if(Array.isArray(sg.secondary)){if(sg.secondary[0])$("#ts0").value=sg.secondary[0];if(sg.secondary[1])$("#ts1").value=sg.secondary[1];}
+  S.tdirty=true;
+  try{await saveTomorrow();say("Draft accepted for tomorrow — edit anything and close the day again.");}catch(e){say("Couldn't save tomorrow's plan.",true);}
+});
+async function saveTomorrow(){
+  const iso=shift(todayISO(),1), prev=(S.tomorrow&&S.tomorrow.must)||{};
+  const result=$("#t-result").value.trim();
+  const sec=[$("#ts0").value.trim(),$("#ts1").value.trim()].filter(Boolean).map(l=>({label:l,done:false}));
+  // only the plan fields move; suggestion, prep and the checklist on tomorrow's document stay as they are
+  await writeDaily({must:{result:result,firstAction:$("#t-action").value.trim(),block:$("#t-block").value.trim(),obstacle:$("#t-obstacle").value.trim(),done:!!prev.done&&!!result},secondary:sec},iso);
+  S.tdirty=false;
+}
 $("#reflectsave").addEventListener("click",async()=>{
   try{
     const prev=(S.daily&&S.daily.reflection)||{};
     await writeDaily({reflection:Object.assign({},prev,{resume:$("#r-resume").value.trim()}),
       tomorrow:{result:$("#t-result").value.trim(),firstAction:$("#t-action").value.trim()}});
-    $("#reflectstate").textContent="Day closed.";
+    const typed=["t-result","t-action","t-block","t-obstacle","ts0","ts1"].some(id=>$("#"+id).value.trim());
+    if(typed||(S.tomorrow&&S.tomorrow.must&&S.tomorrow.must.result))await saveTomorrow();
+    $("#reflectstate").textContent=typed?"Day closed — tomorrow is set.":"Day closed.";
   }catch(e){say("Couldn't close the day.",true);}
 });
 $("#wksave").addEventListener("click",async()=>{
@@ -4469,6 +4629,7 @@ async function start(){
   db.collection("notes").limit(400).onSnapshot(s=>{S.notes=s.docs.map(d=>Object.assign({id:d.id},d.data()));rail();notes();},bad);
   db.collection("gymlog").limit(400).onSnapshot(s=>{S.gym=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(g=>g.date);rail();gym();stats();},bad);
   db.doc("daily/"+todayISO()).onSnapshot(s=>{S.daily=s.exists?s.data():null;today();stats();},bad);
+  db.doc("daily/"+shift(todayISO(),1)).onSnapshot(s=>{S.tomorrow=s.exists?s.data():null;today();},bad);
   db.doc("weekly/"+mondayOf(todayISO())).onSnapshot(s=>{S.week=s.exists?s.data():null;week();},bad);
   db.doc("habits/log").onSnapshot(s=>{S.habits=s.exists?s.data():{};rail();habits();},bad);
   db.doc("meta/config").onSnapshot(s=>{if(s.exists)S.config=s.data();renderAll();},bad);
