@@ -852,9 +852,9 @@ body:has(#view-finance:not([hidden])) .nav{--bar:rgba(70,63,54,.46); --ink:#fff;
 .hive:has(.hex:nth-child(11)) .hex:nth-child(8){grid-area:3/1/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(9){grid-area:3/3/auto/span 2}
 .hive:has(.hex:nth-child(11)) .hex:nth-child(10){grid-area:3/5/auto/span 2} .hive:has(.hex:nth-child(11)) .hex:nth-child(11){grid-area:3/7/auto/span 2}
 /* ---------- themed pages: a photograph behind, white serif hero, the same frosted cards as Finance ---------- */
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])){background:#cfc6b7}
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden]))::before{content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--pbg) var(--pbg-pos,50% 40%) / cover no-repeat}
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden]))::after{content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden])){background:#cfc6b7}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden]))::before{content:""; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--pbg) var(--pbg-pos,50% 40%) / cover no-repeat}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden]))::after{content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
   background:linear-gradient(180deg,rgba(18,16,12,.42) 0,rgba(18,16,12,.12) 30%,rgba(18,16,12,0) 50%),linear-gradient(180deg,rgba(60,54,46,0) 55%,rgba(60,54,46,.35) 100%)}
 body:has(#view-today:not([hidden])){--pbg:url("img/bg-today.jpg"); --pbg-pos:50% 40%}
 body:has(#view-week:not([hidden])){--pbg:url("img/bg-week.jpg"); --pbg-pos:50% 60%}
@@ -864,11 +864,12 @@ body:has(#view-gym:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 40%
 body:has(#view-projects:not([hidden])){--pbg:url("img/bg-projects.jpg"); --pbg-pos:50% 45%}
 body:has(#view-habits:not([hidden])){--pbg:url("img/bg-habits.jpg"); --pbg-pos:50% 45%}
 body:has(#view-stats:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 65%}
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .nav{background:transparent; border-bottom:0; -webkit-backdrop-filter:none; backdrop-filter:none; color:#fff; --ink:#fff; --muted:rgba(255,255,255,.74)}
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .brand{color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.4)}
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .navbtn[aria-current="true"]::after{background:#fff}
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .foot{color:rgba(255,255,255,.7); border-top-color:rgba(255,255,255,.2)}
-body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .foot b,body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats):not([hidden])) .foot button{color:#fff}
+body:has(#view-records:not([hidden])){--pbg:url("img/bg-gym.jpg"); --pbg-pos:50% 30%}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden])) .nav{background:transparent; border-bottom:0; -webkit-backdrop-filter:none; backdrop-filter:none; color:#fff; --ink:#fff; --muted:rgba(255,255,255,.74)}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden])) .brand{color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.4)}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden])) .navbtn[aria-current="true"]::after{background:#fff}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden])) .foot{color:rgba(255,255,255,.7); border-top-color:rgba(255,255,255,.2)}
+body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden])) .foot b,body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records):not([hidden])) .foot button{color:#fff}
 .phero{grid-column:1/-1; position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); grid-template-rows:auto minmax(0,1fr) auto; gap:20px 24px; min-height:min(58vh,560px); padding:8px 6px 28px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.45), 0 2px 24px rgba(0,0,0,.4)}
 .phero .pq{grid-column:1; grid-row:1; margin:0; max-width:30ch}
 .phero .pq p{font-family:var(--display); font-style:italic; font-weight:400; font-size:15px; line-height:1.6; letter-spacing:.06em; text-transform:uppercase}
@@ -880,32 +881,94 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 .phero .pside{grid-column:3; grid-row:1; justify-self:end; max-width:150px; padding-left:14px; border-left:1px solid rgba(255,255,255,.45); font-size:9px; font-weight:500; letter-spacing:.24em; text-transform:uppercase; line-height:2.1; color:rgba(255,255,255,.85); text-align:left}
 .phero .pfoot{grid-column:1/-1; grid-row:3; display:flex; justify-content:space-between; gap:16px; font-size:9px; font-weight:500; letter-spacing:.26em; text-transform:uppercase; color:rgba(255,255,255,.8)}
 .phero .pfoot span:first-child{padding-left:12px; border-left:1px solid rgba(255,255,255,.5)}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .panel{border-radius:8px; border:1px solid rgba(255,255,255,.6);
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .panel{border-radius:8px; border:1px solid rgba(255,255,255,.6);
   background:linear-gradient(170deg,rgba(246,242,235,.78) 0,rgba(238,233,225,.64) 55%,rgba(232,226,217,.58) 100%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 1px rgba(40,34,26,.06), 0 14px 34px rgba(40,34,26,.18);
   -webkit-backdrop-filter:blur(22px) saturate(140%); backdrop-filter:blur(22px) saturate(140%)}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .panel > header{padding:20px 24px 6px}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .panel > header h2{font-size:15px; font-weight:600; letter-spacing:.22em}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .panel .body{padding:8px 24px 22px}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .split div,:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .stat div{background:rgba(255,255,255,.42); border-radius:6px}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .hcell{background:rgba(255,255,255,.6)}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) input[type=text],:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) input[type=date],:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) select,:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) textarea{border-radius:6px; background:rgba(255,255,255,.5)}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .btn{border-radius:6px}
-:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats) .btn.ghost{background:rgba(255,255,255,.5)}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .panel > header{padding:20px 24px 6px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .panel > header h2{font-size:15px; font-weight:600; letter-spacing:.22em}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .panel .body{padding:8px 24px 22px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .split div,:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .stat div{background:rgba(255,255,255,.42); border-radius:6px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .hcell{background:rgba(255,255,255,.6)}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) input[type=text],:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) input[type=date],:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) select,:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) textarea{border-radius:6px; background:rgba(255,255,255,.5)}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .btn{border-radius:6px}
+:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .btn.ghost{background:rgba(255,255,255,.5)}
 #view-habits .phero{margin-bottom:4px}
 /* ---------- stats (character sheet, game layout) ---------- */
+#view-records{position:relative; z-index:1; display:grid; grid-template-columns:repeat(auto-fit,minmax(440px,1fr)); gap:18px; align-items:start;
+  --gold:#b8923a; --gold-2:#e2c25c; --gold-3:#f3df8f; --marble:#f6f1e6; --marble-2:#ece4d3; --inkg:#2a2318; --mutedg:#6d6252; --lineg:rgba(60,48,26,.14)}
+#view-records .rechead{grid-column:1/-1; color:#fff; text-shadow:0 1px 18px rgba(0,0,0,.45); padding:6px 4px 0}
+#view-records .rechead h1{font-family:var(--display); font-size:34px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; margin:0}
+#view-records .rechead p{margin:4px 0 0; color:rgba(255,255,255,.8); max-width:70ch}
+#view-records .recgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px}
+#view-records .rcard{position:relative; background:rgba(255,255,255,.46); border:1px solid rgba(255,255,255,.8); border-radius:8px; padding:10px 12px 10px; display:flex; flex-direction:column; gap:4px; min-width:0; box-shadow:0 1px 2px rgba(30,24,14,.08)}
+#view-records .rcard.empty{opacity:.72}
+#view-records .rcard .rn{font-family:var(--display); font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; line-height:1.2; padding-right:22px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+#view-records .rcard .more{position:absolute; top:6px; right:6px}
+#view-records .rcard .rv{display:flex; align-items:baseline; gap:6px; font-variant-numeric:tabular-nums}
+#view-records .rcard .rv b{font-size:24px; font-weight:700; line-height:1}
+#view-records .rcard .rv span{font-size:12px; color:var(--mutedg)}
+#view-records .rcard .rd{font-size:11.5px; color:var(--mutedg); min-height:14px}
+#view-records .rcard .rd.up{color:#2c6a43} #view-records .rcard .rd.dn{color:#8e3b2e}
+#view-records .rcard svg.spark{width:100%; height:30px; display:block}
+#view-records .rcard svg.spark path{fill:none; stroke:var(--gold); stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+#view-records .rcard svg.spark circle{fill:var(--gold)}
+#view-records .rcard .radd{display:flex; gap:4px; margin-top:4px}
+#view-records .rcard .radd input{min-width:0; width:100%; border:1px solid var(--lineg); border-radius:6px; background:rgba(255,255,255,.6); padding:4px 7px; font:inherit; font-size:13px; color:var(--inkg)}
+#view-records .rcard .radd button{flex:none; border:1px solid var(--lineg); background:var(--inkg); color:#f6f1e6; border-radius:6px; padding:4px 9px; font:inherit; font-size:12px; cursor:pointer}
+#view-records .recform{display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1.4fr) auto auto; gap:8px; align-items:center}
+#view-records .recform input,#view-records .recform select{border:1px solid var(--lineg); border-radius:6px; background:rgba(255,255,255,.6); padding:7px 9px; font:inherit; color:var(--inkg); min-width:0}
+@media (max-width:700px){#view-records{grid-template-columns:1fr} #view-records .recform{grid-template-columns:1fr 1fr}}
+/* the detail sheet */
+#rec-detail{--gold:#b8923a; --gold-2:#e2c25c; --gold-3:#f3df8f; --inkg:#2a2318; --mutedg:#6d6252; --lineg:rgba(60,48,26,.14); position:fixed; inset:0; z-index:30; display:flex; align-items:flex-start; justify-content:center; padding:5vh 16px; background:rgba(20,16,8,.45); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); overflow:auto}
+#rec-detail[hidden]{display:none}
+#rec-detail .sheet{width:min(820px,100%); color:var(--inkg); background:linear-gradient(165deg,rgba(250,246,238,.98) 0,rgba(240,233,219,.96) 60%,rgba(232,224,207,.95) 100%); border:1px solid rgba(255,255,255,.8); border-radius:8px;
+  box-shadow:0 0 0 1px rgba(184,146,58,.55), 0 0 0 4px rgba(250,246,238,.55), 0 0 0 5px rgba(60,48,26,.18), 0 28px 60px rgba(0,0,0,.4); padding:18px 22px 22px; display:flex; flex-direction:column; gap:14px}
+#rec-detail .sh{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+#rec-detail .sh h2{font-family:var(--display); font-size:22px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; margin:0}
+#rec-detail .sh .unit{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--mutedg)}
+#rec-detail .sh .x{margin-left:auto; background:none; border:0; font-size:22px; line-height:1; color:var(--mutedg); cursor:pointer}
+#rec-detail .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:8px}
+#rec-detail .kpi{background:rgba(255,255,255,.5); border-radius:6px; padding:8px 10px}
+#rec-detail .kpi small{display:block; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--mutedg)}
+#rec-detail .kpi b{font-size:18px; font-variant-numeric:tabular-nums}
+#rec-detail .chart{position:relative; background:rgba(255,255,255,.5); border-radius:6px; padding:10px 8px 4px}
+#rec-detail .chart svg{width:100%; height:240px; display:block; font-family:var(--body); font-size:11px}
+#rec-detail .chart .grid{stroke:rgba(60,48,26,.12); stroke-width:1}
+#rec-detail .chart .axis{fill:var(--mutedg)}
+#rec-detail .chart .line{fill:none; stroke:var(--gold); stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+#rec-detail .chart .area{fill:url(#recfill)}
+#rec-detail .chart .pt{fill:var(--gold); stroke:#f6f1e6; stroke-width:2}
+#rec-detail .chart .pt.last{r:5}
+#rec-detail .chart .lbl{fill:var(--inkg); font-weight:600}
+#rec-detail .chart .hover{stroke:rgba(60,48,26,.35); stroke-dasharray:3 3}
+#rec-detail .tip{position:absolute; pointer-events:none; background:rgba(42,35,24,.95); color:#f6f1e6; font-size:12px; padding:5px 8px; border-radius:5px; white-space:nowrap; transform:translate(-50%,-120%)}
+#rec-detail .tip[hidden]{display:none}
+#rec-detail .empty{color:var(--mutedg); text-align:center; padding:40px 0}
+#rec-detail table{width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums}
+#rec-detail th{text-align:left; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--mutedg); font-weight:600; padding:4px 6px; border-bottom:1px solid var(--lineg)}
+#rec-detail td{padding:5px 6px; border-bottom:1px solid var(--lineg)}
+#rec-detail td.n{text-align:right} #rec-detail td.c{color:var(--mutedg); font-size:12px}
+#rec-detail td .x{background:none; border:0; color:var(--mutedg); cursor:pointer; font-size:15px}
+#rec-detail td .x:hover{color:#8e3b2e}
+#rec-detail .addrow{display:grid; grid-template-columns:130px 110px minmax(0,1fr) auto; gap:6px}
+#rec-detail .addrow input{border:1px solid var(--lineg); border-radius:6px; background:rgba(255,255,255,.6); padding:6px 8px; font:inherit; color:var(--inkg); min-width:0}
+#rec-detail .addrow button,#rec-detail .sfoot .btn{border:1px solid var(--lineg); background:var(--inkg); color:#f6f1e6; border-radius:6px; padding:6px 12px; font:inherit; font-size:13px; cursor:pointer}
+#rec-detail .sfoot{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; font-size:12.5px; color:var(--mutedg)}
+#rec-detail .sfoot .btn.ghost{background:none; color:#8e3b2e}
+@media (max-width:600px){#rec-detail .addrow{grid-template-columns:1fr 1fr}}
 #view-stats{display:grid; grid-template-columns:minmax(230px,.8fr) minmax(0,1.5fr) minmax(250px,1fr); gap:18px; align-items:start;
   --gold:#b8923a; --gold-2:#e2c25c; --gold-3:#f3df8f; --marble:#f6f1e6; --marble-2:#ece4d3; --inkg:#2a2318; --mutedg:#6d6252; --lineg:rgba(60,48,26,.14)}
-#view-stats .gpanel{position:relative; min-width:0; color:var(--inkg); background:linear-gradient(165deg,rgba(250,246,238,.9) 0,rgba(240,233,219,.84) 60%,rgba(232,224,207,.8) 100%);
+:is(#view-stats,#view-records) .gpanel{position:relative; min-width:0; color:var(--inkg); background:linear-gradient(165deg,rgba(250,246,238,.9) 0,rgba(240,233,219,.84) 60%,rgba(232,224,207,.8) 100%);
   border:1px solid rgba(255,255,255,.8); border-radius:6px; box-shadow:0 0 0 1px rgba(184,146,58,.55), 0 0 0 4px rgba(250,246,238,.55), 0 0 0 5px rgba(60,48,26,.18), 0 18px 40px rgba(30,24,14,.28);
   -webkit-backdrop-filter:blur(18px) saturate(130%); backdrop-filter:blur(18px) saturate(130%)}
-#view-stats .gpanel::after{content:""; position:absolute; inset:6px; border:1px solid rgba(184,146,58,.28); border-radius:3px; pointer-events:none}
-#view-stats .gpanel > header{display:flex; align-items:center; gap:10px; padding:16px 22px 8px}
-#view-stats .gpanel > header::before{content:""; width:10px; height:10px; transform:rotate(45deg); background:linear-gradient(135deg,var(--gold-3),var(--gold)); box-shadow:0 0 0 1px rgba(60,48,26,.3)}
-#view-stats .gpanel > header h2{font-family:var(--display); font-size:19px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--inkg)}
-#view-stats .gpanel > header .right{margin-left:auto; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--mutedg); text-align:right; font-variant-numeric:tabular-nums}
-#view-stats .gpanel .gbody{padding:4px 22px 18px}
-#view-stats .gcol{display:flex; flex-direction:column; gap:18px; min-width:0}
+:is(#view-stats,#view-records) .gpanel::after{content:""; position:absolute; inset:6px; border:1px solid rgba(184,146,58,.28); border-radius:3px; pointer-events:none}
+:is(#view-stats,#view-records) .gpanel > header{display:flex; align-items:center; gap:10px; padding:16px 22px 8px}
+:is(#view-stats,#view-records) .gpanel > header::before{content:""; width:10px; height:10px; transform:rotate(45deg); background:linear-gradient(135deg,var(--gold-3),var(--gold)); box-shadow:0 0 0 1px rgba(60,48,26,.3)}
+:is(#view-stats,#view-records) .gpanel > header h2{font-family:var(--display); font-size:19px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--inkg)}
+:is(#view-stats,#view-records) .gpanel > header .right{margin-left:auto; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--mutedg); text-align:right; font-variant-numeric:tabular-nums}
+:is(#view-stats,#view-records) .gpanel .gbody{padding:4px 22px 18px}
+:is(#view-stats,#view-records) .gcol{display:flex; flex-direction:column; gap:18px; min-width:0}
 /* the figure */
 #view-stats .gchar{position:sticky; top:84px; min-height:560px; border-radius:6px; overflow:hidden; box-shadow:0 0 0 1px rgba(184,146,58,.55), 0 0 0 4px rgba(250,246,238,.5), 0 0 0 5px rgba(60,48,26,.18), 0 18px 40px rgba(30,24,14,.3);
   background:#d9d2c3 url("img/ares.jpg") 50% 0 / cover no-repeat; display:flex; flex-direction:column; justify-content:flex-end}
@@ -983,7 +1046,7 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-stats input[type=text],#view-stats select,#view-stats input[type=number]{background:rgba(255,255,255,.6); border:1px solid var(--gold); border-radius:4px; color:var(--inkg)}
 #view-stats .btn{border-radius:4px; background:linear-gradient(180deg,#4a3b1c,#2a2318); border-color:#8a6a1e; color:#f7edd2}
 #view-stats .btn.ghost{background:linear-gradient(180deg,#fff9ea,#e9dcb8); color:var(--inkg); border-color:var(--gold)}
-#view-stats .hlegend{color:var(--mutedg); font-size:12.5px}
+:is(#view-stats,#view-records) .hlegend{color:var(--mutedg); font-size:12.5px}
 #view-stats .basegrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px 18px; padding:14px 0 4px; border-top:1px solid var(--lineg); margin-top:12px}
 #view-stats .basegrid label{display:flex; align-items:center; gap:10px; font-size:12.5px}
 #view-stats .basegrid label span{flex:1; min-width:0}
@@ -998,7 +1061,7 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-stats .logrow .lx{flex:none; font-size:12px; color:var(--mutedg); font-variant-numeric:tabular-nums; min-width:44px; text-align:right}
 #view-stats .logrow .x{flex:none; background:none; border:0; color:var(--mutedg); cursor:pointer; padding:0 2px}
 #view-stats .logrow .x:hover{color:#8e3b2e}
-#view-stats .more{background:none; border:0; padding:0 2px; font-size:18px; line-height:1; color:var(--inkg); cursor:pointer; border-radius:4px}
+:is(#view-stats,#view-records) .more{background:none; border:0; padding:0 2px; font-size:18px; line-height:1; color:var(--inkg); cursor:pointer; border-radius:4px}
 #view-stats .more:hover{background:rgba(184,146,58,.2)}
 @media (max-width:1100px){#view-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} #view-stats .gchar{min-height:420px} #view-stats .gcol.main{grid-column:1/-1}}
 @media (max-width:720px){#view-stats{grid-template-columns:minmax(0,1fr)} #view-stats .arow{grid-template-columns:30px minmax(0,1fr) 44px 40px} #view-stats .arow .abar{grid-column:2/-1; grid-row:2} #view-stats .vmeter{grid-template-columns:24px 76px minmax(0,1fr) 30px}}
@@ -1198,6 +1261,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
       <button class="navbtn" data-view="projects" aria-current="false">Projects<span class="n" id="n-projects"></span></button>
       <button class="navbtn" data-view="habits" aria-current="false">Habits<span class="n" id="n-habits"></span></button>
       <button class="navbtn" data-view="stats" aria-current="false">Stats<span class="n" id="n-stats"></span></button>
+      <button class="navbtn" data-view="records" aria-current="false">Records<span class="n" id="n-records"></span></button>
       <button class="navbtn" data-view="review" aria-current="false">Review<span class="n" id="n-review"></span></button>
       <button class="navbtn" data-view="notes" aria-current="false">Notes<span class="n" id="n-notes"></span></button>
     </nav>
@@ -1874,6 +1938,26 @@ body:has(#view-home:not([hidden])) .cape{display:block}
       </div>
     </section>
 
+    <!-- RECORDS -->
+    <section id="view-records" hidden>
+      <div class="rechead"><h1>Records</h1><p>The numbers the plans ask you to measure — height, weight, sprint times, benchmark effort, test scores. Type a value on the card to log it today; ⋯ opens the full history and the progression graph.</p></div>
+      <div class="gpanel" data-fam="body"><header><h2>Body</h2><span class="right" id="rec-n-body"></span></header><div class="gbody"><div class="recgrid" id="rec-body"></div></div></div>
+      <div class="gpanel" data-fam="mind"><header><h2>Mind</h2><span class="right" id="rec-n-mind"></span></header><div class="gbody"><div class="recgrid" id="rec-mind"></div></div></div>
+      <div class="gpanel" data-fam="will"><header><h2>Will</h2><span class="right" id="rec-n-will"></span></header><div class="gbody"><div class="recgrid" id="rec-will"></div></div></div>
+      <div class="gpanel" data-fam="world"><header><h2>World</h2><span class="right" id="rec-n-world"></span></header><div class="gbody"><div class="recgrid" id="rec-world"></div></div></div>
+      <div class="gpanel" style="grid-column:1/-1"><header><h2>Track something new</h2><span class="right">your own metric</span></header><div class="gbody">
+        <form class="recform" id="rec-new">
+          <input type="text" name="name" placeholder="What (e.g. Resting heart rate)" required>
+          <input type="text" name="unit" placeholder="Unit (bpm, kg, /10…)">
+          <select name="stat" id="rec-newstat"></select>
+          <select name="hi" aria-label="Which direction is better"><option value="1">Higher is better</option><option value="-1">Lower is better</option><option value="0">Neither</option></select>
+          <button class="btn">Add</button>
+        </form>
+        <div class="hlegend">Every card is one metric; each entry is a dated value, one per day (a second value on the same day replaces the first). The cards marked with a stat feed that stat's story on the Stats tab; the graph is the progression.</div>
+      </div></div>
+    </section>
+    <div id="rec-detail" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rec-dt"></div></div>
+
     <!-- REVIEW -->
     <section id="view-review" class="grid cols" hidden>
       <div class="pagehead wide"><h1>Review</h1><p>What the record says, day by day.</p></div>
@@ -2281,7 +2365,7 @@ const HAB={ym:null,open:{}}; // ym = month being viewed ("YYYY-MM"), open = whic
 
 const FALLBACK={week:{},schoolwork:{},gymTime:{},split:{},shutdown:[],review:[]};
 
-const S={st:{meta:null,days:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
+const S={rec:{items:[],open:null},st:{meta:null,days:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2666,7 +2750,7 @@ function flags(){
       +list.map(f=>'<div class="flag"><div><b>'+esc(f.title)+'</b>'+esc(f.body)+'</div></div>').join("")+'</div>':"";
   });
 }
-function renderAll(){header();rail();flags();today();week();school();learning();money();gym();projects();habits();review();notes();home();finance();stats();}
+function renderAll(){header();rail();flags();today();week();school();learning();money();gym();projects();habits();review();notes();home();finance();stats();records();}
 
 function header(){
   const iso=todayISO();
@@ -3175,8 +3259,180 @@ async function writeWeek(patch){
   await ref.set(Object.assign(base,patch,{savedAt:new Date().toISOString()}));
 }
 
+/* ---------- records: the numbers the plans ask for ----------
+   rec/<id>  {name, unit, stat, fam: body|mind|will|world, hi: 1|-1|0 (which direction is progress), custom?, entries: [{d, v, note}], createdAt}
+   Presets below exist without a record until the first value is saved. */
+const REC_PRESETS=[
+  // body
+  ["height","Height","cm","build",0,"body","Growth plan: once a month, same wall, same time of day"],
+  ["weight","Weight","lb","build",0,"body","Weigh-in days"],
+  ["bodyfat","Body fat","%","build",0,"body","Whenever you measure it the same way"],
+  ["sleep","Sleep","h","build",1,"body","Nightly, from the Stats meters or here"],
+  ["bench","Bench press","lb","strength",1,"body","Top set"],
+  ["squat","Squat","lb","strength",1,"body","Top set"],
+  ["deadlift","Deadlift","lb","strength",1,"body","Top set"],
+  ["pullups","Pull-ups","reps","strength",1,"body","Max set"],
+  ["sprint10","10 m acceleration","s","speed",-1,"body","Speed plan monthly test, filmed from the side"],
+  ["vjump","Vertical jump","cm","speed",1,"body","Jump reach minus standing reach"],
+  ["broad","Standing broad jump","cm","speed",1,"body","To the nearer heel, landing held"],
+  ["shuffle","3 m lateral shuffle","s","speed",-1,"body","Out and back, best side"],
+  ["reaction","Reaction time","ms","speed",-1,"body","Median of 10 on the same phone test"],
+  ["tmeffort","Treadmill benchmark effort","/10","endurance",-1,"body","Monthly fixed-load test, no rails"],
+  ["tmhr","Treadmill benchmark HR","bpm","endurance",-1,"body","Average during the 10 fixed minutes"],
+  ["sunday","Sunday cardio","min","endurance",1,"body","Weekly scorecard"],
+  ["rounds","Tuesday interval rounds","rounds","endurance",1,"body","Completed at the prescribed effort"],
+  ["pushups","Circuit push-ups","reps","endurance",1,"body","Thursday circuit, best round"],
+  ["skin","Skin comfort","/10","looks",1,"body","Looks plan monthly milestone"],
+  // mind
+  ["reasoning","Reasoning","/5","intellect",1,"mind","Cognitive monthly review"],
+  ["arith","Arithmetic","/10","intellect",1,"mind","Cognitive monthly review"],
+  ["spatial","Spatial","/3","intellect",1,"mind","Cognitive monthly review"],
+  ["recall","Delayed recall","%","intellect",1,"mind","Cognitive monthly review"],
+  ["explain","Explanation rubric","/4","intellect",1,"mind","Cognitive monthly review"],
+  ["klscore","Knowledge assessment","/100","knowledge",1,"mind","Knowledge plan, start and end of month"],
+  ["pages","Pages read","pages",  "knowledge",1,"mind","Per day or per week — pick one and stick to it"],
+  ["blocks","Focus blocks completed","%","focus",1,"mind","Friday review: completed ÷ planned"],
+  ["delay","Start delay","min","focus",-1,"mind","Planned start → actual start"],
+  ["switches","Distractions per block","count","focus",-1,"mind","Tally of avoidable switches"],
+  ["fluency","Ideas in 3 minutes","ideas","creativity",1,"mind","Unusual-uses test, monthly"],
+  ["rubric","Reasoning rubric","/18","judgment",1,"mind","Critical-thinking monthly review"],
+  ["predict","Predictions right","%","judgment",1,"mind","Resolved predictions, monthly"],
+  // will
+  ["sessions","Sessions completed","%","discipline",1,"will","Discipline plan, weekly: full ÷ planned"],
+  ["screen","Phone screen time","h","discipline",-1,"will","From the phone's own report"],
+  ["practice","Practice days","days","emotion",1,"will","Mindfulness plan, monthly count"],
+  ["pauses","Deliberate pauses used","count","emotion",1,"will","Monthly scorecard"],
+  // world
+  ["interactions","Interactions started","count","social",1,"world","Weekly count of attempts"],
+  ["difficulty","Conversation difficulty","/10","social",-1,"world","Your baseline situations, repeated"],
+  ["promises","Promises kept on time","%","influence",1,"world","Influence plan dashboard"],
+  ["feedback","Feedback score","/5","influence",1,"world","Quarterly, average of the five statements"],
+  ["prospects","Prospects contacted","count","financial",1,"world","Weekly"],
+  ["cash","Cash collected","MXN","financial",1,"world","Weekly, payments actually received"],
+  ["cushion","Emergency cushion","months","financial",1,"world","Savings ÷ monthly essentials"],
+  ["projects","Practical projects finished","count","practical",1,"world","Monthly"]];
+const REC_FAM={body:"Body",mind:"Mind",will:"Will",world:"World"};
+function recAll(){
+  const have=new Map(S.rec.items.map(r=>[r.id,r]));
+  const list=REC_PRESETS.map(p=>Object.assign({id:p[0],name:p[1],unit:p[2],stat:p[3],hi:p[4],fam:p[5],when:p[6],entries:[]},have.get(p[0])||{}));
+  S.rec.items.forEach(r=>{if(!REC_PRESETS.some(p=>p[0]===r.id))list.push(Object.assign({entries:[],hi:0,fam:"world"},r,{custom:true}));});
+  list.forEach(r=>{r.entries=(r.entries||[]).slice().sort((a,b)=>a.d.localeCompare(b.d));});
+  return list;
+}
+const recFmt=v=>Math.abs(v)>=1000?Math.round(v).toLocaleString("en-US"):(+v).toLocaleString("en-US",{maximumFractionDigits:2});
+function recDelta(r){
+  const e=r.entries;if(e.length<2)return null;
+  const d=e[e.length-1].v-e[e.length-2].v;if(!d)return {t:"no change",c:""};
+  const good=r.hi===0?"":(d>0)===(r.hi>0)?"up":"dn";
+  return {t:(d>0?"▲ +":"▼ ")+recFmt(d)+" since "+fmt(e[e.length-2].d,{month:"short",day:"numeric"}),c:good};
+}
+function recSpark(e){
+  if(e.length<2)return "";
+  const vs=e.slice(-14).map(x=>x.v),lo=Math.min.apply(null,vs),hi=Math.max.apply(null,vs),W=160,H=30;
+  const pt=(v,i)=>[4+i*(W-8)/(vs.length-1),hi===lo?H/2:4+(H-8)*(1-(v-lo)/(hi-lo))];
+  const p=vs.map((v,i)=>pt(v,i).map(x=>x.toFixed(1)).join(",")).join(" "),l=pt(vs[vs.length-1],vs.length-1);
+  return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" aria-hidden="true"><path d="M'+p.replace(/ /g," L")+'"/><circle cx="'+l[0].toFixed(1)+'" cy="'+l[1].toFixed(1)+'" r="3"/></svg>';
+}
+function records(){
+  const view=$("#view-records");if(!view)return;
+  const all=recAll(),counts={};
+  Object.keys(REC_FAM).forEach(f=>{
+    const rs=all.filter(r=>r.fam===f);counts[f]=rs.filter(r=>r.entries.length).length;
+    $("#rec-"+f).innerHTML=rs.map(r=>{
+      const last=r.entries[r.entries.length-1],d=recDelta(r);
+      return '<div class="rcard'+(last?"":" empty")+'" data-rec="'+esc(r.id)+'"><div class="rn" title="'+esc(r.name+(r.when?" — "+r.when:""))+'">'+esc(r.name)+'</div><button class="more" data-open="'+esc(r.id)+'" title="History and graph">⋯</button>'+
+        '<div class="rv"><b>'+(last?recFmt(last.v):"—")+'</b><span>'+esc(r.unit||"")+'</span></div>'+
+        '<div class="rd '+(d?d.c:"")+'">'+(d?esc(d.t):last?"logged "+esc(fmt(last.d,{month:"short",day:"numeric"})):esc(STAT_LABEL[r.stat]||""))+'</div>'+recSpark(r.entries)+
+        '<form class="radd" data-add="'+esc(r.id)+'"><input type="number" step="any" inputmode="decimal" placeholder="today" aria-label="'+esc(r.name)+' today" required><button>Save</button></form></div>';
+    }).join("");
+    $("#rec-n-"+f).textContent=counts[f]+" / "+rs.length+" tracked";
+  });
+  const nb=$("#n-records");if(nb)nb.textContent=Object.values(counts).reduce((a,b)=>a+b,0)||"";
+  if(!$("#rec-newstat").options.length)$("#rec-newstat").innerHTML=STATS.map(s=>'<option value="'+s[0]+'">'+esc(s[1])+'</option>').join("");
+  recDetail();
+}
+function recChart(r){
+  const e=r.entries;if(e.length<2)return '<div class="empty">'+(e.length?"One value so far — the graph starts at the second.":"Nothing logged yet.")+'</div>';
+  const W=760,H=240,L=46,R=16,T=18,B=30,vs=e.map(x=>x.v);
+  let lo=Math.min.apply(null,vs),hi=Math.max.apply(null,vs);if(hi===lo){hi+=1;lo-=1;}
+  const pad=(hi-lo)*.12;lo-=pad;hi+=pad;
+  const t0=Date.parse(e[0].d+"T12:00:00Z"),t1=Date.parse(e[e.length-1].d+"T12:00:00Z")||t0+1;
+  const X=d=>L+(W-L-R)*((Date.parse(d+"T12:00:00Z")-t0)/Math.max(1,t1-t0)),Y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  const pts=e.map(x=>[X(x.d),Y(x.v)]);
+  let h='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(r.name)+' over time"><defs><linearGradient id="recfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8923a" stop-opacity=".28"/><stop offset="1" stop-color="#b8923a" stop-opacity="0"/></linearGradient></defs>';
+  const ticks=4;for(let i=0;i<=ticks;i++){const v=lo+(hi-lo)*i/ticks,y=Y(v);h+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/><text class="axis" x="'+(L-6)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end">'+((hi-lo)<8?v.toFixed(1):recFmt(v))+'</text>';}
+  const n=Math.min(6,e.length),step=Math.max(1,Math.floor((e.length-1)/(n-1)));
+  for(let i=0;i<e.length;i+=step){h+='<text class="axis" x="'+pts[i][0].toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+esc(fmt(e[i].d,{month:"short",day:"numeric"}))+'</text>';}
+  const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  h+='<path class="area" d="'+line+' L'+pts[pts.length-1][0].toFixed(1)+' '+(H-B)+' L'+pts[0][0].toFixed(1)+' '+(H-B)+' Z"/><path class="line" d="'+line+'"/>';
+  pts.forEach((p,i)=>{h+='<circle class="pt'+(i===pts.length-1?" last":"")+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="4" data-i="'+i+'"/>';});
+  const lp=pts[pts.length-1];h+='<text class="lbl" x="'+Math.min(lp[0],W-R-40).toFixed(1)+'" y="'+(lp[1]-10).toFixed(1)+'" text-anchor="middle">'+recFmt(e[e.length-1].v)+(r.unit?" "+esc(r.unit):"")+'</text>';
+  h+='<line class="hover" id="rec-hv" x1="0" x2="0" y1="'+T+'" y2="'+(H-B)+'" hidden/></svg><div class="tip" id="rec-tip" hidden></div>';
+  return h;
+}
+function recDetail(){
+  const box=$("#rec-detail"),id=S.rec.open;box.hidden=!id;if(!id)return;
+  const r=recAll().find(x=>x.id===id);if(!r){S.rec.open=null;box.hidden=true;return;}
+  const e=r.entries,vs=e.map(x=>x.v),first=e[0],last=e[e.length-1];
+  const best=e.length?(r.hi<0?Math.min.apply(null,vs):Math.max.apply(null,vs)):null;
+  const chg=e.length>1?last.v-first.v:null;
+  box.querySelector(".sheet").innerHTML='<div class="sh"><h2 id="rec-dt">'+esc(r.name)+'</h2><span class="unit">'+esc(r.unit||"")+(r.stat?" · "+esc(STAT_LABEL[r.stat]||r.stat):"")+'</span><button class="x" data-close aria-label="Close">×</button></div>'+
+    (r.when?'<div class="hlegend" style="margin:0">'+esc(r.when)+'</div>':"")+
+    '<div class="kpis"><div class="kpi"><small>Latest</small><b>'+(last?recFmt(last.v):"—")+'</b></div><div class="kpi"><small>First</small><b>'+(first?recFmt(first.v):"—")+'</b></div><div class="kpi"><small>'+(r.hi<0?"Best (lowest)":r.hi>0?"Best (highest)":"Range")+'</small><b>'+(best==null?"—":r.hi?recFmt(best):recFmt(Math.min.apply(null,vs))+"–"+recFmt(Math.max.apply(null,vs)))+'</b></div><div class="kpi"><small>Change</small><b>'+(chg==null?"—":(chg>0?"+":"")+recFmt(chg))+'</b></div><div class="kpi"><small>Entries</small><b>'+e.length+'</b></div></div>'+
+    '<div class="chart" id="rec-chart">'+recChart(r)+'</div>'+
+    '<form class="addrow" id="rec-addrow"><input type="date" name="d" value="'+todayISO()+'" required><input type="number" name="v" step="any" inputmode="decimal" placeholder="value" required><input type="text" name="note" placeholder="note (conditions, shoes, how it felt)"><button>Add</button></form>'+
+    (e.length?'<div style="overflow:auto"><table><thead><tr><th>Date</th><th style="text-align:right">'+esc(r.unit||"Value")+'</th><th>Note</th><th></th></tr></thead><tbody>'+e.slice().reverse().map(x=>'<tr><td>'+esc(fmt(x.d,{weekday:"short",month:"short",day:"numeric",year:"numeric"}))+'</td><td class="n">'+recFmt(x.v)+'</td><td class="c">'+esc(x.note||"")+'</td><td><button class="x" data-del="'+esc(x.d)+'" title="Remove this entry">×</button></td></tr>').join("")+'</tbody></table></div>':"")+
+    '<div class="sfoot"><span>'+(r.custom?"Your own metric.":"One of the plans' measures.")+' One value per day; saving the same date again replaces it.</span>'+(r.custom?'<button class="btn ghost" data-remove>Remove this metric</button>':"")+'</div>';
+}
+async function recSave(id,d,v,note){
+  if(needDb())return;
+  const r=recAll().find(x=>x.id===id);if(!r)return;
+  const entries=(r.entries||[]).filter(x=>x.d!==d).concat([{d:d,v:v,note:note||""}]).sort((a,b)=>a.d.localeCompare(b.d));
+  const data={name:r.name,unit:r.unit||"",stat:r.stat||"",fam:r.fam,hi:r.hi,custom:!!r.custom,when:r.when||"",entries:entries,createdAt:r.createdAt||new Date().toISOString()};
+  await S.db.doc("rec/"+id).set(data);
+}
+(function(){
+  const view=$("#view-records"),box=$("#rec-detail");if(!view)return;
+  view.addEventListener("submit",async e=>{
+    const f=e.target.closest("form[data-add]");if(!f)return;e.preventDefault();
+    const v=+f.querySelector("input").value;if(!isFinite(v))return;
+    try{await recSave(f.dataset.add,todayISO(),v,"");say("Saved.");}catch(err){say("Couldn't save — "+((err&&err.code)||"try again"),true);}
+  });
+  view.addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(b){S.rec.open=b.dataset.open;recDetail();}});
+  wireForm("#rec-new",async d=>{
+    const name=(d.name||"").trim();if(!name)return;
+    const id="c_"+fhash(name+Date.now());
+    await S.db.doc("rec/"+id).set({name:name,unit:(d.unit||"").trim(),stat:d.stat,fam:SGROUP.find(g=>g[2].includes(d.stat))?SGROUP.find(g=>g[2].includes(d.stat))[0]:"world",hi:+d.hi||0,custom:true,when:"",entries:[],createdAt:new Date().toISOString()});
+  });
+  box.addEventListener("click",async e=>{
+    if(e.target===box||e.target.closest("[data-close]")){S.rec.open=null;recDetail();return;}
+    const del=e.target.closest("[data-del]");
+    if(del){const id=S.rec.open,r=recAll().find(x=>x.id===id);if(!r||needDb())return;
+      try{await S.db.doc("rec/"+id).set(Object.assign({},r,{id:undefined,entries:r.entries.filter(x=>x.d!==del.dataset.del)}));}catch(err){say("Couldn't remove — "+((err&&err.code)||"try again"),true);}return;}
+    if(e.target.closest("[data-remove]")){const id=S.rec.open;if(needDb())return;if(!box.dataset.arm||box.dataset.arm!==id){box.dataset.arm=id;e.target.textContent="Click again to remove it and its history";return;}
+      delete box.dataset.arm;S.rec.open=null;await S.db.doc("rec/"+id).delete();return;}
+  });
+  box.addEventListener("submit",async e=>{
+    const f=e.target.closest("#rec-addrow");if(!f)return;e.preventDefault();
+    const v=+f.elements.v.value,d=f.elements.d.value;if(!isFinite(v)||!d)return;
+    try{await recSave(S.rec.open,d,v,f.elements.note.value.trim());}catch(err){say("Couldn't save — "+((err&&err.code)||"try again"),true);}
+  });
+  box.addEventListener("mousemove",e=>{
+    const c=e.target.closest("#rec-chart");const tip=$("#rec-tip"),hv=$("#rec-hv");if(!c||!tip||!hv){if(tip)tip.hidden=true;if(hv)hv.hidden=true;return;}
+    const svg=c.querySelector("svg"),pts=Array.from(svg.querySelectorAll(".pt"));if(!pts.length)return;
+    const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)*760/r.width;
+    let best=null,bd=1e9;pts.forEach(p=>{const d=Math.abs(+p.getAttribute("cx")-x);if(d<bd){bd=d;best=p;}});
+    const rec=recAll().find(z=>z.id===S.rec.open),en=rec.entries[+best.dataset.i];
+    hv.setAttribute("x1",best.getAttribute("cx"));hv.setAttribute("x2",best.getAttribute("cx"));hv.hidden=false;
+    tip.hidden=false;tip.textContent=fmt(en.d,{month:"short",day:"numeric",year:"numeric"})+" · "+recFmt(en.v)+(rec.unit?" "+rec.unit:"")+(en.note?" · "+en.note:"");
+    tip.style.left=(+best.getAttribute("cx")*r.width/760)+"px";tip.style.top=(+best.getAttribute("cy")*r.height/240+10)+"px";
+  });
+  box.addEventListener("mouseleave",()=>{const tip=$("#rec-tip"),hv=$("#rec-hv");if(tip)tip.hidden=true;if(hv)hv.hidden=true;});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.rec.open){S.rec.open=null;recDetail();}});
+})();
+
 /* ---------- events ---------- */
-const VIEWS=["home","today","week","school","learning","finance","gym","projects","habits","stats","review","notes"];
+const VIEWS=["home","today","week","school","learning","finance","gym","projects","habits","stats","records","review","notes"];
 function go(v){
   if(v==="money"){S.fin.sub="grow";v="finance";}
   if(VIEWS.indexOf(v)<0)return;
@@ -4585,6 +4841,7 @@ async function start(){
   db.doc("meta/finlog").onSnapshot(s=>{S.fin.log=s.exists&&Array.isArray(s.data().items)?s.data().items:[];finLog();},bad);
   db.doc("meta/stats").onSnapshot(s=>{S.st.meta=s.exists?s.data():null;stats();},bad);
   db.collection("statday").limit(400).onSnapshot(s=>{S.st.days=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));stats();},bad);
+  db.collection("rec").limit(300).onSnapshot(s=>{S.rec.items=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));records();},bad);
   db.collection("insights").limit(30).onSnapshot(s=>{const a=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((x,y)=>(y.generatedAt||"").localeCompare(x.generatedAt||""));S.insight=a[0]||null;review();},bad);
   try{
     await db.load();

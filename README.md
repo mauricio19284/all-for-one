@@ -1,7 +1,7 @@
 # All For One
 
 A personal command center: a home page with calendar and to-dos, plus a page per section
-(Today, Week, School, Learning, Finance, Gym, Projects, Habits, Stats, Review, Notes). The old Money tab lives on as Finance › Grow.
+(Today, Week, School, Learning, Finance, Gym, Projects, Habits, Stats, Records, Review, Notes). The old Money tab lives on as Finance › Grow.
 
 ## How it is put together
 
@@ -11,7 +11,7 @@ A personal command center: a home page with calendar and to-dos, plus a page per
   `tasks/<id>`, `notes/<id>`, `gymlog/<YYYY-MM-DD>`, `daily/<YYYY-MM-DD>`, `weekly/<monday YYYY-MM-DD>`,
   `habits/log`, `meta/config`, `meta/roadmap`, `meta/investing`, `insights/<YYYY-MM-DD>`,
   `finacct/<id>`, `finsub/<id>`, `fintx/<YYYY-MM>`, `fingoal/<id>`, `finproj/<id>`, `meta/finance`, `meta/finlog`,
-  `meta/stats`, `statday/<YYYY-MM-DD>`.
+  `meta/stats`, `statday/<YYYY-MM-DD>`, `rec/<metricId>`.
 - Sign-in is Supabase email + password. Row-level security lets only the address listed in
   `public.app_owner` read or write (`supabase/schema.sql`).
 - The capture box's auto-filing and the Review page's "read my notes" call the `ai` edge function
@@ -54,6 +54,9 @@ financial data belongs in this repository; it lives only in the `docs` table.
 - meta/stats: `{base: {<stat>: {v, note}}, measuredAt, planStart: "YYYY-MM-DD", quests: [{id, label, stat, xp}]}` — the Stats tab's baseline (50 = world average), program day 1 of the yearly plans, and his own permanent quests
 - statday (one per day): `{meters: {health, energy, rest, hunger, hydration, hygiene, mood, stress, motivation, socialbat}, done: {<questId>: true | xp}, log: [{at, text, stat, xp}], water, sleep}`
   A stat shows as baseline + earned XP / 60, minus a quarter point per idle day after two.
+
+- rec (one per measured metric): `{name, unit, stat, fam: body|mind|will|world, hi: 1|-1|0, custom, when, entries: [{d, v, note}], createdAt}`
+  The Records tab. Preset metrics (the plans' measurements) exist in code until the first value is saved; `hi` says which direction is progress; one entry per date.
 
 ## Stats tab quests
 
