@@ -63,4 +63,4 @@ day and week inside that month, weekday — and return `{id: "pl_<stat>", label,
 stores the XP earned under the id. Sources: Endurance, Speed & Agility, Looks, Knowledge & Leadership and Cognitive skills from his
 plan documents; Growth & Health (Height & Build), Critical thinking (Judgment), Focus, Creativity, Mindfulness (Emotional Control),
 Social skills, Influence & Leadership, Money & Income (Financial) and Discipline from his Google Docs; Practical Skills written for him.
-The start date is in `meta/stats.planStart` (⋯ next to the day counter), default 2026-10-20.
+The start date is in `meta/stats.planStart` (⋯ next to the day counter), default 2026-10-21.

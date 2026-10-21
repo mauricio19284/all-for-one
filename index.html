@@ -2332,13 +2332,13 @@ const BASE0={
 };
 /* Quests. Two are fixed and tick themselves (gym, must-finish). Every other stat owns a yearly plan (plans.js):
    one quest per stat per day, read from the plan by program day, week, planning month and weekday.
-   Program day 1 = planStart (meta/stats), default Oct 20 2026, the day the plans were written. */
+   Program day 1 = planStart (meta/stats), default Oct 21 2026, the day he started. */
 const QFIXED=[
   {id:"gym",label:"Gym session",stat:"strength",xp:12,auto:"gym"},
   {id:"must",label:"Finish the must-finish result",stat:"discipline",xp:10,auto:"must"}
 ];
 const QMAP={};QFIXED.forEach(q=>QMAP[q.id]=q);
-const XP_POINT=60, XP_LEVEL=500, PLAN_START0="2026-10-20";
+const XP_POINT=60, XP_LEVEL=500, PLAN_START0="2026-10-21";
 const BLOCKS=[31,28,31,30,31,30,31,31,30,31,30,31];
 function planCtx(iso){
   const start=stMeta().planStart||PLAN_START0,n=dayGap(iso,start)+1;
