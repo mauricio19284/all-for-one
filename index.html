@@ -971,6 +971,14 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-stats .quests .x{flex:none; background:none; border:0; color:var(--mutedg); font-size:16px; cursor:pointer; padding:0 4px}
 #view-stats .quests .x:hover{color:#8e3b2e}
 #view-stats .quests li.none{color:var(--mutedg); font-size:14px}
+#view-stats .quests li.qgroup{display:block; padding:14px 0 4px; border-bottom:0; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--mutedg)}
+#view-stats .quests li .t{cursor:pointer; min-width:0}
+#view-stats .quests .qdet{margin:4px 0 0; font-size:12.5px; line-height:1.45; color:var(--mutedg); display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden}
+#view-stats .quests li.open .qdet{display:block; -webkit-line-clamp:unset; color:var(--inkg)}
+#view-stats .quests li.done .qdet{display:none}
+#view-stats .planhead{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:2px 0 8px; font-size:13px; color:var(--mutedg)}
+#view-stats .planhead b{font-size:15px; color:var(--inkg)}
+#view-stats .planhead em{font-style:normal; color:#8a6412}
 #view-stats .addform{border-top:1px solid var(--lineg)}
 #view-stats input[type=text],#view-stats select,#view-stats input[type=number]{background:rgba(255,255,255,.6); border:1px solid var(--gold); border-radius:4px; color:var(--inkg)}
 #view-stats .btn{border-radius:4px; background:linear-gradient(180deg,#4a3b1c,#2a2318); border-color:#8a6a1e; color:#f7edd2}
@@ -1030,6 +1038,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="plans.js"></script>
 
 <!-- ===== Today tab restyle. Scoped to #view-today — nothing else on the site is affected. ===== -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&display=swap">
@@ -1823,6 +1832,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
         <div class="gpanel">
           <header><h2>Daily quests</h2><span class="right" id="st-questcount"></span></header>
           <div class="gbody">
+            <div class="planhead" id="st-planhead"></div>
             <ul class="rows quests" id="st-quests"></ul>
             <form class="addform" id="st-questadd">
               <input type="text" name="label" placeholder="Add a permanent daily quest" required>
@@ -1830,7 +1840,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
               <input type="number" name="xp" min="1" max="50" value="10" title="XP" style="width:70px">
               <button class="btn ghost">Add</button>
             </form>
-            <div class="hlegend">Two fixed quests tick themselves; eight are rolled fresh every day from a pool of 70 (ten quests a day), always including your two weakest stats and never repeating yesterday's unless they're repeatable. Quests you add here stay every day. 40 XP moves a stat one point; a stat ignored for more than two days starts slipping.</div>
+            <div class="hlegend">Every stat owns a yearly plan and sends one quest a day — tap a quest to open its instructions. Gym and the must-finish tick themselves; the rest come from the plans by program day, week and month, so easier weeks, test days, benchmarks and monthly reviews land on the right date. Quests you add here stay every day. 60 XP moves a stat one point; a stat ignored for more than two days starts slipping. A missed day carries nothing over — the plans say so.</div>
           </div>
         </div>
       </div>
@@ -2284,7 +2294,8 @@ const cfg=()=>S.config||FALLBACK;
 /* ---------- stats: the character sheet ----------
    Records:
      meta/stats          {base: {<stat>: {v, note}}, measuredAt, quests: [{id, label, stat, xp, auto?}]}
-     statday/<YYYY-MM-DD> {meters: {<meter>: 0-100}, done: {<questId>: true}, log: [{at, text, stat, xp}], water, sleep}
+     statday/<YYYY-MM-DD> {meters: {<meter>: 0-100}, done: {<questId>: true | xp earned}, log: [{at, text, stat, xp}], water, sleep}
+     meta/stats also holds planStart (program day 1 of every yearly plan in plans.js)
    A stat is baseline + earned XP (40 XP = one point) minus drift (a quarter point per idle day after two).
    50 is the global average for a man his age; nothing here is a judgement, it is a scoreboard. */
 const STATS=[
@@ -2319,89 +2330,23 @@ const BASE0={
   practical:{v:72,note:"Cooks real meals, handy, drives, codes / first aid / navigates without GPS."},
   financial:{v:50,note:"Saves some, no debt, tracks spending in Finance. Not investing yet — that is the next point."}
 };
-/* Quests. Two are fixed and tick themselves; the rest are rolled fresh each day from the pool,
-   seeded by the date (same list all day, a new one tomorrow), weighted toward the weakest stats,
-   and never repeating yesterday's roll unless the quest is marked repeatable (rep). */
+/* Quests. Two are fixed and tick themselves (gym, must-finish). Every other stat owns a yearly plan (plans.js):
+   one quest per stat per day, read from the plan by program day, week, planning month and weekday.
+   Program day 1 = planStart (meta/stats), default Oct 20 2026, the day the plans were written. */
 const QFIXED=[
-  {id:"gym",label:"Gym session",stat:"strength",xp:20,auto:"gym"},
-  {id:"must",label:"Finish the must-finish result",stat:"discipline",xp:15,auto:"must"}
+  {id:"gym",label:"Gym session",stat:"strength",xp:12,auto:"gym"},
+  {id:"must",label:"Finish the must-finish result",stat:"discipline",xp:10,auto:"must"}
 ];
-const QPOOL=[
-  // body
-  {id:"cardio",label:"Run or 30 min of zone-2",stat:"endurance",xp:15,rep:1},
-  {id:"run5k",label:"Run 5 km, note the time",stat:"endurance",xp:20},
-  {id:"stairs",label:"Take stairs everywhere today",stat:"endurance",xp:8,rep:1},
-  {id:"steps",label:"10,000 steps",stat:"endurance",xp:12,rep:1},
-  {id:"sprint",label:"6 × 30 s sprints",stat:"speed",xp:12},
-  {id:"jump",label:"3 sets of box or broad jumps",stat:"speed",xp:10},
-  {id:"sport",label:"Play your sport for 30 min",stat:"speed",xp:15,rep:1},
-  {id:"mobility",label:"10 min hip and ankle mobility",stat:"speed",xp:8,rep:1},
-  {id:"squat",label:"Squat day: beat last top set by 2.5 kg",stat:"strength",xp:20},
-  {id:"pullup",label:"Pull-up ladder to 30 total",stat:"strength",xp:12},
-  {id:"grip",label:"Dead hang 3 × max",stat:"strength",xp:8},
-  {id:"protein",label:"Hit 150 g protein",stat:"build",xp:12,rep:1},
-  {id:"weigh",label:"Weigh in and log it",stat:"build",xp:5,rep:1},
-  {id:"calories",label:"Eat at a 300 kcal surplus today",stat:"build",xp:10,rep:1},
-  {id:"skin",label:"Skincare AM + PM",stat:"looks",xp:8,rep:1},
-  {id:"posture",label:"Posture check every hour, shoulders back",stat:"looks",xp:8},
-  {id:"outfit",label:"Plan tomorrow's outfit tonight",stat:"looks",xp:6},
-  {id:"haircut",label:"Book or get a haircut",stat:"looks",xp:12},
-  {id:"teeth",label:"Floss + whitening strip",stat:"looks",xp:5,rep:1},
-  // mind
-  {id:"read",label:"Read 20 pages",stat:"knowledge",xp:12,rep:1},
-  {id:"read40",label:"Read 40 pages",stat:"knowledge",xp:20},
-  {id:"podcast",label:"One podcast or documentary, write 3 lines on it",stat:"knowledge",xp:10},
-  {id:"wiki",label:"Learn one thing you can explain to a friend tonight",stat:"knowledge",xp:8},
-  {id:"school",label:"One hour of schoolwork",stat:"intellect",xp:10,rep:1},
-  {id:"ahead",label:"Read ahead one chapter before class",stat:"intellect",xp:12},
-  {id:"problems",label:"20 practice problems, timed",stat:"intellect",xp:15},
-  {id:"lang",label:"20 min in your third language",stat:"intellect",xp:10,rep:1},
-  {id:"decision",label:"Write down one decision and how it went",stat:"judgment",xp:10,rep:1},
-  {id:"premortem",label:"Pre-mortem tomorrow's plan: what breaks it?",stat:"judgment",xp:10},
-  {id:"review",label:"Review last week's decisions — which ones aged badly?",stat:"judgment",xp:12},
-  {id:"sleepon",label:"Sleep on one choice instead of deciding today",stat:"judgment",xp:8},
-  {id:"deep",label:"One 90-min deep-work block",stat:"focus",xp:15,rep:1},
-  {id:"deep2",label:"Two 60-min blocks, phone in another room",stat:"focus",xp:18},
-  {id:"nophone",label:"First hour awake without the phone",stat:"focus",xp:10,rep:1},
-  {id:"single",label:"No multitasking in class — one tab, notes by hand",stat:"focus",xp:10},
-  {id:"make",label:"10 min sketching, designing or building",stat:"creativity",xp:10,rep:1},
-  {id:"ship",label:"Ship one small thing (post it, send it, deploy it)",stat:"creativity",xp:15},
-  {id:"ideas",label:"Write 10 bad ideas for anything",stat:"creativity",xp:8},
-  {id:"redesign",label:"Redesign one screen of All For One on paper",stat:"creativity",xp:12},
-  // will
-  {id:"screen",label:"Phone under 4 h today",stat:"discipline",xp:15,rep:1},
-  {id:"screen3",label:"Phone under 3 h today",stat:"discipline",xp:20},
-  {id:"wake",label:"Up at the first alarm",stat:"discipline",xp:10,rep:1},
-  {id:"bed",label:"Lights out on time",stat:"discipline",xp:10,rep:1},
-  {id:"nosugar",label:"No sugar or junk today",stat:"discipline",xp:10},
-  {id:"shutdown",label:"Evening shutdown done before 10 pm",stat:"discipline",xp:10,rep:1},
-  {id:"calm",label:"5 min breathing when something spikes",stat:"emotion",xp:8,rep:1},
-  {id:"journal",label:"3 lines: what annoyed you today and why",stat:"emotion",xp:8},
-  {id:"pause",label:"Pause 10 s before replying to anything that irritates you",stat:"emotion",xp:10},
-  {id:"gratitude",label:"Name 3 things that went right today",stat:"emotion",xp:6},
-  {id:"cold",label:"Finish the shower cold, 60 s",stat:"emotion",xp:8,rep:1},
-  // world
-  {id:"stranger",label:"Talk to someone new",stat:"social",xp:12,rep:1},
-  {id:"compliment",label:"Give two real compliments",stat:"social",xp:8},
-  {id:"call",label:"Call a friend you haven't talked to in a month",stat:"social",xp:12},
-  {id:"invite",label:"Be the one who makes the plan tonight or this weekend",stat:"social",xp:12},
-  {id:"eyecontact",label:"Hold eye contact in every conversation today",stat:"social",xp:8},
-  {id:"post",label:"Post, share or teach something",stat:"influence",xp:10,rep:1},
-  {id:"help",label:"Help someone in your lane (training, looks, a game)",stat:"influence",xp:10},
-  {id:"speak",label:"Speak up once in class or at work",stat:"influence",xp:12},
-  {id:"lead",label:"Lead the group once today — pick, decide, organize",stat:"influence",xp:12},
-  {id:"cook",label:"Cook a real meal",stat:"practical",xp:8,rep:1},
-  {id:"fix",label:"Fix or clean one thing that's been bugging you",stat:"practical",xp:10},
-  {id:"mealprep",label:"Meal-prep 3 meals",stat:"practical",xp:15},
-  {id:"nogps",label:"Drive somewhere without GPS",stat:"practical",xp:8},
-  {id:"money",label:"Log spending in Finance",stat:"financial",xp:8,rep:1},
-  {id:"invest10",label:"Read 10 min on investing",stat:"financial",xp:8,rep:1},
-  {id:"subs",label:"Review subscriptions — cancel one",stat:"financial",xp:12},
-  {id:"nospend",label:"No-spend day",stat:"financial",xp:12},
-  {id:"budget",label:"Set next month's limits in Finance",stat:"financial",xp:12}
-];
-const QMAP={};QFIXED.concat(QPOOL).forEach(q=>QMAP[q.id]=q);
-const QROLL=8;
+const QMAP={};QFIXED.forEach(q=>QMAP[q.id]=q);
+const XP_POINT=60, XP_LEVEL=500, PLAN_START0="2026-10-20";
+const BLOCKS=[31,28,31,30,31,30,31,31,30,31,30,31];
+function planCtx(iso){
+  const start=stMeta().planStart||PLAN_START0,n=dayGap(iso,start)+1;
+  if(n<1)return {n:n,start:start};
+  const d=new Date(iso+"T12:00:00Z");let r=(n-1)%365,mi=0;while(r>=BLOCKS[mi]){r-=BLOCKS[mi];mi++;}
+  const dom=d.getUTCDate(),last=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate(),wk=Math.ceil(n/7);
+  return {n:n,start:start,year:Math.floor((n-1)/365)+1,wk:wk,easy:wk%4===0,wd:WD[d.getUTCDay()],mi:mi,dIn:r+1,lastIn:r+1===BLOCKS[mi],wkIn:Math.min(4,Math.ceil((r+1)/7)),dom:dom,lastDom:dom===last,firstTue:d.getUTCDay()===2&&dom<=7};
+}
 const ST=()=>S.st;
 const stMeta=()=>Object.assign({base:BASE0,quests:[],measuredAt:"2026-10-19"},ST().meta||{});
 const stDay=iso=>ST().days.find(d=>d.id===iso)||null;
@@ -2419,7 +2364,8 @@ function stTotals(before){
   const bump=(stat,n,iso)=>{if(!(stat in xp))return;xp[stat]+=n;if(iso>last[stat])last[stat]=iso;};
   ST().days.forEach(d=>{
     if(before&&d.id>=before)return;
-    Object.keys(d.done||{}).forEach(id=>{const q=quests[id];if(q&&d.done[id])bump(q.stat,+q.xp||0,d.id);});
+    Object.keys(d.done||{}).forEach(id=>{const v=d.done[id];if(!v)return;const q=quests[id];
+      if(q)bump(q.stat,+q.xp||0,d.id);else if(id.slice(0,3)==="pl_")bump(id.slice(3),typeof v==="number"?v:PLAN_XP,d.id);});
     (d.log||[]).forEach(l=>bump(l.stat,+l.xp||0,d.id));
   });
   // auto quests for today that are not written yet
@@ -2427,36 +2373,16 @@ function stTotals(before){
   if(!before)QFIXED.forEach(q=>{if(q.auto&&!(td.done||{})[q.id]&&stAuto(q,t))bump(q.stat,+q.xp||0,t);});
   return {xp,last};
 }
-/* the day's roll: a seeded shuffle so the list is the same all day; the two weakest stats always get a quest */
-function dayRoll(iso,avoid){
-  const rnd=seeded(iso+"quests");
-  const tot=stTotals(iso),score={};STATS.forEach(s=>score[s[0]]=stScore(s[0],tot));
-  const weak=STATS.map(s=>s[0]).sort((a,b)=>score[a]-score[b]).slice(0,2);
-  const cand=QPOOL.filter(q=>!(avoid&&avoid.has(q.id)&&!q.rep));
-  const pick=[],used=new Set();
-  const take=list=>{if(!list.length)return;const q=list[Math.floor(rnd()*list.length)];pick.push(q);used.add(q.id);};
-  weak.forEach(k=>take(cand.filter(q=>q.stat===k&&!used.has(q.id))));
-  while(pick.length<QROLL){
-    const stats=new Set(pick.map(q=>q.stat));
-    let list=cand.filter(q=>!used.has(q.id)&&!stats.has(q.stat));
-    if(!list.length)list=cand.filter(q=>!used.has(q.id));
-    if(!list.length)break;
-    take(list);
-  }
-  return pick;
-}
-const rollMemo={};
+const questMemo={};
 function dayQuests(iso){
-  if(!rollMemo[iso]||rollMemo[iso].n!==ST().days.length){
-    const y=new Set(dayRoll(shift(iso,-1),null).map(q=>q.id));
-    rollMemo[iso]={n:ST().days.length,list:dayRoll(iso,y)};
-  }
-  return QFIXED.concat(rollMemo[iso].list,stMeta().quests||[]);
+  const start=stMeta().planStart||PLAN_START0;
+  if(!questMemo[iso]||questMemo[iso].start!==start)questMemo[iso]={start:start,list:planQuests(planCtx(iso))};
+  return QFIXED.concat(questMemo[iso].list,stMeta().quests||[]);
 }
 function stScore(k,tot){
   const m=stMeta(),b=(m.base[k]||BASE0[k]||{v:50}).v;
   const idle=Math.max(0,dayGap(todayISO(),tot.last[k])-2);
-  return clamp(b+tot.xp[k]/40-Math.min(6,idle*.25),1,100);
+  return clamp(b+tot.xp[k]/XP_POINT-Math.min(6,idle*.25),1,100);
 }
 /* yesterday's meters carried into a fresh day, with the overnight reset */
 function stMeters(iso){
@@ -2484,9 +2410,9 @@ function stats(){
   const m=stMeta(),tot=stTotals(),iso=todayISO(),day=stDay(iso)||{},scores={};
   STATS.forEach(s=>scores[s[0]]=stScore(s[0],tot));
   const total=Object.values(tot.xp).reduce((a,b)=>a+b,0),avg=STATS.reduce((a,s)=>a+scores[s[0]],0)/STATS.length;
-  const lvl=Math.floor(total/250)+1;
+  const lvl=Math.floor(total/XP_LEVEL)+1;
   $("#st-level").textContent="Level "+lvl;$("#st-level-n").textContent=lvl;
-  $("#st-xp").textContent=Math.round(total%250)+" / 250 XP";$("#st-xpbar").style.width=((total%250)/2.5)+"%";
+  $("#st-xp").textContent=Math.round(total%XP_LEVEL)+" / "+XP_LEVEL+" XP";$("#st-xpbar").style.width=((total%XP_LEVEL)/XP_LEVEL*100)+"%";
   $("#st-overall").textContent="avg "+avg.toFixed(1)+" · world 50";
   const hex=document.getElementById("ht-stats");if(hex)hex.textContent="Lv "+lvl;
   // meters
@@ -2506,13 +2432,20 @@ function stats(){
   const hv=clamp(Math.round(mt.health||0),0,100),ev=clamp(Math.round(mt.energy||0),0,100);
   $("#st-vhealth").style.width=hv+"%";$("#st-vhealth-t").textContent=hv*10+" / 1000";
   $("#st-venergy").style.width=ev+"%";$("#st-venergy-t").textContent=ev*10+" / 1000";
-  // quests
-  const qs=dayQuests(iso),mine=new Set((m.quests||[]).map(q=>q.id));let done=0;
-  $("#st-quests").innerHTML=qs.map(q=>{
+  // quests, grouped by stat family; plan quests carry their instructions
+  const qs=dayQuests(iso),mine=new Set((m.quests||[]).map(q=>q.id)),pc=planCtx(iso);let done=0;
+  const ph=$("#st-planhead");
+  if(pc.n<1)ph.innerHTML='<b>Plans start '+esc(fmt(pc.start,{weekday:"long",month:"long",day:"numeric"}))+'</b><span>'+(1-pc.n)+' day'+(pc.n===0?"":"s")+' to go</span><button class="more" id="st-planstart" title="Change the start date">⋯</button>';
+  else ph.innerHTML='<b>Day '+pc.n+'</b><span>Week '+pc.wk+' · Month '+(pc.mi+1)+(pc.year>1?" · Year "+pc.year:"")+(pc.easy?' · <em>easier week</em>':'')+' · since '+esc(fmt(pc.start,{month:"short",day:"numeric",year:"numeric"}))+'</span><button class="more" id="st-planstart" title="Change the start date">⋯</button>';
+  const row=q=>{
     const on=!!((day.done||{})[q.id])||stAuto(q,iso);if(on)done++;
-    const tag=q.auto?" · auto":mine.has(q.id)?" · yours":QMAP[q.id]?" · rolled today":"";
-    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+tag+'</small></div>'+(mine.has(q.id)?'<button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button>':'')+'</li>';
-  }).join("");
+    const tag=q.auto?" · auto":mine.has(q.id)?" · yours":q.plan?" · plan":"";
+    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'" data-xp="'+(+q.xp||0)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+tag+'</small>'+(q.detail?'<p class="qdet">'+esc(q.detail)+'</p>':'')+'</div>'+(mine.has(q.id)?'<button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button>':'')+'</li>';
+  };
+  const open=ST().openQ||{};
+  $("#st-quests").innerHTML=SGROUP.map(g=>{const list=qs.filter(q=>g[2].includes(q.stat));return list.length?'<li class="qgroup">'+g[1]+'</li>'+list.map(row).join(""):"";}).join("")+
+    qs.filter(q=>!STAT_LABEL[q.stat]).map(row).join("");
+  $("#st-quests").querySelectorAll("li").forEach(li=>{const cb=li.querySelector("[data-q]");if(cb&&open[cb.dataset.q])li.classList.add("open");});
   $("#st-questcount").textContent=done+" / "+qs.length+" today";
   const nq=$("#n-stats");if(nq)nq.textContent=done+"/"+qs.length;
   const opts=STATS.map(s=>'<option value="'+s[0]+'">'+esc(s[1])+'</option>').join("");
@@ -2604,6 +2537,13 @@ async function stLog(text,statPick){
     const ld=e.target.closest("[data-ldel]");
     if(ld){const [iso,at]=ld.dataset.ldel.split("|");await stDayPatch(iso,d=>{d.log=(d.log||[]).filter(l=>l.at!==at);return d;});return;}
     if(e.target.closest("#st-editbase")){ST().editBase=!ST().editBase;stats();return;}
+    if(e.target.closest("#st-planstart")){
+      const cur=stMeta().planStart||PLAN_START0,v=prompt("Program day 1 of every plan (YYYY-MM-DD). Earlier ticks are kept; the quest shown for each day moves with the date.",cur);
+      if(!v||v===cur)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(v)||isNaN(Date.parse(v+"T12:00:00Z"))){say("That isn't a date — use YYYY-MM-DD.",true);return;}
+      await stMetaPatch({planStart:v});return;
+    }
+    const tt=e.target.closest("#st-quests li .t");
+    if(tt&&!e.target.closest("input")){const li=tt.closest("li"),cb=li.querySelector("[data-q]");if(cb&&li.querySelector(".qdet")){li.classList.toggle("open");ST().openQ=ST().openQ||{};ST().openQ[cb.dataset.q]=li.classList.contains("open");}return;}
     if(e.target.closest("#st-basecancel")){ST().editBase=false;stats();return;}
     if(e.target.closest("#st-basesave")){
       const base=Object.assign({},stMeta().base);
@@ -2613,8 +2553,8 @@ async function stLog(text,statPick){
   });
   view.addEventListener("change",async e=>{
     const cb=e.target.closest('input[type=checkbox][data-q]');if(!cb)return;
-    const id=cb.dataset.q,on=cb.checked;
-    try{await stDayPatch(todayISO(),d=>{d.done=Object.assign({},d.done);if(on)d.done[id]=true;else delete d.done[id];return d;});}
+    const id=cb.dataset.q,on=cb.checked,xp=+cb.dataset.xp||0;
+    try{await stDayPatch(todayISO(),d=>{d.done=Object.assign({},d.done);if(on)d.done[id]=id.slice(0,3)==="pl_"?xp:true;else delete d.done[id];return d;});}
     catch(err){say("Couldn't save the quest — "+((err&&err.code)||"try again"),true);}
   });
   wireForm("#st-questadd",async d=>{
