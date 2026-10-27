@@ -40,6 +40,9 @@ A personal command center: a home page with calendar and to-dos, plus a page per
   says "review" opens a form on the Stats tab (what the week or month showed, one adjustment); saving it ticks the quest. This week's
   reviews show in the Sunday review on the Week tab, all of them in "Stat reviews" on the Review page, and the newest feed the
   "read my notes" prompt.
+- Plan quests carry the records they need (`REC_KEYS` in `index.html`: a record of the quest's stat whose keywords appear in the
+  quest title; a review quest with no keyword match gets all of its stat's records). Each shows the last value and saves today's
+  straight into `rec/<id>`.
 - meta/config: `{week, schoolwork, gymTime, split, shutdown, review, flags}`
 - finacct: `{name, type: bank|credit|savings|invest|cash, cur: MXN|USD|EUR, bal, asOf, hist: [{d, b}], createdAt}`
   (for a credit card, `bal` is what is owed)

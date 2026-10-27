@@ -1047,6 +1047,15 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-stats .quests .qrev .bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--mutedg)}
 #view-stats .quests .qrev .bar button[data-go]{background:none; border:0; padding:0; color:var(--mutedg); text-decoration:underline; cursor:pointer; font-size:12px}
 #view-stats .quests .t small .chip{margin-left:6px; vertical-align:middle}
+#view-stats .quests .qrec{display:none; flex-direction:column; gap:4px; margin:8px 0 2px; cursor:default}
+#view-stats .quests li.open .qrec{display:flex}
+#view-stats .quests .qrec .rr{display:grid; grid-template-columns:1fr auto auto; gap:2px 8px; align-items:center; font-size:12.5px; padding:5px 0; border-top:1px dashed var(--lineg)}
+#view-stats .quests .qrec .rr .rn{font-weight:600; color:var(--inkg); grid-column:1; grid-row:1}
+#view-stats .quests .qrec .rr .rl{color:var(--mutedg); grid-column:1/-1; grid-row:2; font-size:12px}
+#view-stats .quests .qrec .rr input[type=number]{width:84px; font-size:13px; padding:4px 8px; grid-column:2; grid-row:1}
+#view-stats .quests .qrec .rr .btn{grid-column:3; grid-row:1}
+#view-stats .quests .qrec .rr .btn{padding:5px 10px; font-size:9.5px}
+#view-stats .quests .qrec .rh{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--mutedg); padding-top:2px}
 #view-stats .planhead{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:2px 0 8px; font-size:13px; color:var(--mutedg)}
 #view-stats .planhead b{font-size:15px; color:var(--inkg)}
 #view-stats .planhead em{font-style:normal; color:#8a6412}
@@ -2553,10 +2562,10 @@ function stats(){
   const row=q=>{
     const on=isOn(q),rv=revOf(q);
     const tag=q.auto?" · auto":mine.has(q.id)?" · yours":q.plan?" · plan":"";
-    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'" data-xp="'+(+q.xp||0)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+tag+(rv?'<span class="chip kind" style="text-transform:none">'+(rv.period==="month"?"Monthly":"Weekly")+' review</span>':'')+'</small>'+(q.detail?'<p class="qdet">'+esc(q.detail)+'</p>':'')+(rv?revForm(q,rv,iso):'')+'</div>'+(mine.has(q.id)?'<button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button>':'')+'</li>';
+    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'" data-xp="'+(+q.xp||0)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+tag+(rv?'<span class="chip kind" style="text-transform:none">'+(rv.period==="month"?"Monthly":"Weekly")+' review</span>':'')+'</small>'+(q.detail?'<p class="qdet">'+esc(q.detail)+'</p>':'')+(q.plan?recForm(q,iso):'')+(rv?revForm(q,rv,iso):'')+'</div>'+(mine.has(q.id)?'<button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button>':'')+'</li>';
   };
   const open=ST().openQ||{};
-  const typing=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#st-quests .qrev");
+  const typing=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#st-quests .qrev, #st-quests .qrec");
   if(!typing){
     $("#st-quests").innerHTML=SGROUP.map(g=>{const list=qs.filter(q=>g[2].includes(q.stat));return list.length?'<li class="qgroup">'+g[1]+'</li>'+list.map(row).join(""):"";}).join("")+
       qs.filter(q=>!STAT_LABEL[q.stat]).map(row).join("");
@@ -2592,8 +2601,40 @@ function stats(){
    statreview/<stat>-<date>  {stat, date, period: week|month, quest, label, text, change, savedAt} */
 function revOf(q){
   if(!q||!q.plan||!/\breview\b/i.test(q.label||""))return null;
+  if(!/\b(week|weekly|month|monthly|sunday|friday|records|tracker|sheet|scorecard|evidence|decision process|what helped|what happened|what you attempted|results)\b/i.test(q.label||""))return null;
   const s=(q.label||"")+" "+(q.detail||"");
   return {period:/month/i.test(q.label||"")?"month":"week",measure:/measur|benchmark|weigh|milestone/i.test(s)};
+}
+/* records a quest needs: a record of the quest's stat whose keywords appear in the quest text;
+   a review quest with no keyword match gets all of its stat's records */
+const REC_KEYS={height:/height|measurement|baseline/i,weight:/weigh|measurement/i,bodyfat:/body ?fat/i,sleep:/sleep/i,
+  bench:/bench/i,squat:/squat/i,deadlift:/dead ?lift/i,pullups:/pull[- ]?up/i,
+  sprint10:/test:.*accelerat/i,vjump:/test:.*vertical/i,broad:/test:.*broad/i,shuffle:/test:.*shuffle/i,reaction:/test:.*reaction/i,
+  tmeffort:/benchmark|treadmill/i,tmhr:/benchmark|treadmill/i,sunday:/sunday cardio|scorecard|long cardio/i,rounds:/intervals?\b|rounds?\b/i,pushups:/push[- ]?up|circuit/i,
+  skin:/skin comfort|milestone|baseline|standardized/i,
+  reasoning:/review sheet|baseline packet|benchmark items/i,arith:/review sheet|baseline packet|benchmark items/i,spatial:/review sheet|baseline packet|benchmark items/i,recall:/review sheet|baseline packet|benchmark items|delayed recall/i,explain:/review sheet|baseline packet|benchmark items/i,
+  klscore:/assessment|closed-book test|knowledge test/i,pages:/\bpages\b/i,
+  blocks:/friday review|completion|blocks completed|15-min review|what helped/i,delay:/start delay|baseline day/i,switches:/distraction|switch/i,
+  fluency:/unusual|fluency/i,rubric:/rubric|reasoning review|decision process/i,predict:/predict|resolved/i,
+  sessions:/tracker review|the records|completion|sessions/i,screen:/screen time|phone report/i,
+  practice:/practice days|monthly count/i,pauses:/pause|scorecard/i,
+  interactions:/attempt|review and recover|baseline/i,difficulty:/difficult|baseline/i,
+  promises:/promise|tracker|evidence/i,feedback:/feedback/i,
+  prospects:/prospect/i,cash:/cash|payment|invoice|collect/i,cushion:/cushion|emergency|savings|bills/i,
+  projects:/reset/i};
+function questRecs(q){
+  if(!q||!q.plan)return [];
+  const text=q.label||"",all=recAll().filter(r=>r.stat===q.stat);
+  const hit=all.filter(r=>REC_KEYS[r.id]&&REC_KEYS[r.id].test(text));
+  return hit.length?hit:(revOf(q)?all:[]);
+}
+function recForm(q,iso){
+  const rs=questRecs(q);if(!rs.length)return "";
+  return '<div class="qrec"><div class="rh">Records this quest needs</div>'+rs.map(r=>{
+    const last=r.entries[r.entries.length-1],today=r.entries.find(e=>e.d===iso);
+    return '<div class="rr"><span class="rn">'+esc(r.name)+'</span><span class="rl">'+(today?'today '+recFmt(today.v)+' '+esc(r.unit):last?'last '+recFmt(last.v)+' '+esc(r.unit)+' · '+esc(fmt(last.d,{month:"short",day:"numeric"})):'no value yet')+(r.when?' · '+esc(r.when):'')+'</span>'
+      +'<input type="number" step="any" placeholder="'+esc(r.unit)+'" aria-label="'+esc(r.name)+'"><button class="btn ghost" data-recsave="'+esc(r.id)+'">'+(today?"Update":"Save")+'</button></div>';
+  }).join("")+'</div>';
 }
 const stRevs=()=>ST().reviews||[];
 function stRev(stat,iso){return stRevs().find(r=>r.stat===stat&&r.date===iso)||null;}
@@ -2605,7 +2646,7 @@ function revForm(q,rv,iso){
     +'<textarea placeholder="'+(rv.period==="month"?"What the month showed: the numbers, what moved, what did not.":"What the week showed: what you did, what it produced, what got in the way.")+'">'+esc(cur?cur.text||"":"")+'</textarea>'
     +'<input type="text" placeholder="One adjustment for next '+rv.period+'" value="'+esc(cur?cur.change||"":"")+'">'
     +'<div class="bar"><button class="btn" data-revsave="'+esc(q.id)+'" data-period="'+rv.period+'" data-xp="'+(+q.xp||0)+'">'+(cur?"Update review":"Save review")+'</button>'
-    +(rv.measure?'<button type="button" data-go="records">Enter the measurement in Records</button>':'')
+    +(rv.measure&&!questRecs(q).length?'<button type="button" data-go="records">Enter the measurement in Records</button>':'')
     +(cur?'<span>saved '+esc((cur.savedAt||"").slice(11,16))+'</span>':'')+'</div></div>';
 }
 async function saveRev(btn){
@@ -2696,7 +2737,17 @@ async function stLog(text,statPick){
     }
     const rs=e.target.closest("[data-revsave]");
     if(rs){rs.disabled=true;try{await saveRev(rs);}catch(err){say("Couldn't save the review — "+((err&&err.code)||"try again"),true);}finally{rs.disabled=false;}return;}
-    if(e.target.closest(".qrev"))return;
+    const rc=e.target.closest("[data-recsave]");
+    if(rc){
+      const row=rc.closest(".rr"),inp=row.querySelector("input"),v=parseFloat(inp.value);
+      if(isNaN(v)){say("Type the number first.",true);return;}
+      rc.disabled=true;rc.blur();
+      try{await recSave(rc.dataset.recsave,todayISO(),v,"");say("Saved to Records.");}
+      catch(err){say("Couldn't save — "+((err&&err.code)||"try again"),true);}
+      finally{rc.disabled=false;}
+      return;
+    }
+    if(e.target.closest(".qrev, .qrec"))return;
     const tt=e.target.closest("#st-quests li .t");
     if(tt&&!e.target.closest("input")){const li=tt.closest("li"),cb=li.querySelector("[data-q]");if(cb&&li.querySelector(".qdet")){li.classList.toggle("open");ST().openQ=ST().openQ||{};ST().openQ[cb.dataset.q]=li.classList.contains("open");}return;}
     if(e.target.closest("#st-basecancel")){ST().editBase=false;stats();return;}
@@ -4975,7 +5026,7 @@ async function start(){
   db.doc("meta/finlog").onSnapshot(s=>{S.fin.log=s.exists&&Array.isArray(s.data().items)?s.data().items:[];finLog();},bad);
   db.doc("meta/stats").onSnapshot(s=>{S.st.meta=s.exists?s.data():null;stats();},bad);
   db.collection("statday").limit(400).onSnapshot(s=>{S.st.days=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));stats();},bad);
-  db.collection("rec").limit(300).onSnapshot(s=>{S.rec.items=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));records();},bad);
+  db.collection("rec").limit(300).onSnapshot(s=>{S.rec.items=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));records();stats();},bad);
   db.collection("statreview").limit(600).onSnapshot(s=>{S.st.reviews=s.docs.map(d=>Object.assign({},d.data(),{id:d.id})).filter(r=>r.stat&&r.date);stats();review();week();},bad);
   db.collection("critique").limit(300).onSnapshot(s=>{S.crit=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(c=>c.text);review();week();},bad);
   db.collection("insights").limit(30).onSnapshot(s=>{const a=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((x,y)=>(y.generatedAt||"").localeCompare(x.generatedAt||""));S.insight=a[0]||null;review();},bad);
