@@ -36,6 +36,10 @@ A personal command center: a home page with calendar and to-dos, plus a page per
 - critique: `{text, week: "monday YYYY-MM-DD", status: open|fixed, createdAt, fixedAt?, fixedWeek?, change?}` — the Review page's
   "Critiques": what he says isn't working, written when noticed. Open ones are listed in the Week tab's Sunday review; ticking one
   there marks it fixed and copies the "One adjustment" field into `change`. Both feed the "read my notes" prompt.
+- statreview (one per stat per day): `{stat, date, period: week|month, quest, label, text, change, savedAt}` — a plan quest whose label
+  says "review" opens a form on the Stats tab (what the week or month showed, one adjustment); saving it ticks the quest. This week's
+  reviews show in the Sunday review on the Week tab, all of them in "Stat reviews" on the Review page, and the newest feed the
+  "read my notes" prompt.
 - meta/config: `{week, schoolwork, gymTime, split, shutdown, review, flags}`
 - finacct: `{name, type: bank|credit|savings|invest|cash, cur: MXN|USD|EUR, bal, asOf, hist: [{d, b}], createdAt}`
   (for a credit card, `bal` is what is owed)
