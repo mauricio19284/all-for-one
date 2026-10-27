@@ -1039,6 +1039,14 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-stats .quests .qdet{margin:4px 0 0; font-size:12.5px; line-height:1.45; color:var(--mutedg); display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden}
 #view-stats .quests li.open .qdet{display:block; -webkit-line-clamp:unset; color:var(--inkg)}
 #view-stats .quests li.done .qdet{display:none}
+#view-stats .quests .qrev{display:none; flex-direction:column; gap:7px; margin:8px 0 4px; cursor:default}
+#view-stats .quests li.open .qrev{display:flex}
+#view-stats .quests .qrev textarea{width:100%; min-height:72px; resize:vertical; font-size:13.5px}
+#view-stats .quests .qrev input[type=text]{width:100%; font-size:13.5px}
+#view-stats .quests .qrev .last{font-size:12px; line-height:1.45; color:var(--mutedg)}
+#view-stats .quests .qrev .bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:12px; color:var(--mutedg)}
+#view-stats .quests .qrev .bar button[data-go]{background:none; border:0; padding:0; color:var(--mutedg); text-decoration:underline; cursor:pointer; font-size:12px}
+#view-stats .quests .t small .chip{margin-left:6px; vertical-align:middle}
 #view-stats .planhead{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:2px 0 8px; font-size:13px; color:var(--mutedg)}
 #view-stats .planhead b{font-size:15px; color:var(--inkg)}
 #view-stats .planhead em{font-style:normal; color:#8a6412}
@@ -1983,6 +1991,13 @@ body:has(#view-home:not([hidden])) .cape{display:block}
         </div>
       </div>
       <div class="panel wide">
+        <header><h2>Stat reviews</h2><span class="right"><span id="srevcount"></span> <select id="srevfilter" aria-label="Filter by stat"><option value="">All stats</option></select></span></header>
+        <div class="body">
+          <div class="hlegend">The weekly and monthly reviews the plans ask for, one per stat, newest first. Read the same stat down the column to see whether the adjustments are holding.</div>
+          <div id="srevlist"></div>
+        </div>
+      </div>
+      <div class="panel wide">
         <header><h2>Day by day</h2><span class="right">morning plan and evening notes, newest first</span></header>
         <div class="body" id="history"></div>
       </div>
@@ -2377,7 +2392,7 @@ const HAB={ym:null,open:{}}; // ym = month being viewed ("YYYY-MM"), open = whic
 
 const FALLBACK={week:{},schoolwork:{},gymTime:{},split:{},shutdown:[],review:[]};
 
-const S={rec:{items:[],open:null},st:{meta:null,days:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],crit:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
+const S={rec:{items:[],open:null},st:{meta:null,days:[],reviews:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],crit:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -2533,15 +2548,20 @@ function stats(){
   const ph=$("#st-planhead");
   if(pc.n<1)ph.innerHTML='<b>Plans start '+esc(fmt(pc.start,{weekday:"long",month:"long",day:"numeric"}))+'</b><span>'+(1-pc.n)+' day'+(pc.n===0?"":"s")+' to go</span><button class="more" id="st-planstart" title="Change the start date">⋯</button>';
   else ph.innerHTML='<b>Day '+pc.n+'</b><span>Week '+pc.wk+' · Month '+(pc.mi+1)+(pc.year>1?" · Year "+pc.year:"")+(pc.easy?' · <em>easier week</em>':'')+' · since '+esc(fmt(pc.start,{month:"short",day:"numeric",year:"numeric"}))+'</span><button class="more" id="st-planstart" title="Change the start date">⋯</button>';
+  const isOn=q=>!!((day.done||{})[q.id])||stAuto(q,iso);
+  qs.forEach(q=>{if(isOn(q))done++;});
   const row=q=>{
-    const on=!!((day.done||{})[q.id])||stAuto(q,iso);if(on)done++;
+    const on=isOn(q),rv=revOf(q);
     const tag=q.auto?" · auto":mine.has(q.id)?" · yours":q.plan?" · plan":"";
-    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'" data-xp="'+(+q.xp||0)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+tag+'</small>'+(q.detail?'<p class="qdet">'+esc(q.detail)+'</p>':'')+'</div>'+(mine.has(q.id)?'<button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button>':'')+'</li>';
+    return '<li class="'+(on?"done ":"")+(q.auto?"auto":"")+'"><input type="checkbox" data-q="'+esc(q.id)+'" data-xp="'+(+q.xp||0)+'"'+(on?" checked":"")+'><div class="t"><b>'+esc(q.label)+'</b><small>'+esc(STAT_LABEL[q.stat]||q.stat)+' · +'+(+q.xp||0)+' XP'+tag+(rv?'<span class="chip kind" style="text-transform:none">'+(rv.period==="month"?"Monthly":"Weekly")+' review</span>':'')+'</small>'+(q.detail?'<p class="qdet">'+esc(q.detail)+'</p>':'')+(rv?revForm(q,rv,iso):'')+'</div>'+(mine.has(q.id)?'<button class="x" data-qdel="'+esc(q.id)+'" title="Remove quest">×</button>':'')+'</li>';
   };
   const open=ST().openQ||{};
-  $("#st-quests").innerHTML=SGROUP.map(g=>{const list=qs.filter(q=>g[2].includes(q.stat));return list.length?'<li class="qgroup">'+g[1]+'</li>'+list.map(row).join(""):"";}).join("")+
-    qs.filter(q=>!STAT_LABEL[q.stat]).map(row).join("");
-  $("#st-quests").querySelectorAll("li").forEach(li=>{const cb=li.querySelector("[data-q]");if(cb&&open[cb.dataset.q])li.classList.add("open");});
+  const typing=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#st-quests .qrev");
+  if(!typing){
+    $("#st-quests").innerHTML=SGROUP.map(g=>{const list=qs.filter(q=>g[2].includes(q.stat));return list.length?'<li class="qgroup">'+g[1]+'</li>'+list.map(row).join(""):"";}).join("")+
+      qs.filter(q=>!STAT_LABEL[q.stat]).map(row).join("");
+    $("#st-quests").querySelectorAll("li").forEach(li=>{const cb=li.querySelector("[data-q]");if(cb&&open[cb.dataset.q])li.classList.add("open");});
+  }
   $("#st-questcount").textContent=done+" / "+qs.length+" today";
   const nq=$("#n-stats");if(nq)nq.textContent=done+"/"+qs.length;
   const opts=STATS.map(s=>'<option value="'+s[0]+'">'+esc(s[1])+'</option>').join("");
@@ -2567,6 +2587,42 @@ function stats(){
   $("#st-logcount").textContent=((day.log||[]).length||"no")+" today";
   $("#st-logs").innerHTML=days.length?days.map(d=>'<div class="logday"><span class="label">'+esc(d.id===iso?"Today":fmt(d.id,{weekday:"long",month:"short",day:"numeric"}))+'</span>'+
     d.log.slice().reverse().map(l=>'<div class="logrow"><span class="lt">'+esc(l.text)+'</span><span class="chip kind">'+esc(STAT_LABEL[l.stat]||l.stat)+'</span><span class="lx">+'+(+l.xp||0)+' XP</span><button class="x" data-ldel="'+esc(d.id+"|"+l.at)+'" title="Remove">×</button></div>').join("")+'</div>').join(""):"";
+}
+/* review quests: the plans' weekly and monthly reviews get a form of their own.
+   statreview/<stat>-<date>  {stat, date, period: week|month, quest, label, text, change, savedAt} */
+function revOf(q){
+  if(!q||!q.plan||!/\breview\b/i.test(q.label||""))return null;
+  const s=(q.label||"")+" "+(q.detail||"");
+  return {period:/month/i.test(q.label||"")?"month":"week",measure:/measur|benchmark|weigh|milestone/i.test(s)};
+}
+const stRevs=()=>ST().reviews||[];
+function stRev(stat,iso){return stRevs().find(r=>r.stat===stat&&r.date===iso)||null;}
+function lastRev(stat,before){return stRevs().filter(r=>r.stat===stat&&r.date<before).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;}
+function revForm(q,rv,iso){
+  const cur=stRev(q.stat,iso),prev=lastRev(q.stat,iso);
+  return '<div class="qrev" data-revstat="'+esc(q.stat)+'">'
+    +'<div class="last">'+(prev?'Last time, '+esc(fmt(prev.date,{month:"short",day:"numeric"}))+': '+esc(prev.text)+(prev.change?' → '+esc(prev.change):''):'First review for this stat.')+'</div>'
+    +'<textarea placeholder="'+(rv.period==="month"?"What the month showed: the numbers, what moved, what did not.":"What the week showed: what you did, what it produced, what got in the way.")+'">'+esc(cur?cur.text||"":"")+'</textarea>'
+    +'<input type="text" placeholder="One adjustment for next '+rv.period+'" value="'+esc(cur?cur.change||"":"")+'">'
+    +'<div class="bar"><button class="btn" data-revsave="'+esc(q.id)+'" data-period="'+rv.period+'" data-xp="'+(+q.xp||0)+'">'+(cur?"Update review":"Save review")+'</button>'
+    +(rv.measure?'<button type="button" data-go="records">Enter the measurement in Records</button>':'')
+    +(cur?'<span>saved '+esc((cur.savedAt||"").slice(11,16))+'</span>':'')+'</div></div>';
+}
+async function saveRev(btn){
+  if(needDb())return;
+  const box=btn.closest(".qrev"),stat=box.dataset.revstat,iso=todayISO(),id=btn.dataset.revsave;
+  const text=box.querySelector("textarea").value.trim(),change=box.querySelector("input[type=text]").value.trim();
+  if(!text){say("Write what the "+btn.dataset.period+" showed first.",true);return;}
+  btn.blur();
+  const q=dayQuests(iso).find(x=>x.id===id)||{};
+  const doc={stat:stat,date:iso,period:btn.dataset.period,quest:id,label:q.label||"",text:text,change:change,savedAt:new Date().toISOString()};
+  const i=stRevs().findIndex(r=>r.stat===stat&&r.date===iso);
+  if(i<0)ST().reviews=stRevs().concat([Object.assign({id:stat+"-"+iso},doc)]);else ST().reviews[i]=Object.assign({id:stat+"-"+iso},doc);
+  await S.db.doc("statreview/"+stat+"-"+iso).set(doc);
+  const day=stDay(iso)||{};
+  if(!(day.done||{})[id])await stDayPatch(iso,d=>{d.done=Object.assign({},d.done);d.done[id]=id.slice(0,3)==="pl_"?(+btn.dataset.xp||0):true;return d;});
+  else stats();
+  say("Review saved to "+(STAT_LABEL[stat]||stat)+".");
 }
 async function stDayPatch(iso,fn){
   if(needDb())return;
@@ -2638,6 +2694,9 @@ async function stLog(text,statPick){
       if(!v||v===cur)return;if(!/^\d{4}-\d{2}-\d{2}$/.test(v)||isNaN(Date.parse(v+"T12:00:00Z"))){say("That isn't a date — use YYYY-MM-DD.",true);return;}
       await stMetaPatch({planStart:v});return;
     }
+    const rs=e.target.closest("[data-revsave]");
+    if(rs){rs.disabled=true;try{await saveRev(rs);}catch(err){say("Couldn't save the review — "+((err&&err.code)||"try again"),true);}finally{rs.disabled=false;}return;}
+    if(e.target.closest(".qrev"))return;
     const tt=e.target.closest("#st-quests li .t");
     if(tt&&!e.target.closest("input")){const li=tt.closest("li"),cb=li.querySelector("[data-q]");if(cb&&li.querySelector(".qdet")){li.classList.toggle("open");ST().openQ=ST().openQ||{};ST().openQ[cb.dataset.q]=li.classList.contains("open");}return;}
     if(e.target.closest("#st-basecancel")){ST().editBase=false;stats();return;}
@@ -3228,7 +3287,7 @@ function review(){
     +'<ul class="check">'+(ins.patterns||[]).map(x=>'<li><label>'+esc(x)+'</label></li>').join("")+'</ul>'
     +(ins.adjustment?'<div class="flag" style="margin-top:8px"><div><b>One adjustment</b>'+esc(ins.adjustment)+'</div></div>':"")
     +(ins.caution?'<div class="hlegend">'+esc(ins.caution)+'</div>':"")+'</div>':"";
-  critiques();
+  critiques();statReviews();
   $("#history").innerHTML=days.length?days.map(d=>{
     const mu=d.must||{},r=d.reflection||{},l=Array.isArray(d.shutdown)?d.shutdown:[];
     const score=l.length?l.filter(x=>x.done).length+"/"+l.length:"\u2014";
@@ -3264,8 +3323,22 @@ function critiques(){
 function weekCritiques(){
   const el=$("#wkcrit");if(!el)return;
   const open=critSorted().filter(c=>c.status!=="fixed");
-  el.innerHTML=open.length?'<div class="hlegend" style="padding-top:4px">Open critiques — tick one when next week’s plan answers it.</div>'
-    +'<ul class="check">'+open.map(c=>'<li><input type="checkbox" id="wc-'+esc(c.id)+'" data-critwk="'+esc(c.id)+'"><label for="wc-'+esc(c.id)+'">'+esc(c.text)+'</label></li>').join("")+'</ul>':"";
+  const mon=mondayOf(todayISO()),revs=(S.st.reviews||[]).filter(r=>r.date>=mon).sort((a,b)=>a.date.localeCompare(b.date));
+  el.innerHTML=(open.length?'<div class="hlegend" style="padding-top:4px">Open critiques — tick one when next week’s plan answers it.</div>'
+    +'<ul class="check">'+open.map(c=>'<li><input type="checkbox" id="wc-'+esc(c.id)+'" data-critwk="'+esc(c.id)+'"><label for="wc-'+esc(c.id)+'">'+esc(c.text)+'</label></li>').join("")+'</ul>':"")
+    +(revs.length?'<div class="hlegend" style="padding-top:4px">What the stat reviews said this week.</div>'
+    +revs.map(r=>'<div class="note"><div class="m" style="margin-top:0"><span class="chip kind">'+esc(STAT_LABEL[r.stat]||r.stat)+'</span><span>'+esc(r.period)+'ly · '+esc(fmt(r.date,{weekday:"short",month:"short",day:"numeric"}))+'</span></div><p>'+esc(r.text)+'</p>'
+      +(r.change?'<div class="m"><span class="chip">next</span><span>'+esc(r.change)+'</span></div>':"")+'</div>').join(""):"");
+}
+function statReviews(){
+  const el=$("#srevlist");if(!el)return;
+  const all=(S.st.reviews||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)||(a.stat||"").localeCompare(b.stat||""));
+  const f=$("#srevfilter").value,list=all.filter(r=>!f||r.stat===f).slice(0,60);
+  if($("#srevfilter").options.length<2)$("#srevfilter").innerHTML='<option value="">All stats</option>'+STATS.map(s=>'<option value="'+s[0]+'">'+esc(s[1])+'</option>').join("");
+  $("#srevcount").textContent=all.length?all.length+" on record":"";
+  el.innerHTML=list.length?list.map(r=>'<div class="note"><div class="m" style="margin-top:0"><span class="chip kind">'+esc(STAT_LABEL[r.stat]||r.stat)+'</span><span>'+esc(r.period)+'ly · '+esc(fmt(r.date,{weekday:"short",month:"short",day:"numeric"}))+'</span></div><p>'+esc(r.text)+'</p>'
+    +(r.change?'<div class="m"><span class="chip">next</span><span>'+esc(r.change)+'</span></div>':"")+'</div>').join("")
+    :'<div class="empty">Nothing yet. The plans’ Sunday and monthly review quests on the Stats tab open a form; what you write there lands here.</div>';
 }
 function notes(){
   const f=$("#notefilter").value;
@@ -3558,6 +3631,7 @@ document.addEventListener("change",async e=>{
     }else if(t.id==="s0-done"||t.id==="s1-done"){
       await saveMust();
     }else if(t.id==="notefilter"){notes();}
+    else if(t.id==="srevfilter"){statReviews();}
   }catch(err){say("That didn't save — "+((err&&err.code)||"try again"),true);}
 });
 
@@ -3600,12 +3674,14 @@ document.addEventListener("click",async e=>{
           +" | resume: "+(r.resume||"-")+" | shutdown: "+(l.length?l.filter(x=>x.done).length+"/"+l.length:"-");
       }).join("\n");
       const crit=critSorted().slice(0,20).map(c=>(c.status==="fixed"?"[fixed"+(c.change?": "+c.change:"")+"] ":"[open] ")+c.text).join("\n");
+      const srev=(S.st.reviews||[]).slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15).map(r=>r.date+" | "+(STAT_LABEL[r.stat]||r.stat)+" ("+r.period+"ly): "+r.text+(r.change?" | next: "+r.change:"")).join("\n");
       $("#insightbtn").disabled=true;$("#insightstate").textContent="Reading\u2026";
       try{
         const out=await S.sample.json(
           "You are reviewing a university student's daily planning log. He sets one must-finish result each morning and writes three lines each evening: what worked, what interfered, and where to resume. Days he skipped are simply absent.\n\n"
           +"LOG (oldest first):\n"+lines+"\n\n"
           +(crit?"HIS OWN CRITIQUES of the system (what he says is not working; [fixed] ones carry the change he made):\n"+crit+"\n\n":"")
+          +(srev?"HIS STAT REVIEWS (the weekly and monthly reviews his training plans ask for, newest first):\n"+srev+"\n\n":"")
           +"Return ONLY JSON: {\"patterns\":[\"...\"],\"adjustment\":\"...\",\"caution\":\"...\"}\n"
           +"patterns: two to four short observations, each grounded in what he actually wrote or in the dates themselves. Quote his words where you can. Do not invent causes.\n"
           +"adjustment: one concrete change to try next week, phrased as a specific action, not advice. If an open critique names the problem, the adjustment should answer that critique.\n"
@@ -4900,6 +4976,7 @@ async function start(){
   db.doc("meta/stats").onSnapshot(s=>{S.st.meta=s.exists?s.data():null;stats();},bad);
   db.collection("statday").limit(400).onSnapshot(s=>{S.st.days=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));stats();},bad);
   db.collection("rec").limit(300).onSnapshot(s=>{S.rec.items=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));records();},bad);
+  db.collection("statreview").limit(600).onSnapshot(s=>{S.st.reviews=s.docs.map(d=>Object.assign({},d.data(),{id:d.id})).filter(r=>r.stat&&r.date);stats();review();week();},bad);
   db.collection("critique").limit(300).onSnapshot(s=>{S.crit=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(c=>c.text);review();week();},bad);
   db.collection("insights").limit(30).onSnapshot(s=>{const a=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((x,y)=>(y.generatedAt||"").localeCompare(x.generatedAt||""));S.insight=a[0]||null;review();},bad);
   try{
