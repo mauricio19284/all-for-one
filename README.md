@@ -33,6 +33,9 @@ A personal command center: a home page with calendar and to-dos, plus a page per
   reflection: {resume, worked?, interfered?}, tomorrow: {result, firstAction}, suggestion?: {...}, savedAt}`
 - gymlog: `{date, split, note, loggedAt}`
 - habits/log: `{"YYYY-MM-DD": {morning, shutdown, lights}}`
+- critique: `{text, week: "monday YYYY-MM-DD", status: open|fixed, createdAt, fixedAt?, fixedWeek?, change?}` — the Review page's
+  "Critiques": what he says isn't working, written when noticed. Open ones are listed in the Week tab's Sunday review; ticking one
+  there marks it fixed and copies the "One adjustment" field into `change`. Both feed the "read my notes" prompt.
 - meta/config: `{week, schoolwork, gymTime, split, shutdown, review, flags}`
 - finacct: `{name, type: bank|credit|savings|invest|cash, cur: MXN|USD|EUR, bal, asOf, hist: [{d, b}], createdAt}`
   (for a credit card, `bal` is what is owed)

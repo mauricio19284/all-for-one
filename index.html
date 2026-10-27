@@ -1445,6 +1445,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
             <div class="line"><label class="k" for="w-o3">Outcome 3</label><input type="text" id="w-o3"></div>
             <div class="line"><label class="k" for="w-adj">One adjustment</label><input type="text" id="w-adj" placeholder="Change one variable for next week"></div>
           </div>
+          <div id="wkcrit"></div>
           <ul class="check" id="wkcheck"></ul>
           <div class="savebar"><button class="btn" id="wksave">Save week</button><span id="wksaved"></span></div>
         </div>
@@ -1971,6 +1972,17 @@ body:has(#view-home:not([hidden])) .cape{display:block}
         </div>
       </div>
       <div class="panel wide">
+        <header><h2>Critiques</h2><span class="right" id="critcount"></span></header>
+        <div class="body">
+          <div class="hlegend">What isn't working, written down when you notice it. Open critiques show up in the Sunday review; tick one there once the fix is in the plan, and the record keeps what you changed.</div>
+          <div id="critlist"></div>
+          <form class="addform" id="crit-add">
+            <textarea name="text" placeholder="One thing that isn't working and why. Be specific: what happened, when, what it cost."></textarea>
+            <button class="btn">Save critique</button><span id="critstate"></span>
+          </form>
+        </div>
+      </div>
+      <div class="panel wide">
         <header><h2>Day by day</h2><span class="right">morning plan and evening notes, newest first</span></header>
         <div class="body" id="history"></div>
       </div>
@@ -2365,7 +2377,7 @@ const HAB={ym:null,open:{}}; // ym = month being viewed ("YYYY-MM"), open = whic
 
 const FALLBACK={week:{},schoolwork:{},gymTime:{},split:{},shutdown:[],review:[]};
 
-const S={rec:{items:[],open:null},st:{meta:null,days:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
+const S={rec:{items:[],open:null},st:{meta:null,days:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],crit:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3048,6 +3060,7 @@ function week(){
   const c=cfg(),items=(c.review||FALLBACK.review);
   const wk=S.week||{},checks=Array.isArray(wk.checks)&&wk.checks.length?wk.checks:items.map(l=>({label:l,done:false}));
   $("#wkcheck").innerHTML=checks.map((it,i)=>'<li class="'+(it.done?"on":"")+'"><input type="checkbox" id="wk'+i+'" data-wk="'+i+'"'+(it.done?" checked":"")+'><label for="wk'+i+'">'+esc(it.label)+'</label></li>').join("");
+  weekCritiques();
   const o=wk.outcomes||[];
   if(document.activeElement&&document.activeElement.id&&document.activeElement.id.startsWith("w-"))return;
   $("#w-o1").value=o[0]||"";$("#w-o2").value=o[1]||"";$("#w-o3").value=o[2]||"";$("#w-adj").value=wk.adjustment||"";
@@ -3215,6 +3228,7 @@ function review(){
     +'<ul class="check">'+(ins.patterns||[]).map(x=>'<li><label>'+esc(x)+'</label></li>').join("")+'</ul>'
     +(ins.adjustment?'<div class="flag" style="margin-top:8px"><div><b>One adjustment</b>'+esc(ins.adjustment)+'</div></div>':"")
     +(ins.caution?'<div class="hlegend">'+esc(ins.caution)+'</div>':"")+'</div>':"";
+  critiques();
   $("#history").innerHTML=days.length?days.map(d=>{
     const mu=d.must||{},r=d.reflection||{},l=Array.isArray(d.shutdown)?d.shutdown:[];
     const score=l.length?l.filter(x=>x.done).length+"/"+l.length:"\u2014";
@@ -3228,6 +3242,30 @@ function review(){
       +(r.resume?'<div class="m"><span class="chip">resume</span><span>'+esc(r.resume)+'</span></div>':"")
       +'<div class="m"><span class="chip">shutdown '+score+'</span></div></div>';
   }).join(""):'<div class="empty">Nothing recorded yet. Fill in the morning plan and the evening fields and days will stack up here.</div>';
+}
+/* critique/<id>  {text, week: monday the critique was written in, createdAt, status: open|fixed, fixedAt?, fixedWeek?, change?} */
+function critSorted(){
+  return (S.crit||[]).slice().sort((a,b)=>(a.status==="fixed")-(b.status==="fixed")||(b.createdAt||"").localeCompare(a.createdAt||""));
+}
+function critiques(){
+  const list=critSorted(),open=list.filter(c=>c.status!=="fixed");
+  $("#n-review").textContent=open.length||"";
+  $("#critcount").textContent=list.length?open.length+" open · "+(list.length-open.length)+" fixed":"";
+  $("#critlist").innerHTML=list.length?list.map(c=>{
+    const fixed=c.status==="fixed";
+    return '<div class="note"'+(fixed?' style="opacity:.6"':"")+'><p style="margin-top:0">'+esc(c.text)+'</p>'
+      +(fixed&&c.change?'<div class="m"><span class="chip kind">changed</span><span>'+esc(c.change)+'</span></div>':"")
+      +'<div class="m"><span class="chip">'+(fixed?"fixed":"open")+'</span><span>week of '+esc(fmt(c.week||mondayOf((c.createdAt||"").slice(0,10)||todayISO()),{month:"short",day:"numeric"}))+'</span>'
+      +(fixed&&c.fixedWeek?'<span>· fixed week of '+esc(fmt(c.fixedWeek,{month:"short",day:"numeric"}))+'</span>':"")
+      +'<button class="x" data-critfix="'+esc(c.id)+'" title="'+(fixed?"Reopen":"Mark fixed")+'">'+(fixed?"↺":"✓")+'</button>'
+      +'<button class="x" data-delcrit="'+esc(c.id)+'" title="Delete">×</button></div></div>';
+  }).join(""):'<div class="empty">Nothing yet. When something in the week keeps going wrong, write it here instead of carrying it in your head.</div>';
+}
+function weekCritiques(){
+  const el=$("#wkcrit");if(!el)return;
+  const open=critSorted().filter(c=>c.status!=="fixed");
+  el.innerHTML=open.length?'<div class="hlegend" style="padding-top:4px">Open critiques — tick one when next week’s plan answers it.</div>'
+    +'<ul class="check">'+open.map(c=>'<li><input type="checkbox" id="wc-'+esc(c.id)+'" data-critwk="'+esc(c.id)+'"><label for="wc-'+esc(c.id)+'">'+esc(c.text)+'</label></li>').join("")+'</ul>':"";
 }
 function notes(){
   const f=$("#notefilter").value;
@@ -3251,6 +3289,13 @@ async function writeDaily(patch,date){
   const ref=S.db.doc("daily/"+iso),snap=await ref.get();
   const base=snap.exists?Object.assign({},snap.data()):{date:iso,shutdown:cfg().shutdown.map(l=>({label:l,done:false}))};
   await ref.set(Object.assign(base,patch,{savedAt:new Date().toISOString()}));
+}
+async function setCritFixed(id,fixed){
+  if(needDb())return;
+  const adj=($("#w-adj")&&$("#w-adj").value.trim())||"";
+  await S.db.doc("critique/"+id).update(fixed
+    ?{status:"fixed",fixedAt:new Date().toISOString(),fixedWeek:mondayOf(todayISO()),change:adj}
+    :{status:"open",fixedAt:"",fixedWeek:"",change:""});
 }
 async function writeWeek(patch){
   if(needDb())return;
@@ -3501,6 +3546,9 @@ document.addEventListener("change",async e=>{
       const list=(S.week&&Array.isArray(S.week.checks)&&S.week.checks.length)?S.week.checks.map(x=>({label:x.label,done:!!x.done})):(cfg().review||FALLBACK.review).map(l=>({label:l,done:false}));
       if(list[i])list[i].done=t.checked;
       await writeWeek({checks:list});
+    }else if(t.dataset.critwk){
+      if(needDb())return;
+      await setCritFixed(t.dataset.critwk,t.checked);
     }else if(t.dataset.ph){
       if(needDb())return;
       const p=t.dataset.ph.split(":"),doc=p[0]==="rm"?S.roadmap:S.invroad,path=p[0]==="rm"?"meta/roadmap":"meta/investing";
@@ -3518,6 +3566,9 @@ document.addEventListener("click",async e=>{
   try{
     if(del){if(needDb())return;await S.db.doc("tasks/"+del.dataset.del).delete();}
     if(dn){if(needDb())return;await S.db.doc("notes/"+dn.dataset.delnote).delete();}
+    const dc=e.target.closest("[data-delcrit]"),fc=e.target.closest("[data-critfix]");
+    if(dc){if(needDb())return;await S.db.doc("critique/"+dc.dataset.delcrit).delete();}
+    if(fc){if(needDb())return;const cur=(S.crit||[]).find(c=>c.id===fc.dataset.critfix)||{};await setCritFixed(fc.dataset.critfix,cur.status!=="fixed");}
     if(hb){
       if(needDb())return;
       const p=hb.dataset.hab.split(":"),day=p[1],id=p[0];
@@ -3548,14 +3599,16 @@ document.addEventListener("click",async e=>{
           +" | block: "+(mu.block||"-")+" | worked: "+(r.worked||"-")+" | interfered: "+(r.interfered||"-")
           +" | resume: "+(r.resume||"-")+" | shutdown: "+(l.length?l.filter(x=>x.done).length+"/"+l.length:"-");
       }).join("\n");
+      const crit=critSorted().slice(0,20).map(c=>(c.status==="fixed"?"[fixed"+(c.change?": "+c.change:"")+"] ":"[open] ")+c.text).join("\n");
       $("#insightbtn").disabled=true;$("#insightstate").textContent="Reading\u2026";
       try{
         const out=await S.sample.json(
           "You are reviewing a university student's daily planning log. He sets one must-finish result each morning and writes three lines each evening: what worked, what interfered, and where to resume. Days he skipped are simply absent.\n\n"
           +"LOG (oldest first):\n"+lines+"\n\n"
+          +(crit?"HIS OWN CRITIQUES of the system (what he says is not working; [fixed] ones carry the change he made):\n"+crit+"\n\n":"")
           +"Return ONLY JSON: {\"patterns\":[\"...\"],\"adjustment\":\"...\",\"caution\":\"...\"}\n"
           +"patterns: two to four short observations, each grounded in what he actually wrote or in the dates themselves. Quote his words where you can. Do not invent causes.\n"
-          +"adjustment: one concrete change to try next week, phrased as a specific action, not advice.\n"
+          +"adjustment: one concrete change to try next week, phrased as a specific action, not advice. If an open critique names the problem, the adjustment should answer that critique.\n"
           +"caution: if there are fewer than ten days of data, say plainly that this is too thin to be evidence and the patterns are provisional. Otherwise empty string.",
           {modelTier:"complex"});
         const doc={date:todayISO(),days:days.length,patterns:(out.patterns||[]).slice(0,4),adjustment:out.adjustment||"",caution:out.caution||"",generatedAt:new Date().toISOString()};
@@ -3622,6 +3675,11 @@ wireForm("#learning-add",d=>addTask({folder:"learning",title:d.title,due:d.due})
 wireForm("#money-add",d=>addTask({folder:"money",kind:d.kind,title:d.title,due:d.due}));
 wireForm("#projects-add",d=>addTask({folder:"projects",title:d.title,detail:d.detail,due:d.due}));
 wireForm("#note-add",d=>addNote({folder:d.folder,title:d.title,body:d.body}));
+wireForm("#crit-add",async d=>{
+  if(needDb())return;
+  const text=(d.text||"").trim();if(!text)return;
+  await S.db.collection("critique").add({text:text,week:mondayOf(todayISO()),status:"open",createdAt:new Date().toISOString()});
+});
 wireForm("#gym-add",async d=>{
   if(needDb())return;
   const date=d.date||todayISO();
@@ -4842,6 +4900,7 @@ async function start(){
   db.doc("meta/stats").onSnapshot(s=>{S.st.meta=s.exists?s.data():null;stats();},bad);
   db.collection("statday").limit(400).onSnapshot(s=>{S.st.days=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));stats();},bad);
   db.collection("rec").limit(300).onSnapshot(s=>{S.rec.items=s.docs.map(d=>Object.assign({},d.data(),{id:d.id}));records();},bad);
+  db.collection("critique").limit(300).onSnapshot(s=>{S.crit=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(c=>c.text);review();week();},bad);
   db.collection("insights").limit(30).onSnapshot(s=>{const a=s.docs.map(d=>Object.assign({id:d.id},d.data())).sort((x,y)=>(y.generatedAt||"").localeCompare(x.generatedAt||""));S.insight=a[0]||null;review();},bad);
   try{
     await db.load();
