@@ -350,6 +350,8 @@ body:has(#view-home:not([hidden])) .navdate{display:flex; align-items:center; al
 .todo li{align-items:center}
 .todo li.none{color:var(--muted); font-size:14px}
 .todo .chip{flex:none; white-space:nowrap}
+#h-todos{max-height:380px; overflow-y:auto; overscroll-behavior:contain; padding-right:6px; scrollbar-width:thin; -webkit-overflow-scrolling:touch}
+#h-todos li:first-child{padding-top:4px}
 
 /* ---------- pages ---------- */
 .pagehead{display:flex; flex-direction:column; gap:4px; padding:6px 2px 6px}
@@ -2837,8 +2839,7 @@ function home(){
   const open=S.tasks.filter(t=>t.status!=="done").sort((a,b)=>(a.due||"9999").localeCompare(b.due||"9999"));
   $("#h-todocount").textContent=open.length?open.length+" open":"";
   $("#h-todos").innerHTML=open.length
-    ?open.slice(0,8).map(t=>'<li><input type="checkbox" data-task="'+esc(t.id)+'" aria-label="Mark done"><div class="t"><b>'+esc(t.title)+'</b></div>'+dueChip(t.due)+'</li>').join("")
-      +(open.length>8?'<li class="none">+'+(open.length-8)+' more in the folders</li>':"")
+    ?open.map(t=>'<li><input type="checkbox" data-task="'+esc(t.id)+'" aria-label="Mark done"><div class="t"><b>'+esc(t.title)+'</b></div>'+dueChip(t.due)+'</li>').join("")
     :'<li class="none">Nothing open.</li>';
 
   const ym=S.calMonth,first=ym+"-01";
