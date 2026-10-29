@@ -1109,10 +1109,9 @@ body:has(#view-week:not([hidden])) .living.on{display:block}
   mask:radial-gradient(ellipse 38% 28% at 50% 14%, #000 45%, transparent 100%), radial-gradient(ellipse 30% 45% at 88% 78%, #000 30%, transparent 100%)}
 .dimg img.windy{filter:url(#wind)}
 @media (max-width:820px){.fside .fbust .wind{display:none} .dimg img.windy{filter:none}}
-/* Home: the cape in the hero photo moves — a second copy of the photo, rippled and masked to the cloak */
-.cape{display:none; position:fixed; inset:0; z-index:0; pointer-events:none; background:var(--hero) var(--hero-pos) / cover no-repeat; filter:url(#capewind);
-  -webkit-mask:radial-gradient(ellipse 10% 31% at 30% 55%, #000 55%, transparent 100%);
-  mask:radial-gradient(ellipse 10% 31% at 30% 55%, #000 55%, transparent 100%)}
+/* Home: Alexander's cape is a separate cut-out of the hero photo (img/cape.png), placed back over the still
+   background by the script next to it and rippled by #capewind — only the cloak moves, pinned at the shoulders */
+.cape{display:none; position:fixed; left:0; top:0; z-index:0; pointer-events:none; filter:url(#capewind); will-change:filter}
 body:has(#view-home:not([hidden])) .cape{display:block}
 @media (max-width:820px){.cape{display:none!important}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
@@ -1245,14 +1244,32 @@ body:has(#view-home:not([hidden])) .cape{display:block}
   <feOffset in="n" dx="0" dy="0" result="n2"><animate attributeName="dx" dur="7s" values="0;40;0" repeatCount="indefinite"/></feOffset>
   <feDisplacementMap in="SourceGraphic" in2="n2" scale="7" xChannelSelector="R" yChannelSelector="G"/>
 </filter>
-<filter id="capewind" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
-  <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.009" numOctaves="2" seed="3" result="n">
-    <animate attributeName="baseFrequency" dur="13s" values="0.0035 0.009;0.0048 0.012;0.0032 0.008;0.0035 0.009" repeatCount="indefinite"/>
+<filter id="capewind" x="-25%" y="-10%" width="150%" height="125%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.006 0.012" numOctaves="2" seed="5" result="n">
+    <animate attributeName="baseFrequency" dur="14s" values="0.006 0.012;0.0075 0.015;0.0055 0.011;0.006 0.012" repeatCount="indefinite"/>
   </feTurbulence>
-  <feOffset in="n" dx="0" dy="0" result="n2"><animate attributeName="dy" dur="8s" values="0;-90;0" repeatCount="indefinite"/><animate attributeName="dx" dur="11s" values="0;50;0" repeatCount="indefinite"/></feOffset>
-  <feDisplacementMap in="SourceGraphic" in2="n2" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+  <feOffset in="n" dx="0" dy="0" result="n2">
+    <animate attributeName="dx" dur="9s" values="0;120;0" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+    <animate attributeName="dy" dur="6.5s" values="0;-60;0" repeatCount="indefinite" calcMode="spline" keySplines=".45 0 .55 1;.45 0 .55 1"/>
+  </feOffset>
+  <feColorMatrix in="n2" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0 1" result="n3"/>
+  <feImage preserveAspectRatio="none" result="g" href="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='8' height='8'&gt;&lt;defs&gt;&lt;linearGradient id='g' x1='0' y1='0' x2='0' y2='1'&gt;&lt;stop offset='0.02' stop-color='%23000'/&gt;&lt;stop offset='0.5' stop-color='%23fff'/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;rect width='8' height='8' fill='url(%23g)'/&gt;&lt;/svg&gt;"/>
+  <feComposite in="n3" in2="g" operator="arithmetic" k1="1" k2="0" k3="-0.5" k4="0.5" result="nw"/>
+  <feDisplacementMap in="SourceGraphic" in2="nw" scale="30" xChannelSelector="R" yChannelSelector="G"/>
 </filter></defs></svg>
-<div class="cape" aria-hidden="true"></div>
+<img class="cape" id="cape" src="img/cape.png" alt="" aria-hidden="true">
+<script>
+// Place the cape cut-out exactly where it sits inside the cover-fitted hero photo (same math as background-size:cover).
+(function(){
+  const IW=2034, IH=1358, PX=.52, PY=.46, box=[269,384,757,1153], cape=document.getElementById("cape");
+  function fit(){
+    const W=innerWidth, H=innerHeight, s=Math.max(W/IW, H/IH), ox=(W-IW*s)*PX, oy=(H-IH*s)*PY;
+    cape.style.left=(ox+box[0]*s)+"px"; cape.style.top=(oy+box[1]*s)+"px";
+    cape.style.width=((box[2]-box[0])*s)+"px"; cape.style.height=((box[3]-box[1])*s)+"px";
+  }
+  fit(); addEventListener("resize",fit);
+})();
+</script>
 <div class="living" aria-hidden="true"><canvas id="wkgl" width="1024" height="1022"></canvas><canvas id="wkfx" width="1024" height="1022"></canvas></div>
 <div class="gate" id="gate" hidden>
   <form class="gatebox" id="gateform">
