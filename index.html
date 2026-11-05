@@ -2484,7 +2484,7 @@ function planCtx(iso){
   if(n<1)return {n:n,start:start};
   const d=new Date(iso+"T12:00:00Z");let r=(n-1)%365,mi=0;while(r>=BLOCKS[mi]){r-=BLOCKS[mi];mi++;}
   const dom=d.getUTCDate(),last=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate(),wk=Math.ceil(n/7);
-  return {n:n,start:start,year:Math.floor((n-1)/365)+1,wk:wk,easy:wk%4===0,wd:WD[d.getUTCDay()],mi:mi,dIn:r+1,lastIn:r+1===BLOCKS[mi],wkIn:Math.min(4,Math.ceil((r+1)/7)),dom:dom,lastDom:dom===last,firstTue:d.getUTCDay()===2&&dom<=7};
+  return {n:n,start:start,iso:iso,last:last,year:Math.floor((n-1)/365)+1,wk:wk,easy:wk%4===0,wd:WD[d.getUTCDay()],mi:mi,dIn:r+1,lastIn:r+1===BLOCKS[mi],wkIn:Math.min(4,Math.ceil((r+1)/7)),dom:dom,lastDom:dom===last,firstTue:d.getUTCDay()===2&&dom<=7};
 }
 const ST=()=>S.st;
 const stMeta=()=>Object.assign({base:BASE0,quests:[],measuredAt:"2026-10-19"},ST().meta||{});
@@ -2504,7 +2504,7 @@ function stTotals(before){
   ST().days.forEach(d=>{
     if(before&&d.id>=before)return;
     Object.keys(d.done||{}).forEach(id=>{const v=d.done[id];if(!v)return;const q=quests[id];
-      if(q)bump(q.stat,+q.xp||0,d.id);else if(id.slice(0,3)==="pl_")bump(id.slice(3),typeof v==="number"?v:PLAN_XP,d.id);});
+      if(q)bump(q.stat,+q.xp||0,d.id);else if(id.slice(0,3)==="pl_")bump(id.slice(3).split(".")[0],typeof v==="number"?v:PLAN_XP,d.id);});
     (d.log||[]).forEach(l=>bump(l.stat,+l.xp||0,d.id));
   });
   // auto quests for today that are not written yet
@@ -2640,7 +2640,8 @@ const REC_KEYS={height:/height|measurement|baseline/i,weight:/weigh|measurement/
   interactions:/attempt|review and recover|baseline/i,difficulty:/difficult|baseline/i,
   promises:/promise|tracker|evidence/i,feedback:/feedback/i,
   prospects:/prospect/i,cash:/cash|payment|invoice|collect/i,cushion:/cushion|emergency|savings|bills/i,
-  projects:/reset/i};
+  projects:/reset|saturday project/i,
+  waist:/waist/i,run5k:/5 km/i,sprint20:/20 m sprint/i,quiz:/20-question quiz/i,grade:/\bgrades?\b/i,books:/books finished/i,repeat:/would-repeat/i,pieces:/creative piece/i,chosen:/chosen responses/i,newpeople:/new people/i,earned:/money earned/i,saved:/and saved/i,skills:/new skill/i};
 function questRecs(q){
   if(!q||!q.plan)return [];
   const text=q.label||"",all=recAll().filter(r=>r.stat===q.stat);
@@ -3497,7 +3498,21 @@ const REC_PRESETS=[
   ["prospects","Prospects contacted","count","financial",1,"world","Weekly"],
   ["cash","Cash collected","MXN","financial",1,"world","Weekly, payments actually received"],
   ["cushion","Emergency cushion","months","financial",1,"world","Savings ÷ monthly essentials"],
-  ["projects","Practical projects finished","count","practical",1,"world","Monthly"]];
+  ["projects","Practical projects finished","count","practical",1,"world","Monthly"],
+  // v2 benchmarks (Nov 2026 plan)
+  ["waist","Waist","cm","build",-1,"body","First Sunday of the month, morning"],
+  ["run5k","5 km time","min","endurance",-1,"body","First Saturday of the month, same route"],
+  ["sprint20","20 m sprint","s","speed",-1,"body","First Friday of the month, best of three"],
+  ["quiz","Quarterly quiz","/20","intellect",1,"mind","Last Sunday of months 3, 6, 9, 12"],
+  ["grade","Grade","%","intellect",1,"mind","Every test or assignment, when it comes back"],
+  ["books","Books finished","count","knowledge",1,"mind","Last Sunday of the month"],
+  ["repeat","Would-repeat rate","%","judgment",1,"mind","Last Sunday: decisions you'd make again ÷ decisions journaled"],
+  ["pieces","Creative piece finished","0/1","creativity",1,"mind","Last Sunday: 1 if the month's project is done"],
+  ["chosen","Chosen responses","count","emotion",1,"will","Last Sunday, from the evening check-ins"],
+  ["newpeople","New people by name","count","social",1,"world","Last Saturday of the month"],
+  ["earned","Business income","MXN","financial",1,"world","Last Saturday, from the Finance tab"],
+  ["saved","Savings goal balance","MXN","financial",1,"world","Last Saturday, BBVA goal"],
+  ["skills","New skill proven","0/1","practical",1,"world","Quarterly"]];
 const REC_FAM={body:"Body",mind:"Mind",will:"Will",world:"World"};
 function recAll(){
   const have=new Map(S.rec.items.map(r=>[r.id,r]));
@@ -3577,6 +3592,13 @@ async function recSave(id,d,v,note){
   const entries=(r.entries||[]).filter(x=>x.d!==d).concat([{d:d,v:v,note:note||""}]).sort((a,b)=>a.d.localeCompare(b.d));
   const data={name:r.name,unit:r.unit||"",stat:r.stat||"",fam:r.fam,hi:r.hi,custom:!!r.custom,when:r.when||"",entries:entries,createdAt:r.createdAt||new Date().toISOString()};
   await S.db.doc("rec/"+id).set(data);
+  // v2: a benchmark that beats its last value from an earlier month pays XP_IMPROVE once per month
+  if(r.hi&&r.stat&&STAT_LABEL[r.stat]){
+    const prev=(r.entries||[]).filter(x=>x.d<d&&x.d.slice(0,7)!==d.slice(0,7)).sort((a,b)=>b.d.localeCompare(a.d))[0];
+    const better=prev&&(r.hi>0?v>prev.v:v<prev.v),tag="Benchmark improved: "+r.name;
+    const already=ST().days.some(x=>x.id.slice(0,7)===d.slice(0,7)&&(x.log||[]).some(l=>(l.text||"").indexOf(tag)===0));
+    if(better&&!already)await stDayPatch(d,dd=>{dd.log=(dd.log||[]).concat([{at:new Date().toISOString(),text:tag+" ("+recFmt(prev.v)+" → "+recFmt(v)+" "+(r.unit||"")+")",stat:r.stat,xp:XP_IMPROVE}]);return dd;});
+  }
 }
 (function(){
   const view=$("#view-records"),box=$("#rec-detail");if(!view)return;
