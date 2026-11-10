@@ -1082,6 +1082,11 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-stats .logrow .x:hover{color:#8e3b2e}
 :is(#view-stats,#view-records) .more{background:none; border:0; padding:0 2px; font-size:18px; line-height:1; color:var(--inkg); cursor:pointer; border-radius:4px}
 #view-stats .more:hover{background:rgba(184,146,58,.2)}
+#view-stats .stnav{display:inline-flex; align-items:center; gap:6px; white-space:nowrap; letter-spacing:.08em}
+#view-stats .stnav button{background:linear-gradient(180deg,#fff9ea,#e9dcb8); border:1px solid var(--gold); border-radius:4px; color:var(--inkg); cursor:pointer; font-size:17px; line-height:1; padding:1px 9px 3px}
+#view-stats .stnav button:hover{background:linear-gradient(180deg,#fffdf4,#f3e8c8); border-color:#8a6a1e}
+#view-stats .stnav.off span{color:#8a6412; font-weight:700}
+#view-stats .planhead .btn[data-stday]{padding:5px 10px; font-size:9.5px; margin-left:auto}
 @media (max-width:1100px){#view-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} #view-stats .gchar{min-height:420px} #view-stats .gcol.main{grid-column:1/-1}}
 @media (max-width:720px){#view-stats{grid-template-columns:minmax(0,1fr)} #view-stats .arow{grid-template-columns:30px minmax(0,1fr) 44px 40px} #view-stats .arow .abar{grid-column:2/-1; grid-row:2} #view-stats .vmeter{grid-template-columns:24px 76px minmax(0,1fr) 30px}}
 @media (max-width:820px){
@@ -1931,7 +1936,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
           </div>
         </div>
         <div class="gpanel">
-          <header><h2>Daily quests</h2><span class="right" id="st-questcount"></span></header>
+          <header><h2>Daily quests</h2><span class="right stnav"><button type="button" data-stday="-1" aria-label="Previous day">‹</button><span id="st-questcount"></span><button type="button" data-stday="1" aria-label="Next day">›</button></span></header>
           <div class="gbody">
             <div class="planhead" id="st-planhead"></div>
             <ul class="rows quests" id="st-quests"></ul>
@@ -1941,14 +1946,14 @@ body:has(#view-home:not([hidden])) .cape{display:block}
               <input type="number" name="xp" min="1" max="50" value="10" title="XP" style="width:70px">
               <button class="btn ghost">Add</button>
             </form>
-            <div class="hlegend">Three kinds of quest: the daily core (read, skin, check-in), stacked quests for things you already do (class, work, going out, cooking — one tap), and one themed quest per weekday. Benchmarks land on the first Mon/Fri/Sat/Sun and the last Sat/Sun of each month — tap a quest to open its instructions and the records it asks for. Gym and the must-finish tick themselves. Quests you add here stay every day. 60 XP moves a stat one point; a record that beats last month pays 60 XP by itself; a stat ignored for more than two days starts slipping. A missed day carries nothing over.</div>
+            <div class="hlegend">Three kinds of quest: the daily core (read, skin, check-in), stacked quests for things you already do (class, work, going out, cooking — one tap), and one themed quest per weekday. Benchmarks land on the first Mon/Fri/Sat/Sun and the last Sat/Sun of each month — tap a quest to open its instructions and the records it asks for. Gym and the must-finish tick themselves. Use ‹ › to tick off a day you forgot to mark or to get ahead on a coming one — XP lands on that day. Quests you add here stay every day. 60 XP moves a stat one point; a record that beats last month pays 60 XP by itself; a stat ignored for more than two days starts slipping. A missed day carries nothing over.</div>
           </div>
         </div>
       </div>
 
       <div class="gcol">
         <div class="gpanel">
-          <header><h2>Meters</h2><span class="right" id="st-meterdate"></span></header>
+          <header><h2>Meters</h2><span class="right stnav"><button type="button" data-stday="-1" aria-label="Previous day">‹</button><span id="st-meterdate"></span><button type="button" data-stday="1" aria-label="Next day">›</button></span></header>
           <div class="gbody">
             <div class="meters" id="st-meters"></div>
             <div class="quick">
@@ -2489,6 +2494,10 @@ function planCtx(iso){
 const ST=()=>S.st;
 const stMeta=()=>Object.assign({base:BASE0,quests:[],measuredAt:"2026-10-19"},ST().meta||{});
 const stDay=iso=>ST().days.find(d=>d.id===iso)||null;
+/* the day the Stats tab is showing: null = follow today; ‹ › move it so a missed day can be marked or a coming one done early */
+const stIso=()=>ST().viewDay||todayISO();
+const shiftISO=(iso,n)=>new Date(Date.parse(iso+"T12:00:00Z")+n*86400000).toISOString().slice(0,10);
+function stDayName(iso){const g=dayGap(iso,todayISO());return g===0?"Today":g===-1?"Yesterday":g===1?"Tomorrow":fmt(iso,{weekday:"short",month:"short",day:"numeric"});}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function stAuto(q,iso){
   if(q.auto==="gym")return S.gym.some(g=>g.date===iso);
@@ -2546,7 +2555,7 @@ function stRadar(scores){
 }
 function stats(){
   const view=$("#view-stats");if(!view)return;
-  const m=stMeta(),tot=stTotals(),iso=todayISO(),day=stDay(iso)||{},scores={};
+  const m=stMeta(),tot=stTotals(),today=todayISO(),iso=stIso(),off=iso!==today,day=stDay(iso)||{},scores={};
   STATS.forEach(s=>scores[s[0]]=stScore(s[0],tot));
   const total=Object.values(tot.xp).reduce((a,b)=>a+b,0),avg=STATS.reduce((a,s)=>a+scores[s[0]],0)/STATS.length;
   const lvl=Math.floor(total/XP_LEVEL)+1;
@@ -2556,7 +2565,8 @@ function stats(){
   const hex=document.getElementById("ht-stats");if(hex)hex.textContent="Lv "+lvl;
   // meters
   const mt=stMeters(iso);
-  $("#st-meterdate").textContent=fmt(iso,{weekday:"long",month:"short",day:"numeric"});
+  $("#st-meterdate").textContent=fmt(iso,{weekday:off?"short":"long",month:"short",day:"numeric"});
+  view.querySelectorAll(".stnav").forEach(n=>n.classList.toggle("off",off));
   if(!view.querySelector("#st-meters .vmeter")||view.dataset.day!==iso){
     view.dataset.day=iso;
     $("#st-meters").innerHTML=METERS.map(([k,l])=>'<div class="vmeter" data-m="'+k+'"><span class="mi">'+sico(MICON,k)+'</span><span class="mn">'+l+'</span><input type="range" min="0" max="100" step="1" aria-label="'+l+'"><b></b></div>').join("");
@@ -2568,7 +2578,7 @@ function stats(){
     const good=k==="stress"?100-v:v,col=good>=60?"#2c6a43":good>=35?"#8a6412":"#8e3b2e";
     inp.style.setProperty("--mc",col);inp.style.setProperty("--mv",v+"%");
   });
-  const hv=clamp(Math.round(mt.health||0),0,100),ev=clamp(Math.round(mt.energy||0),0,100);
+  const mnow=off?stMeters(today):mt,hv=clamp(Math.round(mnow.health||0),0,100),ev=clamp(Math.round(mnow.energy||0),0,100);
   $("#st-vhealth").style.width=hv+"%";$("#st-vhealth-t").textContent=hv*10+" / 1000";
   $("#st-venergy").style.width=ev+"%";$("#st-venergy-t").textContent=ev*10+" / 1000";
   // quests, grouped by stat family; plan quests carry their instructions
@@ -2576,6 +2586,7 @@ function stats(){
   const ph=$("#st-planhead");
   if(pc.n<1)ph.innerHTML='<b>Plans start '+esc(fmt(pc.start,{weekday:"long",month:"long",day:"numeric"}))+'</b><span>'+(1-pc.n)+' day'+(pc.n===0?"":"s")+' to go</span><button class="more" id="st-planstart" title="Change the start date">⋯</button>';
   else ph.innerHTML='<b>Day '+pc.n+'</b><span>Week '+pc.wk+' · Month '+(pc.mi+1)+(pc.year>1?" · Year "+pc.year:"")+(pc.easy?' · <em>easier week</em>':'')+' · since '+esc(fmt(pc.start,{month:"short",day:"numeric",year:"numeric"}))+'</span><button class="more" id="st-planstart" title="Change the start date">⋯</button>';
+  if(off)ph.innerHTML+='<button type="button" class="btn ghost" data-stday="0">Back to today</button>';
   const isOn=q=>!!((day.done||{})[q.id])||stAuto(q,iso);
   qs.forEach(q=>{if(isOn(q))done++;});
   const row=q=>{
@@ -2590,14 +2601,16 @@ function stats(){
       qs.filter(q=>!STAT_LABEL[q.stat]).map(row).join("");
     $("#st-quests").querySelectorAll("li").forEach(li=>{const cb=li.querySelector("[data-q]");if(cb&&open[cb.dataset.q])li.classList.add("open");});
   }
-  $("#st-questcount").textContent=done+" / "+qs.length+" today";
-  const nq=$("#n-stats");if(nq)nq.textContent=done+"/"+qs.length;
+  $("#st-questcount").textContent=(off?stDayName(iso)+" · ":"")+done+" / "+qs.length+(off?"":" today");
+  let tdone=done,tlen=qs.length;
+  if(off){const tq=dayQuests(today),td=stDay(today)||{};tlen=tq.length;tdone=tq.filter(q=>!!((td.done||{})[q.id])||stAuto(q,today)).length;}
+  const nq=$("#n-stats");if(nq)nq.textContent=tdone+"/"+tlen;
   const opts=STATS.map(s=>'<option value="'+s[0]+'">'+esc(s[1])+'</option>').join("");
   if(!$("#st-queststat").options.length)$("#st-queststat").innerHTML=opts;
   if($("#st-logstat").options.length<2)$("#st-logstat").innerHTML='<option value="auto">Auto-file</option>'+opts;
   // attribute rows, grouped
   $("#st-grid").innerHTML=SGROUP.map(g=>'<div class="agroup">'+g[1]+'</div>'+g[2].map(k=>{
-    const o=m.base[k]||BASE0[k],v=scores[k],b=o.v,d=v-b,idle=dayGap(iso,tot.last[k]);
+    const o=m.base[k]||BASE0[k],v=scores[k],b=o.v,d=v-b,idle=dayGap(today,tot.last[k]);
     const pend=k==="looks"&&!(m.base.looks&&m.base.looks.rated);
     return '<div class="arow'+(pend?" pend":"")+'" title="'+esc(o.note||"")+'"><span class="aic">'+sico(SICON,k)+'</span><span class="an">'+esc(STAT_LABEL[k])+'</span>'+
       '<span class="abar"><i style="width:'+v+'%"></i><em></em></span><b class="av">'+v.toFixed(0)+'</b>'+
@@ -2612,8 +2625,8 @@ function stats(){
   if(!ST().editBase)bb.innerHTML="";
   // log
   const days=ST().days.filter(d=>(d.log||[]).length).sort((a,b)=>b.id.localeCompare(a.id)).slice(0,5);
-  $("#st-logcount").textContent=((day.log||[]).length||"no")+" today";
-  $("#st-logs").innerHTML=days.length?days.map(d=>'<div class="logday"><span class="label">'+esc(d.id===iso?"Today":fmt(d.id,{weekday:"long",month:"short",day:"numeric"}))+'</span>'+
+  $("#st-logcount").textContent=off?stDayName(iso)+" · "+(day.log||[]).length:((day.log||[]).length||"no")+" today";
+  $("#st-logs").innerHTML=days.length?days.map(d=>'<div class="logday"><span class="label">'+esc(d.id===today?"Today":fmt(d.id,{weekday:"long",month:"short",day:"numeric"}))+'</span>'+
     d.log.slice().reverse().map(l=>'<div class="logrow"><span class="lt">'+esc(l.text)+'</span><span class="chip kind">'+esc(STAT_LABEL[l.stat]||l.stat)+'</span><span class="lx">+'+(+l.xp||0)+' XP</span><button class="x" data-ldel="'+esc(d.id+"|"+l.at)+'" title="Remove">×</button></div>').join("")+'</div>').join(""):"";
 }
 /* review quests: the plans' weekly and monthly reviews get a form of their own.
@@ -2652,7 +2665,7 @@ function recForm(q,iso){
   const rs=questRecs(q);if(!rs.length)return "";
   return '<div class="qrec"><div class="rh">Records this quest needs</div>'+rs.map(r=>{
     const last=r.entries[r.entries.length-1],today=r.entries.find(e=>e.d===iso);
-    return '<div class="rr"><span class="rn">'+esc(r.name)+'</span><span class="rl">'+(today?'today '+recFmt(today.v)+' '+esc(r.unit):last?'last '+recFmt(last.v)+' '+esc(r.unit)+' · '+esc(fmt(last.d,{month:"short",day:"numeric"})):'no value yet')+(r.when?' · '+esc(r.when):'')+'</span>'
+    return '<div class="rr"><span class="rn">'+esc(r.name)+'</span><span class="rl">'+(today?(iso===todayISO()?'today ':'this day ')+recFmt(today.v)+' '+esc(r.unit):last?'last '+recFmt(last.v)+' '+esc(r.unit)+' · '+esc(fmt(last.d,{month:"short",day:"numeric"})):'no value yet')+(r.when?' · '+esc(r.when):'')+'</span>'
       +'<input type="number" step="any" placeholder="'+esc(r.unit)+'" aria-label="'+esc(r.name)+'"><button class="btn ghost" data-recsave="'+esc(r.id)+'">'+(today?"Update":"Save")+'</button></div>';
   }).join("")+'</div>';
 }
@@ -2671,7 +2684,7 @@ function revForm(q,rv,iso){
 }
 async function saveRev(btn){
   if(needDb())return;
-  const box=btn.closest(".qrev"),stat=box.dataset.revstat,iso=todayISO(),id=btn.dataset.revsave;
+  const box=btn.closest(".qrev"),stat=box.dataset.revstat,iso=stIso(),id=btn.dataset.revsave;
   const text=box.querySelector("textarea").value.trim(),change=box.querySelector("input[type=text]").value.trim();
   if(!text){say("Write what the "+btn.dataset.period+" showed first.",true);return;}
   btn.blur();
@@ -2708,7 +2721,7 @@ function stGuess(text){
   return {stat:"discipline",xp:8};
 }
 async function stLog(text,statPick){
-  const iso=todayISO();let r=null;
+  const iso=stIso();let r=null;
   if(statPick&&statPick!=="auto")r={stat:statPick,xp:stGuess(text).xp};
   else if(S.sample){
     try{
@@ -2730,12 +2743,19 @@ async function stLog(text,statPick){
     const k=inp.closest(".vmeter").dataset.m,v=+inp.value;
     inp.closest(".vmeter").querySelector("b").textContent=v;
     const good=k==="stress"?100-v:v;inp.style.setProperty("--mc",good>=60?"#2c6a43":good>=35?"#8a6412":"#8e3b2e");inp.style.setProperty("--mv",v+"%");
-    clearTimeout(mT);mT=setTimeout(()=>{stDayPatch(todayISO(),d=>{d.meters[k]=v;return d;}).catch(err=>say("Couldn't save the meter — "+((err&&err.code)||"try again"),true));},400);
+    const miso=stIso();clearTimeout(mT);mT=setTimeout(()=>{stDayPatch(miso,d=>{d.meters[k]=v;return d;}).catch(err=>say("Couldn't save the meter — "+((err&&err.code)||"try again"),true));},400);
   });
   view.addEventListener("click",async e=>{
+    const nav=e.target.closest("[data-stday]");
+    if(nav){
+      const n=+nav.dataset.stday,next=n?shiftISO(stIso(),n):todayISO();
+      ST().viewDay=next===todayISO()?null:next;ST().openQ={};
+      if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+      stats();return;
+    }
     const q=e.target.closest("[data-q]");
     if(q&&q.tagName==="BUTTON"){
-      const iso=todayISO(),note=$("#st-meternote");
+      const iso=stIso(),note=$("#st-meternote");
       try{
         if(q.dataset.q==="water")await stDayPatch(iso,d=>{d.water=(d.water||0)+1;d.meters.hydration=clamp((d.meters.hydration||0)+12,0,100);return d;});
         if(q.dataset.q==="meal")await stDayPatch(iso,d=>{d.meters.hunger=clamp((d.meters.hunger||0)+30,0,100);d.meters.energy=clamp((d.meters.energy||0)+8,0,100);return d;});
@@ -2762,7 +2782,7 @@ async function stLog(text,statPick){
       const row=rc.closest(".rr"),inp=row.querySelector("input"),v=parseFloat(inp.value);
       if(isNaN(v)){say("Type the number first.",true);return;}
       rc.disabled=true;rc.blur();
-      try{await recSave(rc.dataset.recsave,todayISO(),v,"");say("Saved to Records.");}
+      try{await recSave(rc.dataset.recsave,stIso(),v,"");say("Saved to Records.");}
       catch(err){say("Couldn't save — "+((err&&err.code)||"try again"),true);}
       finally{rc.disabled=false;}
       return;
@@ -2780,7 +2800,7 @@ async function stLog(text,statPick){
   view.addEventListener("change",async e=>{
     const cb=e.target.closest('input[type=checkbox][data-q]');if(!cb)return;
     const id=cb.dataset.q,on=cb.checked,xp=+cb.dataset.xp||0;
-    try{await stDayPatch(todayISO(),d=>{d.done=Object.assign({},d.done);if(on)d.done[id]=id.slice(0,3)==="pl_"?xp:true;else delete d.done[id];return d;});}
+    try{await stDayPatch(stIso(),d=>{d.done=Object.assign({},d.done);if(on)d.done[id]=id.slice(0,3)==="pl_"?xp:true;else delete d.done[id];return d;});}
     catch(err){say("Couldn't save the quest — "+((err&&err.code)||"try again"),true);}
   });
   wireForm("#st-questadd",async d=>{
