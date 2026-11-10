@@ -1086,6 +1086,15 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-stats .stnav button{background:linear-gradient(180deg,#fff9ea,#e9dcb8); border:1px solid var(--gold); border-radius:4px; color:var(--inkg); cursor:pointer; font-size:17px; line-height:1; padding:1px 9px 3px}
 #view-stats .stnav button:hover{background:linear-gradient(180deg,#fffdf4,#f3e8c8); border-color:#8a6a1e}
 #view-stats .stnav.off span{color:#8a6412; font-weight:700}
+#view-stats .wkstrip{display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin:4px 0 2px}
+#view-stats .wkstrip button{display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; border-radius:6px; border:1px solid rgba(184,146,58,.55); background:rgba(255,255,255,.5); color:var(--inkg); cursor:pointer; font-size:10px; letter-spacing:.1em; text-transform:uppercase}
+#view-stats .wkstrip button b{font-size:13px; letter-spacing:0; font-variant-numeric:tabular-nums}
+#view-stats .wkstrip button i{display:block; width:100%; height:4px; border-radius:2px; background:rgba(60,48,26,.14); overflow:hidden}
+#view-stats .wkstrip button i u{display:block; height:100%; background:linear-gradient(180deg,var(--gold-3),var(--gold))}
+#view-stats .wkstrip button:hover{background:rgba(255,255,255,.8); border-color:#8a6a1e}
+#view-stats .wkstrip button.cur{box-shadow:inset 0 0 0 1px #8a6a1e; background:rgba(255,249,234,.9)}
+#view-stats .wksum{font-size:12.5px; color:var(--mutedg); padding:2px 0 6px}
+#view-stats .wksum b{color:var(--inkg); font-size:14px}
 #view-stats .planhead .btn[data-stday]{padding:5px 10px; font-size:9.5px; margin-left:auto}
 @media (max-width:1100px){#view-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} #view-stats .gchar{min-height:420px} #view-stats .gcol.main{grid-column:1/-1}}
 @media (max-width:720px){#view-stats{grid-template-columns:minmax(0,1fr)} #view-stats .arow{grid-template-columns:30px minmax(0,1fr) 44px 40px} #view-stats .arow .abar{grid-column:2/-1; grid-row:2} #view-stats .vmeter{grid-template-columns:24px 76px minmax(0,1fr) 30px}}
@@ -2661,12 +2670,24 @@ function questRecs(q){
   const hit=all.filter(r=>REC_KEYS[r.id]&&REC_KEYS[r.id].test(text));
   return hit.length?hit:(revOf(q)?all:[]);
 }
+/* done / offered quests for one day, and the seven days ending on a review day */
+function stDayCount(iso){const d=stDay(iso)||{},qs=dayQuests(iso);return [qs.filter(q=>!!((d.done||{})[q.id])||stAuto(q,iso)).length,qs.length];}
+function stWeek(iso){
+  const days=[];let dn=0,tt=0;
+  for(let i=6;i>=0;i--){const d=shiftISO(iso,-i),pre=planCtx(d).n<1,c=pre?[0,0]:stDayCount(d);days.push({iso:d,done:c[0],total:c[1],pre:pre});dn+=c[0];tt+=c[1];}
+  return {days:days,done:dn,total:tt,pct:tt?Math.round(dn/tt*100):0};
+}
+function weekStrip(w,iso){
+  return '<div class="rh">This week, day by day — tap a day to open it and mark what you did</div><div class="wkstrip">'+w.days.map(d=>'<button type="button" data-stgo="'+d.iso+'" class="'+(d.iso===iso?"cur":"")+'" title="'+esc(fmt(d.iso,{weekday:"long",month:"short",day:"numeric"}))+'">'+esc(fmt(d.iso,{weekday:"short"}))+'<b>'+(d.pre?'–':d.done+'/'+d.total)+'</b><i><u style="width:'+(d.total?d.done/d.total*100:0)+'%"></u></i></button>').join("")+'</div>'
+    +'<div class="wksum"><b>'+w.done+' / '+w.total+' quests = '+w.pct+'%</b><br>Filled in below for you — press Save to record it.</div>';
+}
 function recForm(q,iso){
   const rs=questRecs(q);if(!rs.length)return "";
-  return '<div class="qrec"><div class="rh">Records this quest needs</div>'+rs.map(r=>{
+  const wk=q.id==="pl_discipline"&&rs.some(r=>r.id==="sessions")?stWeek(iso):null;
+  return '<div class="qrec">'+(wk?weekStrip(wk,iso):'')+'<div class="rh">Records this quest needs</div>'+rs.map(r=>{
     const last=r.entries[r.entries.length-1],today=r.entries.find(e=>e.d===iso);
     return '<div class="rr"><span class="rn">'+esc(r.name)+'</span><span class="rl">'+(today?(iso===todayISO()?'today ':'this day ')+recFmt(today.v)+' '+esc(r.unit):last?'last '+recFmt(last.v)+' '+esc(r.unit)+' · '+esc(fmt(last.d,{month:"short",day:"numeric"})):'no value yet')+(r.when?' · '+esc(r.when):'')+'</span>'
-      +'<input type="number" step="any" placeholder="'+esc(r.unit)+'" aria-label="'+esc(r.name)+'"><button class="btn ghost" data-recsave="'+esc(r.id)+'">'+(today?"Update":"Save")+'</button></div>';
+      +'<input type="number" step="any" placeholder="'+esc(r.unit)+'" aria-label="'+esc(r.name)+'"'+(wk&&r.id==="sessions"?' value="'+wk.pct+'"':'')+'><button class="btn ghost" data-recsave="'+esc(r.id)+'">'+(today?"Update":"Save")+'</button></div>';
   }).join("")+'</div>';
 }
 const stRevs=()=>ST().reviews||[];
@@ -2746,9 +2767,9 @@ async function stLog(text,statPick){
     const miso=stIso();clearTimeout(mT);mT=setTimeout(()=>{stDayPatch(miso,d=>{d.meters[k]=v;return d;}).catch(err=>say("Couldn't save the meter — "+((err&&err.code)||"try again"),true));},400);
   });
   view.addEventListener("click",async e=>{
-    const nav=e.target.closest("[data-stday]");
+    const nav=e.target.closest("[data-stday],[data-stgo]");
     if(nav){
-      const n=+nav.dataset.stday,next=n?shiftISO(stIso(),n):todayISO();
+      const n=+nav.dataset.stday,next=nav.dataset.stgo||(n?shiftISO(stIso(),n):todayISO());
       ST().viewDay=next===todayISO()?null:next;ST().openQ={};
       if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
       stats();return;
