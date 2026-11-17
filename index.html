@@ -994,7 +994,7 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-gym .gbctl{display:flex; align-items:center; justify-content:center; gap:8px; padding-top:12px}
 #view-gym .gbctl > .btn{padding:4px 12px; font-size:17px; line-height:1.2}
 #view-gym .gbleg{display:flex; align-items:center; justify-content:center; gap:8px; font-size:11px; color:var(--gmut); padding-top:10px}
-#view-gym .gbleg i{display:block; width:120px; height:8px; border-radius:99px; background:linear-gradient(90deg,#c4877c,#d9796a,#cf4c40,#b3202a,#7d0611)}
+#view-gym .gbleg i{display:block; width:120px; height:8px; border-radius:99px; background:linear-gradient(90deg,#d08a7a,#cf6552,#c23c30,#a01b22,#6b050e)}
 #view-gym .gbhint{font-size:11.5px; color:var(--gmut); text-align:center; padding-top:8px}
 #view-gym .gbinfo{background:rgba(255,255,255,.44); border:1px solid rgba(255,255,255,.65); border-radius:10px; padding:18px 20px; min-width:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
 #view-gym .gbinfo h3{font-size:30px; font-weight:600; line-height:1.1}
@@ -3492,11 +3492,10 @@ const MUSCLES={
   hipflex:{n:"Hip flexors",sub:"Psoas major and iliacus \u00b7 deep in the front of the hip",what:"The muscles that lift the thigh toward the trunk. They drive the knee up when you sprint and tighten from long hours sitting.",ex:[["Hanging knee raise","lift past hip height"],["Banded psoas march","slow, on your back"],["Couch stretch","to lengthen them, 60 s a side"]]},
   hands:{n:"Hands",sub:"Thenar, hypothenar, lumbricals and interossei",what:"The small muscles inside the hand that move the thumb and fingers and finish off your grip.",ex:[["Plate pinch","hold for time"],["Fat-grip holds","any bar or dumbbell"],["Rice bucket or putty squeezes","high reps"]]},
   feet:{n:"Feet",sub:"Intrinsic foot muscles",what:"The small muscles in the sole and top of the foot. They hold up the arch and stiffen the foot when you push off.",ex:[["Short-foot drill","dome the arch, toes flat"],["Towel scrunch","with the toes"],["Barefoot calf raise","slow, big-toe pressure"]]},
-  face:{n:"Face and jaw",sub:"Muscles of expression and chewing",what:"The muscles that move the face and close the jaw. Training doesn\u2019t load them, so they only show up here if you set them yourself.",ex:[["Chewing (masseter)","it gets enough work from eating"],["Jaw-relax drill","tongue up, teeth apart"],["Neck and jaw stretch","if you clench under heavy lifts"]]},
   breathing:{n:"Breathing muscles",sub:"Diaphragm and intercostals \u00b7 the ribcage",what:"The diaphragm and the muscles between the ribs. They move air in and out, and work hardest on cardio days.",ex:[["Nasal-breathing cardio","easy pace, mouth closed"],["Crocodile breathing","face down, breathe into the belly"],["Intervals","hard efforts train them most"]]},
   tibialis:{n:"Shins",sub:"Tibialis anterior · front of the lower leg",what:"Lifts the foot and controls it as it lands. Strong shins help with running, deceleration and knee comfort.",ex:[["Tibialis raise","back against the wall, toes up"],["Heel walks","20–30 m"],["Banded dorsiflexion","slow, 15–20 reps"]]}
 };
-const MUSCLE_ORDER=["neck","traps","delts","pecs","biceps","triceps","forearms","serratus","abs","obliques","cuff","lats","lowerback","glutes","hipflex","quads","adductors","hamstrings","calves","tibialis","hands","feet","breathing","face"];
+const MUSCLE_ORDER=["neck","traps","delts","pecs","biceps","triceps","forearms","serratus","abs","obliques","cuff","lats","lowerback","glutes","hipflex","quads","adductors","hamstrings","calves","tibialis","hands","feet","breathing"];
 /* What a session loads: 1 = trained directly, less = helper muscle. Matched against the split name. */
 const SPLIT_LOAD=[
   [/chest|pec|push/i,{pecs:1,serratus:.4,delts:.5,triceps:.5,cuff:.4}],
@@ -3796,7 +3795,7 @@ async function g3Init(){
     const pivot=new THREE.Group();scene.add(pivot);
     const box=new THREE.Box3().setFromObject(gltf.scene),ctr=box.getCenter(new THREE.Vector3());
     gltf.scene.position.set(-ctr.x,-box.min.y,-ctr.z);pivot.add(gltf.scene);pivot.updateMatrixWorld(true);G3.zOff=-ctr.z;
-    const meshes=[],BASE={m:0xc4877c,tendon:0xf0ebe0,extra:0xd9c4b6,bones:0xe8e1d2};
+    const meshes=[],BASE={m:0xd08a7a,tendon:0xf0ebe0,extra:0xd9c4b6,bones:0xe8e1d2};
     const keyOf=o=>{for(let p=o;p;p=p.parent){const n=p.name||"";if(n==="bones"||BODY_PARTS[n])return n;}return "";};
     let idn=0;
     gltf.scene.traverse(o=>{
@@ -3805,7 +3804,30 @@ async function g3Init(){
       const kind=k==="bones"?"bones":k==="tendon"?"tendon":k==="extra"?"extra":"m";
       if(o.geometry.attributes.color)o.geometry.deleteAttribute("color");
       o.geometry.deleteAttribute("normal");o.geometry.computeVertexNormals();
-      o.material=new THREE.MeshStandardMaterial({color:BASE[kind],roughness:kind==="m"?.48:kind==="tendon"?.36:.7,metalness:0});
+      o.material=new THREE.MeshStandardMaterial({color:BASE[kind],roughness:kind==="m"?.5:kind==="tendon"?.36:.7,metalness:0});
+      if(kind==="m"){
+        // the muscle's long axis (fibres run along it, tendons sit at its two ends)
+        o.updateWorldMatrix(true,false);const M=o.matrixWorld.clone(),P=o.geometry.attributes.position,st=Math.max(1,Math.floor(P.count/500)),pts=[],w=new THREE.Vector3(),mean=new THREE.Vector3();
+        for(let i=0;i<P.count;i+=st){w.fromBufferAttribute(P,i).applyMatrix4(M);pts.push(w.clone());mean.add(w);}
+        mean.multiplyScalar(1/pts.length);let xx=0,xy=0,xz=0,yy=0,yz=0,zz=0;
+        pts.forEach(q=>{const a=q.x-mean.x,b=q.y-mean.y,c=q.z-mean.z;xx+=a*a;xy+=a*b;xz+=a*c;yy+=b*b;yz+=b*c;zz+=c*c;});
+        let ax=new THREE.Vector3(.3,1,.2).normalize();
+        for(let k2=0;k2<24;k2++){ax.set(xx*ax.x+xy*ax.y+xz*ax.z,xy*ax.x+yy*ax.y+yz*ax.z,xz*ax.x+yz*ax.y+zz*ax.z).normalize();}
+        const v1=xx*ax.x*ax.x+yy*ax.y*ax.y+zz*ax.z*ax.z+2*(xy*ax.x*ax.y+xz*ax.x*ax.z+yz*ax.y*ax.z),rest=Math.max(1e-9,(xx+yy+zz-v1)/2),elong=Math.sqrt(v1/rest);
+        let lo=1e9,hi=-1e9;pts.forEach(q=>{const t=q.dot(ax);if(t<lo)lo=t;if(t>hi)hi=t;});
+        const u1=new THREE.Vector3().crossVectors(ax,Math.abs(ax.y)<.9?new THREE.Vector3(0,1,0):new THREE.Vector3(1,0,0)).normalize(),u2=new THREE.Vector3().crossVectors(ax,u1).normalize();
+        const U={uM:{value:M},uAx:{value:ax},uU:{value:u1},uV:{value:u2},uLo:{value:lo},uHi:{value:hi},uTend:{value:Math.max(0,Math.min(1,(elong-1.6)/1.6))*(hi-lo>.06?1:.4)},uFib:{value:.5}};
+        o.material.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);
+          sh.vertexShader="uniform mat4 uM;varying vec3 vObj;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvObj=(uM*vec4(position,1.)).xyz;");
+          sh.fragmentShader="uniform vec3 uAx;uniform vec3 uU;uniform vec3 uV;uniform float uLo;uniform float uHi;uniform float uTend;uniform float uFib;varying vec3 vObj;\n"
+            +sh.fragmentShader.replace("#include <color_fragment>","#include <color_fragment>\n"
+            +"float ta=dot(vObj,uAx),tt=(ta-uLo)/max(1e-4,uHi-uLo),pu=dot(vObj,uU),pv=dot(vObj,uV);"
+            +"float ph=pu*900.+2.4*sin(ta*27.)+1.6*sin(pv*70.),ph2=pv*760.+2.*sin(ta*33.)+1.3*sin(pu*55.);"
+            +"float fa=uFib*clamp(1.-max(fwidth(ph),fwidth(ph2))/2.4,0.,1.);"
+            +"diffuseColor.rgb*=1.+fa*(.5-(.6*(.5+.5*sin(ph))+.4*(.5+.5*sin(ph2))))*1.5;"
+            +"float te=uTend*clamp((1.-smoothstep(.02,.12,tt))+smoothstep(.88,.98,tt),0.,1.);"
+            +"diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.94,.91,.85),te*.9);");};
+      }
       idn++;const hex=((idn*2654435761)>>>0)&0xffffff;
       o.userData={k:k,kind:kind,name:info?info[1]:"",side:info?info[2]:"",mat:o.material,idMat:new THREE.MeshBasicMaterial({color:hex||1})};
       meshes.push(o);
@@ -3820,17 +3842,18 @@ async function g3Init(){
       return {c:pivot.worldToLocal(c.clone()),size:Math.max(s.y,Math.max(s.x,s.z)*.8)};};
     /* two passes: the lit picture, and a flat one where each muscle has its own colour; a line is drawn wherever that colour changes */
     const rtC=new THREE.WebGLRenderTarget(4,4,{samples:4,type:THREE.HalfFloatType}),rtI=new THREE.WebGLRenderTarget(4,4,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});
-    const post=new THREE.ShaderMaterial({uniforms:{tC:{value:rtC.texture},tI:{value:rtI.texture},px:{value:new THREE.Vector2(1,1)}},transparent:true,depthTest:false,depthWrite:false,blending:THREE.NoBlending,
+    const post=new THREE.ShaderMaterial({uniforms:{tC:{value:rtC.texture},tI:{value:rtI.texture},px:{value:new THREE.Vector2(1,1)},th:{value:1}},transparent:true,depthTest:false,depthWrite:false,blending:THREE.NoBlending,
       vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}",
-      fragmentShader:"precision highp float;uniform sampler2D tC;uniform sampler2D tI;uniform vec2 px;varying vec2 vUv;"
+      fragmentShader:"precision highp float;uniform sampler2D tC;uniform sampler2D tI;uniform vec2 px;uniform float th;varying vec2 vUv;"
         +"float df(vec2 o,vec4 id){vec4 n=texture2D(tI,vUv+o*px);return step(.003,distance(id.rgb,n.rgb)+abs(id.a-n.a));}"
         +"void main(){vec4 c=texture2D(tC,vUv);vec4 id=texture2D(tI,vUv);"
-        +"float e=df(vec2(1.,0.),id)+df(vec2(-1.,0.),id)+df(vec2(0.,1.),id)+df(vec2(0.,-1.),id)+.7*(df(vec2(.7,.7),id)+df(vec2(-.7,.7),id)+df(vec2(.7,-.7),id)+df(vec2(-.7,-.7),id));"
-        +"e=clamp(e/2.6,0.,1.);vec3 rgb=pow(max(c.rgb,0.),vec3(1./2.2));float a=max(c.a,e);"
-        +"rgb=mix(rgb,vec3(.985,.97,.94),e*.92);gl_FragColor=vec4(rgb*a,a);}"});
+        +"float e=max(max(df(vec2(th,0.),id),df(vec2(0.,th),id)),max(.75*df(vec2(.72*th,.72*th),id),max(df(vec2(.5*th,0.),id),df(vec2(0.,.5*th),id))));"
+        +"float g=.25*(df(vec2(-1.6*th,0.),id)+df(vec2(0.,-1.6*th),id)+df(vec2(2.4*th,0.),id)+df(vec2(0.,2.4*th),id));"
+        +"e=clamp(e,0.,1.);vec3 rgb=pow(max(c.rgb,0.),vec3(1./2.2));float a=max(c.a,e);"
+        +"rgb*=1.-.34*g*(1.-e)*c.a;rgb=mix(rgb,vec3(.99,.975,.95),e*.95);gl_FragColor=vec4(rgb*a,a);}"});
     const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),post),qScene=new THREE.Scene(),qCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);quad.frustumCulled=false;qScene.add(quad);
     const size=()=>{const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);rtC.setSize(w*dpr,h*dpr);rtI.setSize(w*dpr,h*dpr);
-      const t=Math.max(1,dpr*.8);post.uniforms.px.value.set(t/(w*dpr),t/(h*dpr));cam.aspect=w/h;cam.updateProjectionMatrix();G3.dirty=true;};
+      const t=Math.max(1,dpr*.7);post.uniforms.px.value.set(t/(w*dpr),t/(h*dpr));cam.aspect=w/h;cam.updateProjectionMatrix();G3.dirty=true;};
     stage.appendChild(cv);size();
     if(window.ResizeObserver)new ResizeObserver(size).observe(stage);
     const ray=new THREE.Raycaster(),pt=new THREE.Vector2();
@@ -3871,6 +3894,7 @@ async function g3Init(){
       meshes.forEach(m=>{m.material=m.userData.idMat;});
       renderer.setRenderTarget(rtI);renderer.clear();renderer.render(scene,cam);
       meshes.forEach(m=>{m.material=m.userData.mat;});
+      post.uniforms.th.value=Math.max(1,Math.min(2.6,Math.pow(3.5/G3.dist,.75)));
       renderer.setRenderTarget(null);renderer.clear();renderer.render(qScene,qCam);
     };
     G3.ready=true;stage.classList.add("is3d");$("#gbrotwrap").hidden=false;$("#gbviews").hidden=true;
@@ -3885,19 +3909,18 @@ function g3Zoom(){const f=G3.focus;if(!f)return;G3.camYT=f.c.y;G3.distT=Math.max
 function g3Focus(k,name){
   const ms=name&&G3.byName[name]?G3.byName[name]:k&&G3.groups[k]?G3.groups[k].meshes:null;
   if(!ms){G3.focus=null;G3.camYT=G3_HOME.y;G3.distT=G3_HOME.d;return;}
-  const f=G3.boxOf(ms);let zs=0,n=0,xs=0;
-  ms.forEach(m=>{const p=m.geometry.attributes.position;for(let i=0;i<p.count;i+=9){zs+=p.getZ(i);xs+=Math.abs(p.getX(i));n++;}});
+  const f=G3.boxOf(ms);
   const FACE={obliques:.65,serratus:.7,hipflex:0,breathing:0,adductors:0,abs:0,cuff:Math.PI,tibialis:.35};
-  f.c.x=0;const zm=zs/Math.max(1,n)+G3.zOff,face=k&&FACE[k]!=null?FACE[k]:zm>=0?0:Math.PI;
+  const face=k&&FACE[k]!=null?FACE[k]:f.c.z>=0?0:Math.PI;f.c.x=0;
   const turns=Math.round((G3.rotT-face)/(2*Math.PI));G3.rotT=face+turns*2*Math.PI;g3Slider();
   G3.focus=f;g3Zoom();
 }
 /* Five clearly different reds, one per level, so a manual change is visible at once. */
-const G3_TONES=[0xc4877c,0xd9796a,0xcf4c40,0xb3202a,0x7d0611];
+const G3_TONES=[0xd08a7a,0xcf6552,0xc23c30,0xa01b22,0x6b050e];
 function g3Paint(so){
   if(!G3.ready)return;
   so=so||G3.so;if(!so)return;G3.so=so;
-  const C=G3.T.Color,pale=new C(0xd9d0c8);
+  const C=G3.T.Color,pale=new C(0xdccfc6);
   G3.meshes.forEach(m=>{
     const u=m.userData;if(u.kind!=="m")return;
     const g=MUSCLES[u.k]?u.k:null,v=g?gbMV(so,g,u.name).v:0,lv=gbLevel(v),on=g&&GB.sel===g&&(!GB.msel||GB.msel===u.name),hv=g&&G3.hover===u.name;
