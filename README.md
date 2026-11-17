@@ -100,3 +100,9 @@ sped up or slowed by the recovery scores since. `musc/<date>: {feel: {<muscle>: 
 Hotspot shapes are in `BODY_VIEWS`, in each picture's pixels.
 `gwFeed()` sets today's Stats sleep, Rest and Energy from WHOOP once per score (`statday.whoop` is the marker) and writes the
 `sleep`, `rhr`, `hrv` and `sunday` (cardio minutes) records, tagging entries with the note "WHOOP" and never replacing a typed one.
+
+The Body card renders in 3D when WebGL is available: `img/body.glb` holds one mesh per muscle group plus bones, built from
+BodyParts3D (© The Database Center for Life Science, CC BY-SA 2.1 Japan — the credit line under the body must stay) by simplifying
+its per-muscle STL files. three.js loads from jsDelivr through the import map in `<head>`; `g3Init()` builds the viewer the first
+time the Gym tab is shown, `g3Paint()` colours each group by soreness, the slider and drag set the rotation, and a click raycasts
+to a muscle and zooms to it. The flat picture view stays as the fallback when the model can't load.

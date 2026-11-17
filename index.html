@@ -973,6 +973,15 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-gym .gbhit{fill:transparent; stroke:transparent; stroke-width:2; cursor:pointer; transition:stroke .15s, fill .15s}
 #view-gym .gbhit:hover{stroke:rgba(255,255,255,.95); fill:rgba(255,255,255,.12)}
 #view-gym .gbhit.on{stroke:#fff; stroke-dasharray:5 4}
+#view-gym .gb3d{position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:pan-y; outline:0}
+#view-gym .gbstage.is3d .gbspin{display:none}
+#view-gym .gbstage.is3d{background:radial-gradient(ellipse at 50% 38%,#fbfbfd 0,#eef0f5 55%,#dfe2ea 100%)}
+#view-gym .gbrot{display:flex; align-items:center; gap:10px; padding:12px 4px 0}
+#view-gym .gbrot[hidden]{display:none}
+#view-gym .gbrot label{font-size:9.5px; font-weight:650; letter-spacing:.18em; text-transform:uppercase; color:var(--gmut)}
+#view-gym .gbrot input{flex:1; min-width:0; accent-color:#8d0714; height:22px}
+#view-gym .gbrot b{font-size:12px; font-weight:600; color:var(--gmut); min-width:38px; text-align:right; font-variant-numeric:tabular-nums}
+#view-gym .gbcredit{font-size:9.5px; color:var(--gmut); opacity:.75; text-align:center; padding-top:8px}
 #view-gym .gbctl{display:flex; align-items:center; justify-content:center; gap:8px; padding-top:12px}
 #view-gym .gbctl > .btn{padding:4px 12px; font-size:17px; line-height:1.2}
 #view-gym .gbleg{display:flex; align-items:center; justify-content:center; gap:8px; font-size:11px; color:var(--gmut); padding-top:10px}
@@ -1242,6 +1251,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
 @media (max-width:820px){.cape{display:none!important}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 </style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="plans.js"></script>
 
@@ -1971,7 +1981,9 @@ body:has(#view-home:not([hidden])) .cape{display:block}
               <div class="gbstage" id="gbstage"><div class="gbspin" id="gbspin"></div></div>
               <div class="gbctl"><button class="btn ghost" id="gbprev" aria-label="Spin left">‹</button><span class="seg" id="gbviews"></span><button class="btn ghost" id="gbnext" aria-label="Spin right">›</button></div>
               <div class="gbleg"><span>Fresh</span><i></i><span>Very sore</span></div>
-              <div class="gbhint">Double-click or drag to spin · click a muscle to open it</div>
+              <div class="gbrot" id="gbrotwrap" hidden><label for="gbrot">Rotate</label><input type="range" id="gbrot" min="0" max="360" step="1" value="0"><b id="gbrotv">0°</b></div>
+              <div class="gbhint" id="gbhint">Double-click or drag to spin · click a muscle to open it</div>
+              <div class="gbcredit">3D anatomy: BodyParts3D, © The Database Center for Life Science, licensed under CC Attribution-Share Alike 2.1 Japan</div>
             </div>
             <div class="gbinfo" id="gbinfo"></div>
           </div>
@@ -3465,17 +3477,19 @@ const MUSCLES={
   quads:{n:"Quads",sub:"Quadriceps and sartorius · front of the thigh",what:"Four muscles that straighten the knee. They do most of the work in squats, leg press and running uphill.",ex:[["Back or front squat","full depth you can control"],["Leg press","feet low for more quad"],["Leg extension","slow lowering"]]},
   hamstrings:{n:"Hamstrings",sub:"Biceps femoris, semitendinosus, semimembranosus · back of the thigh",what:"Bend the knee and extend the hip. They brake you when you sprint and are the most commonly strained muscle in fast sports.",ex:[["Romanian deadlift","feel the stretch, flat back"],["Lying or seated leg curl","control the way down"],["Nordic curl","start with assisted reps"]]},
   calves:{n:"Calves",sub:"Gastrocnemius · back of the lower leg",what:"Points the foot and pushes you off the ground when you walk, run and jump. It takes a lot of load on cardio days.",ex:[["Standing calf raise","full stretch, pause at the top"],["Seated calf raise","for the soleus underneath"],["Jump rope","2–3 minutes"]]},
+  adductors:{n:"Adductors",sub:"Adductor group and gracilis \u00b7 inner thigh",what:"The inner-thigh muscles that pull the legs together and steady the hips. They work hard at the bottom of a deep squat and when you change direction.",ex:[["Copenhagen plank","short lever first, 20 s a side"],["Sumo deadlift or wide squat","knees track over the toes"],["Cable or machine adduction","slow, full range"]]},
+  lowerback:{n:"Lower back",sub:"Erector spinae \u00b7 along the spine",what:"The columns of muscle on both sides of the spine. They hold the back straight under load, so squats, deadlifts and rows all tax them.",ex:[["Back extension","hinge at the hips, squeeze at the top"],["Romanian deadlift","flat back all the way down"],["Bird dog","slow, 8 a side, for control"]]},
   tibialis:{n:"Shins",sub:"Tibialis anterior · front of the lower leg",what:"Lifts the foot and controls it as it lands. Strong shins help with running, deceleration and knee comfort.",ex:[["Tibialis raise","back against the wall, toes up"],["Heel walks","20–30 m"],["Banded dorsiflexion","slow, 15–20 reps"]]}
 };
-const MUSCLE_ORDER=["neck","traps","delts","pecs","biceps","triceps","forearms","serratus","abs","obliques","lats","glutes","quads","hamstrings","calves","tibialis"];
+const MUSCLE_ORDER=["neck","traps","delts","pecs","biceps","triceps","forearms","serratus","abs","obliques","lats","lowerback","glutes","quads","adductors","hamstrings","calves","tibialis"];
 /* What a session loads: 1 = trained directly, less = helper muscle. Matched against the split name. */
 const SPLIT_LOAD=[
   [/chest|pec|push/i,{pecs:1,serratus:.4,delts:.5,triceps:.5}],
   [/shoulder|delt/i,{delts:1,traps:.4,triceps:.35,neck:.15}],
   [/tricep|\btri\b|\btris\b/i,{triceps:1}],
-  [/back|pull|\blat/i,{lats:1,traps:1,biceps:.5,forearms:.5,delts:.3,neck:.2}],
+  [/back|pull|\blat/i,{lats:1,traps:1,biceps:.5,forearms:.5,delts:.3,neck:.2,lowerback:.6}],
   [/bicep|curl|\barm/i,{biceps:1,forearms:.6}],
-  [/leg|squat|lower/i,{quads:1,hamstrings:1,glutes:1,calves:.7,tibialis:.3,abs:.2}],
+  [/leg|squat|lower/i,{quads:1,hamstrings:1,glutes:1,adductors:.7,lowerback:.5,calves:.7,tibialis:.3,abs:.2}],
   [/glute|hip/i,{glutes:1,hamstrings:.5}],
   [/abs|core/i,{abs:1,obliques:.8,serratus:.3}],
   [/cardio|run|hiit|conditioning/i,{calves:.6,quads:.5,hamstrings:.4,glutes:.3,tibialis:.4,abs:.15}]
@@ -3583,10 +3597,14 @@ function gbInfo(so){
 function gbDraw(){
   const spin=$("#gbspin");if(!spin)return;
   const so=gbSore();
-  spin.innerHTML=gbSvg(so);
-  const svg=spin.firstChild,c=GB.sel?gbSpotCenter(GB.sel):null;
-  if(c){svg.style.transformOrigin=c[0]+"% "+c[1]+"%";svg.style.transform="translate("+(50-c[0])+"%,"+(46-c[1])+"%) scale("+c[2]+")";}
-  $("#gbstage").classList.toggle("zoom",!!c);
+  if(G3.ready)g3Paint(so);
+  else{
+    spin.innerHTML=gbSvg(so);
+    const svg=spin.firstChild,c=GB.sel?gbSpotCenter(GB.sel):null;
+    if(c){svg.style.transformOrigin=c[0]+"% "+c[1]+"%";svg.style.transform="translate("+(50-c[0])+"%,"+(46-c[1])+"%) scale("+c[2]+")";}
+    $("#gbstage").classList.toggle("zoom",!!c);
+    g3Init();
+  }
   $("#gbviews").innerHTML=GB_ORDER.map((k,i)=>'<button data-view="'+i+'" aria-pressed="'+(i===GB.view)+'">'+GB_NAMES[k]+'</button>').join("");
   const hot=MUSCLE_ORDER.filter(k=>so[k].v>=.6).sort((a,b)=>so[b].v-so[a].v);
   $("#gbsum").textContent=hot.length?"Sore: "+hot.slice(0,3).map(k=>MUSCLES[k].n).join(", "):"Nothing sore";
@@ -3606,6 +3624,7 @@ function gbSpin(dir,to){
 }
 function gbPick(m){
   if(!MUSCLES[m])return;
+  if(G3.ready){GB.sel=m;g3Focus(m);gbDraw();return;}
   if(!gbViewOf(GB_ORDER[GB.view]).spots.some(x=>x[0]===m)){
     const to=GB_ORDER.findIndex(k=>k!=="side2"&&BODY_VIEWS[k].spots.some(x=>x[0]===m));
     if(to>=0){gbSpin(to>GB.view?1:-1,to);setTimeout(()=>{GB.sel=m;gbDraw();},460);return;}
@@ -3623,21 +3642,112 @@ async function gbFeel(m,i){
   document.addEventListener("click",e=>{
     const tg=e.target;if(!tg.closest)return;
     if(tg.closest("#gbstage")){
+      if(G3.ready)return;
       const h=tg.closest(".gbhit");clearTimeout(GB.t);
       GB.t=setTimeout(()=>{if(down&&down.moved)return;if(h){if(GB.sel===h.dataset.m){GB.sel=null;gbDraw();}else gbPick(h.dataset.m);}else if(GB.sel){GB.sel=null;gbDraw();}},230);
       return;
     }
     const v=tg.closest("#gbviews button");if(v){const to=Number(v.dataset.view);if(to!==GB.view)gbSpin(to>GB.view?1:-1,to);return;}
-    if(tg.closest("#gbnext")){gbSpin(1);return;}
-    if(tg.closest("#gbprev")){gbSpin(-1);return;}
-    if(tg.closest("#gbback")){GB.sel=null;gbDraw();return;}
+    if(tg.closest("#gbnext")||tg.closest("#gbprev")){const dir=tg.closest("#gbnext")?1:-1;
+      if(G3.ready){G3.rotT=Math.round(G3.rotT/(Math.PI/2))*(Math.PI/2)+dir*Math.PI/2;g3Slider();}else gbSpin(dir);return;}
+    if(tg.closest("#gbback")){GB.sel=null;g3Focus(null);gbDraw();return;}
     const p=tg.closest("#gbinfo [data-pick]");if(p){gbPick(p.dataset.pick);return;}
     const f=tg.closest("#gbinfo [data-feel]");if(f&&GB.sel){e.preventDefault();gbFeel(GB.sel,Number(f.dataset.feel)).catch(()=>say("Couldn’t save that.",true));}
   });
-  document.addEventListener("dblclick",e=>{if(e.target.closest&&e.target.closest("#gbstage")){e.preventDefault();clearTimeout(GB.t);gbSpin(1);}});
+  document.addEventListener("input",e=>{if(e.target.id==="gbrot"){G3.rotT=G3.rot=Number(e.target.value)*Math.PI/180;G3.dirty=true;$("#gbrotv").textContent=e.target.value+"\u00b0";}});
+  document.addEventListener("dblclick",e=>{if(G3.ready)return;if(e.target.closest&&e.target.closest("#gbstage")){e.preventDefault();clearTimeout(GB.t);gbSpin(1);}});
   document.addEventListener("pointerdown",e=>{down=e.target.closest&&e.target.closest("#gbstage")?{x:e.clientX,moved:false}:null;});
-  document.addEventListener("pointerup",e=>{if(!down)return;const dx=e.clientX-down.x;if(Math.abs(dx)>45){down.moved=true;clearTimeout(GB.t);gbSpin(dx<0?1:-1);setTimeout(()=>{down=null;},260);}});
+  document.addEventListener("pointerup",e=>{if(!down||G3.ready)return;const dx=e.clientX-down.x;if(Math.abs(dx)>45){down.moved=true;clearTimeout(GB.t);gbSpin(dx<0?1:-1);setTimeout(()=>{down=null;},260);}});
 })();
+/* ---------- gym: the body in 3D (BodyParts3D meshes, one mesh per muscle group) ---------- */
+const G3={ready:false,fail:false,loading:false,rot:0,rotT:0,camY:.83,camYT:.83,dist:3.5,distT:3.5,dirty:true,groups:{},hover:null};
+const G3_HOME={y:.83,d:3.5};
+async function g3Init(){
+  if(G3.loading||G3.ready||G3.fail)return;
+  const stage=$("#gbstage");if(!stage||!stage.offsetWidth)return;
+  G3.loading=true;
+  try{
+    const THREE=await import("three"),GL=await import("three/addons/loaders/GLTFLoader.js");
+    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    const cv=renderer.domElement;cv.className="gb3d";
+    const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(30,1,.1,30);
+    scene.add(new THREE.HemisphereLight(0xffffff,0xb9a696,1.15));
+    const key=new THREE.DirectionalLight(0xffffff,1.9);key.position.set(1.6,2.6,3.2);scene.add(key);
+    const rim=new THREE.DirectionalLight(0xdfe8ff,.9);rim.position.set(-2.2,1.6,-2.6);scene.add(rim);
+    const fill=new THREE.DirectionalLight(0xfff1e6,.5);fill.position.set(-2,.6,2.4);scene.add(fill);
+    const gltf=await new GL.GLTFLoader().loadAsync("img/body.glb");
+    const pivot=new THREE.Group();scene.add(pivot);
+    const box=new THREE.Box3().setFromObject(gltf.scene),ctr=box.getCenter(new THREE.Vector3());
+    gltf.scene.position.set(-ctr.x,-box.min.y,-ctr.z);pivot.add(gltf.scene);
+    const meshes=[],nameOf=o=>{for(let p=o;p;p=p.parent){const n=(p.name||"").replace(/[^a-z]/gi,"").toLowerCase();if(n==="bones"||n==="hands"||n==="feet"||MUSCLES[n])return n;}return "";};
+    gltf.scene.traverse(o=>{
+      if(!o.isMesh)return;
+      const k=nameOf(o),bone=k==="bones";
+      o.geometry.deleteAttribute("normal");if(o.geometry.attributes.color)o.geometry.deleteAttribute("color");o.geometry.computeVertexNormals();
+      o.material=new THREE.MeshStandardMaterial({color:bone?0xece6d8:0xc9897f,roughness:bone?.7:.5,metalness:0});
+      o.userData.k=k;meshes.push(o);
+      if(MUSCLES[k])G3.groups[k]={mesh:o};
+    });
+    pivot.updateMatrixWorld(true);
+    Object.keys(G3.groups).forEach(k=>{const g=G3.groups[k],b=new THREE.Box3().setFromObject(g.mesh),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
+      // paired muscles sit on both sides, so face the camera by front/back only
+      const pos=g.mesh.geometry.attributes.position;let zs=0;for(let i=0;i<pos.count;i+=7)zs+=pos.getZ(i);
+      g.c=c;g.size=Math.max(s.y,s.x*.8);g.face=(zs/Math.ceil(pos.count/7)+gltf.scene.position.z)>=0?0:Math.PI;});
+    const size=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();G3.dirty=true;};
+    stage.appendChild(cv);size();
+    if(window.ResizeObserver)new ResizeObserver(size).observe(stage);
+    const ray=new THREE.Raycaster(),pt=new THREE.Vector2();
+    const hit=e=>{const r=cv.getBoundingClientRect();pt.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(pt,cam);const h=ray.intersectObjects(meshes,false)[0];return h&&MUSCLES[h.object.userData.k]?h.object.userData.k:null;};
+    let drag=null,lastTap=0;
+    cv.addEventListener("pointerdown",e=>{drag={x:e.clientX,r:G3.rotT,moved:false};try{cv.setPointerCapture(e.pointerId);}catch(_){}});
+    cv.addEventListener("pointermove",e=>{
+      if(drag){const dx=e.clientX-drag.x;if(Math.abs(dx)>4)drag.moved=true;if(drag.moved){G3.rotT=drag.r+dx*.012;G3.rot=G3.rotT;g3Slider();G3.dirty=true;}return;}
+      const k=hit(e);if(k!==G3.hover){G3.hover=k;cv.style.cursor=k?"pointer":"grab";g3Paint();}
+    });
+    cv.addEventListener("pointerup",e=>{
+      const d=drag;drag=null;if(!d||d.moved)return;
+      const now=Date.now();
+      if(now-lastTap<320){lastTap=0;clearTimeout(GB.t);GB.sel=null;g3Focus(null);G3.rotT=Math.round(G3.rotT/(Math.PI/2))*(Math.PI/2)+Math.PI/2;g3Slider();gbDraw();return;}
+      lastTap=now;const k=hit(e);clearTimeout(GB.t);
+      GB.t=setTimeout(()=>{if(k){if(GB.sel===k){GB.sel=null;g3Focus(null);}else{GB.sel=k;g3Focus(k);}gbDraw();}else if(GB.sel){GB.sel=null;g3Focus(null);gbDraw();}},330);
+    });
+    cv.addEventListener("pointerleave",()=>{if(G3.hover){G3.hover=null;g3Paint();}});
+    G3.T=THREE;G3.cam=cam;G3.pivot=pivot;G3.renderer=renderer;G3.scene=scene;
+    const loop=()=>{
+      requestAnimationFrame(loop);
+      if(!stage.offsetWidth)return;
+      const e=(a,b)=>Math.abs(a-b)>.0008;
+      if(e(G3.rot,G3.rotT)||e(G3.camY,G3.camYT)||e(G3.dist,G3.distT)){G3.rot+=(G3.rotT-G3.rot)*.16;G3.camY+=(G3.camYT-G3.camY)*.14;G3.dist+=(G3.distT-G3.dist)*.14;G3.dirty=true;}
+      if(!G3.dirty)return;G3.dirty=false;
+      pivot.rotation.y=G3.rot;cam.position.set(0,G3.camY+(G3.dist-1)*.02,G3.dist);cam.lookAt(0,G3.camY,0);
+      renderer.render(scene,cam);
+    };
+    G3.ready=true;stage.classList.add("is3d");$("#gbrotwrap").hidden=false;$("#gbviews").hidden=true;
+    $("#gbhint").textContent="Drag the body or the slider to rotate · double-click turns it a quarter · click a muscle to open it";
+    loop();if(GB.sel)g3Focus(GB.sel);gbDraw();
+  }catch(err){console.error(err);G3.fail=true;}
+  G3.loading=false;
+}
+function g3Slider(){const s=$("#gbrot");if(!s)return;let d=Math.round(G3.rotT*180/Math.PI)%360;if(d<0)d+=360;if(document.activeElement!==s)s.value=d;$("#gbrotv").textContent=d+"°";}
+function g3Focus(k){
+  const g=k&&G3.groups[k];
+  if(!g){G3.camYT=G3_HOME.y;G3.distT=G3_HOME.d;return;}
+  const turns=Math.round((G3.rotT-g.face)/(2*Math.PI));G3.rotT=g.face+turns*2*Math.PI;g3Slider();
+  G3.camYT=g.c.y;G3.distT=Math.max(1.15,Math.min(2.6,g.size*3.1+.55));
+}
+function g3Paint(so){
+  if(!G3.ready)return;
+  so=so||G3.so;if(!so)return;G3.so=so;
+  const C=G3.T.Color,base=new C(0xc9897f),lo=new C(0xd9685a),hi=new C(0x8d0714);
+  Object.keys(G3.groups).forEach(k=>{
+    const m=G3.groups[k].mesh.material,v=so[k]?so[k].v:0,on=GB.sel===k,hv=G3.hover===k;
+    if(v<.12)m.color.copy(base);else m.color.copy(lo).lerp(hi,Math.min(1,(v-.12)/.88));
+    if(GB.sel&&!on)m.color.lerp(new C(0xd8cfc6),.45);
+    m.emissive.setHex(on?0x4a1410:hv?0x2a1614:0x000000);
+  });
+  G3.dirty=true;
+}
 /* ---------- stats and records fed by WHOOP ---------- */
 let gwFeedBusy=false;
 async function gwFeed(){
@@ -4272,6 +4382,7 @@ function go(v){
   VIEWS.forEach(x=>{document.getElementById("view-"+x).hidden=(x!==v);});
   window.scrollTo(0,0);
   if(v==="finance")finEnter();
+  if(v==="gym")setTimeout(gbDraw,40);
 }
 document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.view)));
 (function(){
