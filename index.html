@@ -896,6 +896,79 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 :is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .btn{border-radius:6px}
 :is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-projects,#view-habits,#view-stats,#view-records) .btn.ghost{background:rgba(255,255,255,.5)}
 #view-habits .phero{margin-bottom:4px}
+/* ---------- gym (WHOOP) ---------- */
+#view-gym{--ggood:#2f7a4d; --gwarn:#b98a1e; --gbad:#a8402f; --gser:#2b2925; --gsoft:#a9a195; --ggrid:rgba(40,34,26,.1); --gmut:#665f55}
+#view-gym .gtop{display:grid; grid-template-columns:150px minmax(0,1fr); gap:10px 26px; align-items:center; padding:6px 0 4px}
+#view-gym .gring{position:relative; width:150px; height:150px}
+#view-gym .gring svg{width:150px; height:150px; display:block}
+#view-gym .gring .trk{fill:none; stroke:rgba(40,34,26,.1); stroke-width:11}
+#view-gym .gring .arc{fill:none; stroke-width:11; stroke-linecap:round; transition:stroke-dashoffset .6s}
+#view-gym .gring .mid{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+#view-gym .gring .mid b{font-family:var(--display); font-size:46px; font-weight:600; line-height:1; font-variant-numeric:lining-nums tabular-nums}
+#view-gym .gring .mid b small{font-size:20px; font-weight:500}
+#view-gym .gring .mid span{font-size:9.5px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--gmut); margin-top:4px}
+#view-gym .gverdict{font-family:var(--display); font-size:25px; font-weight:600; line-height:1.2; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+#view-gym .gverdict i{width:11px; height:11px; border-radius:50%; flex:none}
+#view-gym .gwhy{font-size:14px; color:var(--ink-2); max-width:70ch; padding-top:4px}
+#view-gym .gtiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:8px; padding-top:14px}
+#view-gym .gtile{background:rgba(255,255,255,.46); border:1px solid rgba(255,255,255,.65); border-radius:8px; padding:10px 13px 11px; min-width:0}
+#view-gym .gtile small{display:block; font-size:9.5px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--gmut)}
+#view-gym .gtile b{font-family:var(--display); font-size:28px; font-weight:600; line-height:1.15; font-variant-numeric:lining-nums tabular-nums}
+#view-gym .gtile b em{font-style:normal; font-family:var(--sans); font-size:12px; font-weight:500; color:var(--gmut); margin-left:3px}
+#view-gym .gtile span{display:block; font-size:11.5px; color:var(--gmut)}
+#view-gym .gsess{margin-top:16px; padding-top:14px; border-top:1px solid var(--line)}
+#view-gym .gsess .addform{border-top:0; margin-top:0; padding-top:6px}
+#view-gym .gflash{font-size:13.5px; padding:9px 13px; border-radius:6px; background:rgba(255,255,255,.55); margin-bottom:10px}
+#view-gym .gflash.err{color:var(--gbad)}
+#view-gym .gsetup{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:22px; padding:4px 0 2px}
+#view-gym .gsetup h3{font-size:22px; font-weight:600; margin-bottom:6px}
+#view-gym .gsetup ol{margin:8px 0 0; padding-left:20px; font-size:14px; color:var(--ink-2)}
+#view-gym .gsetup li{padding:3px 0}
+#view-gym .gsetup code{font-family:var(--util); font-size:11.5px; background:rgba(255,255,255,.6); padding:2px 6px; border-radius:4px; overflow-wrap:anywhere; user-select:all}
+#view-gym .gsetup .gform{display:flex; flex-direction:column; gap:8px; background:rgba(255,255,255,.42); border:1px solid rgba(255,255,255,.65); border-radius:8px; padding:16px}
+#view-gym .gsetup .gform label{font-size:9.5px; font-weight:600; letter-spacing:.18em; text-transform:uppercase; color:var(--gmut)}
+#view-gym .gsetup .gform input{width:100%}
+#view-gym .gweek div{position:relative; text-align:center; padding:11px 6px 10px}
+#view-gym .gweek em{display:block; font-style:normal; font-size:11px; color:var(--gmut); margin-top:6px; min-height:16px; font-variant-numeric:tabular-nums}
+#view-gym .gweek div.done{background:rgba(47,122,77,.13); border-color:rgba(47,122,77,.35)}
+#view-gym .gweek div.done em{color:var(--ggood); font-weight:650}
+#view-gym .gweek div.miss{opacity:.62}
+#view-gym .gweek u{position:absolute; top:7px; right:7px; width:8px; height:8px; border-radius:50%; text-decoration:none}
+#view-gym .gcharts{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px; padding-top:6px}
+#view-gym .gch{position:relative; background:rgba(255,255,255,.44); border:1px solid rgba(255,255,255,.65); border-radius:8px; padding:14px 16px 10px; min-width:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+#view-gym .gch h3{font-family:var(--sans); font-size:10px; font-weight:650; letter-spacing:.2em; text-transform:uppercase; color:var(--gmut)}
+#view-gym .gch .gh{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; padding:2px 0 6px}
+#view-gym .gch .gh b{font-family:var(--display); font-size:32px; font-weight:600; line-height:1.1; font-variant-numeric:lining-nums tabular-nums}
+#view-gym .gch .gh b em{font-style:normal; font-family:var(--sans); font-size:12px; font-weight:500; color:var(--gmut); margin-left:4px}
+#view-gym .gch .gh span{font-size:12px; color:var(--gmut)}
+#view-gym .gch svg{display:block; width:100%; height:auto; overflow:visible}
+#view-gym .gch .gl{stroke:var(--ggrid); stroke-width:1}
+#view-gym .gch .ax{fill:var(--gmut); font-size:10.5px; font-family:var(--sans); font-variant-numeric:tabular-nums}
+#view-gym .gch .tg{stroke:var(--gser); stroke-width:1; stroke-dasharray:4 4; opacity:.55}
+#view-gym .gch .ln{fill:none; stroke:var(--gser); stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+#view-gym .gch .dot{fill:var(--gser); stroke:#f1ece3; stroke-width:2}
+#view-gym .gch .hit{fill:transparent}
+#view-gym .gch .hit:hover{fill:rgba(40,34,26,.06)}
+#view-gym .gch .gleg{display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--gmut); padding:6px 0 2px}
+#view-gym .gch .gleg i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px}
+#view-gym .gch .gempty{font-size:13px; color:var(--gmut); padding:26px 0 30px; text-align:center}
+#view-gym .gtip{position:absolute; z-index:5; pointer-events:none; background:#221f1a; color:#f6f2ea; font-size:12px; line-height:1.4; padding:6px 10px; border-radius:6px; white-space:nowrap; transform:translate(-50%,-100%); box-shadow:0 6px 18px rgba(0,0,0,.25)}
+#view-gym .gtip b{font-weight:650}
+#view-gym .gins{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:10px; padding-top:14px}
+#view-gym .gins div{background:rgba(255,255,255,.44); border:1px solid rgba(255,255,255,.65); border-radius:8px; padding:11px 14px; font-size:13.5px; color:var(--ink-2)}
+#view-gym .gins b{color:var(--ink); font-weight:650}
+#view-gym .glog .m{font-variant-numeric:tabular-nums}
+#view-gym .gbadge{font-size:10px; font-weight:650; letter-spacing:.14em; text-transform:uppercase; color:var(--gmut); border:1px solid var(--line-2); border-radius:999px; padding:1px 8px}
+#view-gym .gconn{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:12.5px; color:var(--gmut); padding:14px 0 0; border-top:1px solid var(--line); margin-top:8px}
+#view-gym .gconn .btn{padding:5px 12px; font-size:12px}
+#view-gym .gmanual{margin-top:12px}
+#view-gym .gmanual summary{cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink-2); padding:4px 0}
+@media (max-width:700px){
+  #view-gym .gtop{grid-template-columns:1fr; justify-items:center; text-align:center} #view-gym .gverdict{justify-content:center}
+  #view-gym .gsetup{grid-template-columns:1fr}
+  #view-gym .gweek{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #view-gym .gcharts{grid-template-columns:1fr}
+}
 /* ---------- stats (character sheet, game layout) ---------- */
 #view-records{position:relative; z-index:1; display:grid; grid-template-columns:repeat(auto-fit,minmax(440px,1fr)); gap:18px; align-items:start;
   --gold:#b8923a; --gold-2:#e2c25c; --gold-3:#f3df8f; --marble:#f6f1e6; --marble-2:#ece4d3; --inkg:#2a2318; --mutedg:#6d6252; --lineg:rgba(60,48,26,.14)}
@@ -1847,36 +1920,47 @@ body:has(#view-home:not([hidden])) .cape{display:block}
         <div class="pfoot"><span>Mens sana in corpore sano</span><span>Same principles. A different battlefield.</span></div>
       </div>
       <div class="panel wide">
-        <header><h2>Today's session</h2><span class="right mono" id="gymtodaydate"></span></header>
-        <div class="body" id="gymtodaybox"></div>
+        <header><h2>Today</h2><span class="right mono" id="gymtodaydate"></span></header>
+        <div class="body">
+          <div id="gwtoday"></div>
+          <div id="gymtodaybox"></div>
+        </div>
       </div>
       <div class="panel wide">
-        <header><h2>Weekly split</h2><span class="right" id="gymtoday"></span></header>
+        <header><h2>This week</h2><span class="right" id="gymtoday"></span></header>
         <div class="body">
-          <div class="split" id="split"></div>
+          <div class="split gweek" id="split"></div>
           <div class="stat">
             <div><b id="gymstreak">0</b><span>Day streak</span></div>
             <div><b id="gym30">0</b><span>Sessions / 30d</span></div>
+            <div><b id="gwavgrec">—</b><span>Avg recovery / 7d</span></div>
+            <div><b id="gwavgsleep">—</b><span>Avg sleep / 7d</span></div>
           </div>
+        </div>
+      </div>
+      <div class="panel wide">
+        <header><h2>Trends</h2><span class="right"><span class="seg" id="gwrange"><button data-r="14">2 weeks</button><button data-r="30">30 days</button><button data-r="90">90 days</button></span></span></header>
+        <div class="body">
+          <div class="gcharts" id="gwcharts"></div>
+          <div class="gins" id="gwinsights"></div>
         </div>
       </div>
       <div class="panel wide">
         <header><h2>Session log</h2><span class="right" id="gymlast"></span></header>
         <div class="body">
           <div id="gymlog"></div>
-          <form class="addform" id="gym-add">
-            <input type="date" name="date">
-            <input type="text" name="note" placeholder="How it went, PRs, what you cut">
-            <button class="btn">Log session</button>
-          </form>
-        </div>
-      </div>
-      <div class="panel wide">
-        <header><h2>Import from Noctis</h2><span class="right" id="impstate"></span></header>
-        <div class="body">
-          <textarea class="impta" id="impbox" placeholder="Paste a Noctis export. Either JSON — [{&quot;date&quot;:&quot;2026-09-11&quot;,&quot;split&quot;:&quot;Chest, shoulders, triceps&quot;,&quot;note&quot;:&quot;felt strong&quot;}] — or one line per session: 2026-09-11 Legs — squats felt heavy"></textarea>
-          <div class="savebar"><button class="btn ghost" id="impbtn">Import sessions</button><span id="impnote"></span></div>
-          <div class="hlegend">Dates already logged are overwritten, so re-importing the same dump is safe.</div>
+          <div class="gconn" id="gwconn"></div>
+          <details class="gmanual">
+            <summary>Log by hand or import</summary>
+            <form class="addform" id="gym-add">
+              <input type="date" name="date">
+              <input type="text" name="note" placeholder="How it went, PRs, what you cut">
+              <button class="btn">Log session</button>
+            </form>
+            <div class="hlegend" style="padding-top:16px">Import from Noctis <span id="impstate"></span></div>
+            <textarea class="impta" id="impbox" placeholder="Paste a Noctis export. Either JSON — [{&quot;date&quot;:&quot;2026-09-11&quot;,&quot;split&quot;:&quot;Chest, shoulders, triceps&quot;,&quot;note&quot;:&quot;felt strong&quot;}] — or one line per session: 2026-09-11 Legs — squats felt heavy"></textarea>
+            <div class="savebar"><button class="btn ghost" id="impbtn">Import sessions</button><span id="impnote"></span></div>
+          </details>
         </div>
       </div>
     </section>
@@ -2434,7 +2518,7 @@ const HAB={ym:null,open:{}}; // ym = month being viewed ("YYYY-MM"), open = whic
 
 const FALLBACK={week:{},schoolwork:{},gymTime:{},split:{},shutdown:[],review:[]};
 
-const S={rec:{items:[],open:null},st:{meta:null,days:[],reviews:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],crit:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
+const S={whoop:{meta:null,map:{}},fn:null,rec:{items:[],open:null},st:{meta:null,days:[],reviews:[],loaded:false,editBase:false},db:null,sample:null,tasks:[],notes:[],gym:[],days:[],crit:[],insight:null,daily:null,week:null,config:null,roadmap:null,invroad:null,habits:{},view:"home",dirty:false,calSel:null,calMonth:null,cal:{level:"days",ym:null,week:null,day:null,pinned:false},calKey:null,calToday:null};
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -3270,38 +3354,213 @@ function renderPhases(box,pctSel,doc,key){
   }).join("");
   document.querySelector(pctSel).textContent=all?Math.round(done/all*100)+"% complete":"";
 }
+/* ---------- gym: WHOOP readiness, self-logging sessions, trends ---------- */
+const GW={range:30,auto:false,busy:false,flash:null};
+const REDIRECT_WHOOP="https://lijjbumgqelkqwpljjov.supabase.co/functions/v1/whoop";
+const gwOn=()=>!!(S.whoop.meta&&S.whoop.meta.connected);
+const gwDay=iso=>S.whoop.map[iso]||null;
+const gwRec=iso=>{const w=gwDay(iso);return w&&w.recovery&&w.recovery.score!=null?w.recovery.score:null;};
+const gwCol=s=>s==null?"var(--gsoft)":s>=67?"var(--ggood)":s>=34?"var(--gwarn)":"var(--gbad)";
+const gwZone=s=>s>=67?"Green":s>=34?"Yellow":"Red";
+const gwAvg=a=>{const v=a.filter(x=>x!=null&&isFinite(x));return v.length?v.reduce((n,x)=>n+x,0)/v.length:null;};
+const gwNum=(v,d)=>v==null?"—":(Math.round(v*Math.pow(10,d||0))/Math.pow(10,d||0)).toFixed(d||0);
+const gwHM=h=>{if(h==null)return "—";const m=Math.round(h*60);return Math.floor(m/60)+"h "+String(m%60).padStart(2,"0")+"m";};
+const gwAgo=iso=>{if(!iso)return "never";const m=Math.round((Date.now()-Date.parse(iso))/60000);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago";};
+const gwCap=s=>String(s||"").replace(/\b\w/g,c=>c.toUpperCase());
+function gwSetup(m){
+  return '<div class="gsetup"><div><h3>Connect your WHOOP</h3>'
+    +'<div class="gwhy">Once it is connected, sessions log themselves and this page fills with your recovery, sleep and strain. Two minutes, once.</div>'
+    +'<ol><li>Open <a href="https://developer-dashboard.whoop.com" target="_blank" rel="noopener">developer-dashboard.whoop.com</a>, sign in with your WHOOP account and create an app (any name, e.g. All For One).</li>'
+    +'<li>Tick every <b>read</b> scope and <b>offline</b>.</li>'
+    +'<li>Redirect URL — paste exactly: <code>'+REDIRECT_WHOOP+'</code></li>'
+    +'<li>Save, then copy the app’s Client ID and Client Secret into the boxes here.</li></ol></div>'
+    +'<div class="gform"><label for="gwcid">Client ID</label><input type="text" id="gwcid" autocomplete="off" spellcheck="false">'
+    +'<label for="gwsec">Client Secret</label><input type="text" id="gwsec" autocomplete="off" spellcheck="false">'
+    +'<button class="btn" id="gwconnect">Connect WHOOP</button>'
+    +'<div class="hlegend" id="gwmsg" style="padding-top:2px">'+esc(m&&m.error?"Last attempt: "+m.error:"The secret is stored in your own database, where only the sync can read it.")+'</div></div></div>';
+}
+function gwVerdict(s,w,sp){
+  const sl=w&&w.sleep,short=sl&&sl.hours!=null&&sl.need!=null&&sl.hours<sl.need-1;
+  if(s>=67)return ["Green — push it","Recovery is high. Good day to add weight or chase a top set on "+sp.toLowerCase()+"."+(short?" Sleep was short of need, so don’t add extra volume on top.":"")];
+  if(s>=34)return ["Yellow — train as planned","Do the normal "+sp.toLowerCase()+" session; leave a rep or two in reserve on the heavy sets."+(short?" You slept about "+gwHM(sl.need-sl.hours)+" under need — get to bed early tonight.":"")];
+  return ["Red — go light","Body is under-recovered. Cut the volume by about a third or swap for easy cardio, and protect tonight’s sleep."];
+}
 function gymToday(){
-  const iso=todayISO(),c=cfg(),sp=(c.split||{})[wdOf(iso)]||"training";
-  const g=S.gym.find(x=>x.date===iso);
+  const iso=todayISO(),c=cfg(),wd=wdOf(iso),sp=(c.split||{})[wd]||"training",gt=(c.gymTime||{})[wd];
+  const g=S.gym.find(x=>x.date===iso),on=gwOn(),w=gwDay(iso),top=$("#gwtoday");
   $("#gymtodaydate").textContent=fmt(iso,{weekday:"short",month:"short",day:"numeric"});
-  const box=$("#gymtodaybox");
-  if(g){
-    box.innerHTML='<div class="doneflag"><b>Logged</b><span>'+esc(g.split||sp)+'</span></div>'
-      +'<div class="addform" style="border-top:0;margin-top:0;padding-top:6px"><input type="text" id="gnote" placeholder="Add or edit the note" value="'+esc(g.note||"")+'">'
-      +'<button class="btn ghost" id="gnotebtn">Save note</button><button class="btn ghost" id="gundo">Undo</button></div>'
-      +(g.source?'<div class="hlegend">Came in from '+esc(g.source)+'.</div>':"");
+  const flash=GW.flash?'<div class="gflash'+(GW.flash.bad?" err":"")+'">'+esc(GW.flash.t)+'</div>':"";
+  if(!on){
+    if(top.dataset.mode!=="setup"||!$("#gwcid")){top.dataset.mode="setup";top.innerHTML=flash+gwSetup(S.whoop.meta);}
   }else{
-    box.innerHTML='<div class="addform" style="border-top:0;margin-top:0;padding-top:4px"><button class="btn" id="gdid">Did it \u2014 '+esc(sp)+'</button>'
-      +'<input type="text" id="gnote" placeholder="One line, optional"></div>'
-      +'<div class="hlegend">One tap, whenever you finish. It no longer waits for the evening shutdown.</div>';
+    top.dataset.mode="live";
+    const s=gwRec(iso),r=w&&w.recovery,sl=w&&w.sleep;
+    const base=[];for(let i=1;i<=30;i++){const x=gwDay(shift(iso,-i));if(x&&x.recovery)base.push(x.recovery);}
+    const bh=gwAvg(base.map(x=>x.hrv)),br=gwAvg(base.map(x=>x.rhr));
+    const dl=(v,b,u,goodUp)=>v==null||b==null?"":(v-b>=0?"+":"−")+gwNum(Math.abs(v-b),0)+" "+u+" vs 30-day avg";
+    const C=2*Math.PI*58,off=s==null?C:C*(1-s/100);
+    const v=s==null?["No recovery score yet","WHOOP scores recovery after you wake up and the band syncs with your phone. Open the WHOOP app, then tap Sync below."]:gwVerdict(s,w,sp);
+    top.innerHTML=flash+'<div class="gtop"><div class="gring"><svg viewBox="0 0 150 150" role="img" aria-label="Recovery '+(s==null?"not scored":s+" percent")+'"><circle class="trk" cx="75" cy="75" r="58"/>'
+      +'<circle class="arc" cx="75" cy="75" r="58" stroke="'+gwCol(s)+'" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 75 75)"/></svg>'
+      +'<div class="mid"><b>'+(s==null?"—":s+"<small>%</small>")+'</b><span>Recovery</span></div></div>'
+      +'<div><div class="gverdict">'+(s==null?"":'<i style="background:'+gwCol(s)+'"></i>')+esc(v[0])+'</div><div class="gwhy">'+esc(v[1])+'</div>'
+      +'<div class="gtiles">'
+      +'<div class="gtile"><small>HRV</small><b>'+gwNum(r&&r.hrv,0)+'<em>ms</em></b><span>'+esc(dl(r&&r.hrv,bh,"ms"))+'</span></div>'
+      +'<div class="gtile"><small>Resting HR</small><b>'+gwNum(r&&r.rhr,0)+'<em>bpm</em></b><span>'+esc(dl(r&&r.rhr,br,"bpm"))+'</span></div>'
+      +'<div class="gtile"><small>Sleep</small><b>'+(sl&&sl.hours!=null?gwHM(sl.hours):"—")+'</b><span>'+(sl?esc((sl.perf!=null?gwNum(sl.perf,0)+"% of need":"")+(sl.bed?" · "+sl.bed+"–"+sl.wake:"")):"")+'</span></div>'
+      +'<div class="gtile"><small>Strain today</small><b>'+gwNum(w&&w.strain,1)+'</b><span>'+(w&&w.workouts&&w.workouts.length?w.workouts.length+" activit"+(w.workouts.length===1?"y":"ies")+" recorded":"so far")+'</span></div>'
+      +'</div></div></div>';
+  }
+  const box=$("#gymtodaybox");
+  const keep=document.activeElement&&document.activeElement.id==="gnote";
+  if(keep)return;
+  if(g){
+    const x=g.whoop;
+    box.innerHTML='<div class="gsess"><div class="doneflag"><b>'+(g.source==="WHOOP"?"Logged by WHOOP":"Logged")+'</b><span>'+esc(g.split||sp)+(x?" · "+esc(gwCap(x.sport))+" · "+x.min+" min · strain "+gwNum(x.strain,1)+(x.avgHr?" · avg "+x.avgHr+" bpm":""):"")+'</span></div>'
+      +'<div class="addform"><input type="text" id="gnote" placeholder="Add a note — PRs, how it felt" value="'+esc(g.note||"")+'">'
+      +'<button class="btn ghost" id="gnotebtn">Save note</button><button class="btn ghost" id="gundo">'+(g.source==="WHOOP"?"Not a gym session":"Undo")+'</button></div></div>';
+  }else{
+    box.innerHTML='<div class="gsess"><div class="doneflag"><span><b style="color:var(--ink);background:rgba(40,34,26,.08)">Planned</b> &nbsp;'+esc(sp)+(gt?" at "+esc(gt):"")+'</span></div>'
+      +'<div class="addform"><input type="text" id="gnote" placeholder="One line, optional"><button class="btn ghost" id="gdid">Log it by hand</button></div>'
+      +'<div class="hlegend">'+(on?"Nothing to tap: when WHOOP records the workout it lands here within the hour, or straight away with Sync.":"Until WHOOP is connected, one tap logs it.")+'</div></div>';
   }
 }
+/* One chart. pts: [{d, v, col?, tip}], v may be null. kind: bar | line. */
+function gwPlot(pts,o){
+  const vals=pts.map(p=>p.v).filter(v=>v!=null);
+  if(vals.length<2)return '<div class="gempty">'+esc(o.empty||"Not enough days yet — this fills in as WHOOP syncs.")+'</div>';
+  const W=520,H=168,L=30,R=6,T=10,B=20,n=pts.length;
+  let lo=o.lo!=null?o.lo:Math.min.apply(null,vals),hi=o.hi!=null?o.hi:Math.max.apply(null,vals);
+  if(o.target!=null){lo=Math.min(lo,o.target);hi=Math.max(hi,o.target);}
+  if(o.lo==null){const pad=(hi-lo||1)*.18;lo=o.kind==="bar"?0:lo-pad;if(o.hi==null)hi+=pad;}
+  if(hi===lo)hi=lo+1;
+  const slot=(W-L-R)/n,X=i=>L+slot*(i+.5),Y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  let h='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(o.label)+'">';
+  for(let i=0;i<=3;i++){const v=lo+(hi-lo)*i/3,y=Y(v);h+='<line class="gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/><text class="ax" x="'+(L-6)+'" y="'+(y+3.5).toFixed(1)+'" text-anchor="end">'+((hi-lo)<6?v.toFixed(1):Math.round(v))+'</text>';}
+  const lab=o.xl||(p=>fmt(p.d,{month:"short",day:"numeric"}));
+  [0,Math.floor((n-1)/2),n-1].filter((x,i,a)=>a.indexOf(x)===i).forEach((i,k,a)=>{h+='<text class="ax" x="'+X(i).toFixed(1)+'" y="'+(H-5)+'" text-anchor="'+(k===0?"start":k===a.length-1?"end":"middle")+'">'+esc(lab(pts[i]))+'</text>';});
+  if(o.kind==="bar"){
+    const bw=Math.max(2,Math.min(26,slot-2));
+    pts.forEach((p,i)=>{if(p.v==null)return;const y=Y(p.v),bh=Math.max(1.5,H-B-y),rx=Math.min(3,bw/2);
+      h+='<path fill="'+(p.col||"var(--gser)")+'" d="M'+(X(i)-bw/2).toFixed(1)+' '+(H-B)+' v'+(-(bh-rx)).toFixed(1)+' q0 '+(-rx)+' '+rx+' '+(-rx)+' h'+(bw-2*rx).toFixed(1)+' q'+rx+' 0 '+rx+' '+rx+' v'+(bh-rx).toFixed(1)+' Z"/>';});
+  }else{
+    let d="",pen=false;pts.forEach((p,i)=>{if(p.v==null)return;d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(p.v).toFixed(1)+" ";pen=true;});
+    h+='<path class="ln" d="'+d+'"/>';
+    let last=-1;pts.forEach((p,i)=>{if(p.v!=null)last=i;});
+    if(n<=31)pts.forEach((p,i)=>{if(p.v!=null&&i!==last)h+='<circle class="dot" cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="3"/>';});
+    if(last>=0)h+='<circle class="dot" cx="'+X(last).toFixed(1)+'" cy="'+Y(pts[last].v).toFixed(1)+'" r="4.5"/>';
+  }
+  if(o.target!=null){const y=Y(o.target);h+='<line class="tg" x1="'+L+'" x2="'+(W-R)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/><text class="ax" x="'+(W-R)+'" y="'+(y-4).toFixed(1)+'" text-anchor="end">'+esc(o.targetLabel||"")+'</text>';}
+  pts.forEach((p,i)=>{h+='<rect class="hit" x="'+(L+slot*i).toFixed(1)+'" y="'+T+'" width="'+slot.toFixed(1)+'" height="'+(H-T-B)+'" data-tip="'+esc(p.tip)+'" data-y="'+(p.v==null?T:Y(p.v)).toFixed(0)+'" data-x="'+X(i).toFixed(0)+'"/>';});
+  return h+'</svg>';
+}
+function gwCard(title,big,unit,sub,body,legend){
+  return '<div class="gch"><h3>'+esc(title)+'</h3><div class="gh"><b>'+big+(unit?'<em>'+esc(unit)+'</em>':"")+'</b><span>'+esc(sub||"")+'</span></div>'+body
+    +(legend?'<div class="gleg">'+legend.map(l=>'<span><i style="background:'+l[0]+'"></i>'+esc(l[1])+'</span>').join("")+'</div>':"")+'</div>';
+}
+function gwTrends(){
+  const n=GW.range,t=todayISO(),set=new Set(S.gym.map(g=>g.date));
+  $("#gwrange").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(Number(b.dataset.r)===n)));
+  const win=off=>{const a=[];for(let i=n-1;i>=0;i--){const d=shift(t,-i-off);a.push({d:d,w:gwDay(d),g:set.has(d)});}return a;};
+  const cur=win(0),prev=win(n),dn=p=>fmt(p.d,{weekday:"short",month:"short",day:"numeric"});
+  const cmp=(f,unit,dec)=>{const a=gwAvg(cur.map(f)),b=gwAvg(prev.map(f));return a==null||b==null?"average, last "+n+" days":"average · "+(a-b>=0?"▲ +":"▼ −")+gwNum(Math.abs(a-b),dec)+unit+" vs the "+n+" days before";};
+  const rec=p=>p.w&&p.w.recovery?p.w.recovery.score:null,hrv=p=>p.w&&p.w.recovery?p.w.recovery.hrv:null,rhr=p=>p.w&&p.w.recovery?p.w.recovery.rhr:null;
+  const slp=p=>p.w&&p.w.sleep?p.w.sleep.hours:null,str=p=>p.w&&p.w.strain!=null&&!(p.w.open&&p.d===t&&p.w.strain<1)?p.w.strain:null;
+  let h="";
+  h+=gwCard("Recovery",gwNum(gwAvg(cur.map(rec)),0),"%",cmp(rec," pts",0),
+    gwPlot(cur.map(p=>({d:p.d,v:rec(p),col:gwCol(rec(p)),tip:dn(p)+"|"+(rec(p)==null?"no score":rec(p)+"% · "+gwZone(rec(p)))})),{kind:"bar",lo:0,hi:100,label:"Recovery by day"}),
+    [["var(--ggood)","Green 67+"],["var(--gwarn)","Yellow 34–66"],["var(--gbad)","Red under 34"]]);
+  h+=gwCard("Sleep",gwHM(gwAvg(cur.map(slp))),"",cmp(slp," h",1),
+    gwPlot(cur.map(p=>({d:p.d,v:slp(p),col:slp(p)!=null&&slp(p)>=8?"var(--gser)":"var(--gsoft)",tip:dn(p)+"|"+(slp(p)==null?"no sleep recorded":gwHM(slp(p))+" asleep"+(p.w.sleep.perf!=null?" · "+gwNum(p.w.sleep.perf,0)+"% of need":"")+(p.w.sleep.bed?" · "+p.w.sleep.bed+"–"+p.w.sleep.wake:""))})),{kind:"bar",target:8,targetLabel:"8 h goal",label:"Hours asleep by night"}),
+    [["var(--gser)","8 h or more"],["var(--gsoft)","Under 8 h"]]);
+  h+=gwCard("Day strain",gwNum(gwAvg(cur.map(str)),1),"",cmp(str,"",1),
+    gwPlot(cur.map(p=>({d:p.d,v:str(p),col:p.g?"var(--gser)":"var(--gsoft)",tip:dn(p)+"|"+(str(p)==null?"no data":"strain "+gwNum(str(p),1)+(p.g?" · trained":" · no session"))})),{kind:"bar",lo:0,hi:21,label:"Day strain"}),
+    [["var(--gser)","Training day"],["var(--gsoft)","No session"]]);
+  h+=gwCard("Heart rate variability",gwNum(gwAvg(cur.map(hrv)),0),"ms",cmp(hrv," ms",0),
+    gwPlot(cur.map(p=>({d:p.d,v:hrv(p),tip:dn(p)+"|"+(hrv(p)==null?"no reading":"HRV "+gwNum(hrv(p),0)+" ms")})),{kind:"line",label:"HRV by day"}));
+  h+=gwCard("Resting heart rate",gwNum(gwAvg(cur.map(rhr)),0),"bpm",cmp(rhr," bpm",0),
+    gwPlot(cur.map(p=>({d:p.d,v:rhr(p),tip:dn(p)+"|"+(rhr(p)==null?"no reading":"Resting HR "+gwNum(rhr(p),0)+" bpm")})),{kind:"line",label:"Resting heart rate by day"}));
+  const nw=Math.max(4,Math.ceil(n/7)),mon=mondayOf(t),wk=[];
+  for(let i=nw-1;i>=0;i--){const m=shift(mon,-7*i);let c=0,min=0;for(let k=0;k<7;k++){const d=shift(m,k);if(set.has(d)){c++;const g=S.gym.find(x=>x.date===d);if(g&&g.whoop)min+=g.whoop.min||0;}}wk.push({d:m,v:c,min:min});}
+  const full=wk.slice(0,-1);
+  h+=gwCard("Sessions per week",String(wk[wk.length-1].v),"this week",full.length?"average "+gwNum(gwAvg(full.map(x=>x.v)),1)+" a week before this one":"",
+    gwPlot(wk.map((x,i)=>({d:x.d,v:x.v,col:i===wk.length-1?"var(--gsoft)":"var(--gser)",tip:"Week of "+fmt(x.d,{month:"short",day:"numeric"})+"|"+x.v+" session"+(x.v===1?"":"s")+(x.min?" · "+gwHM(x.min/60)+" trained":"")})),{kind:"bar",lo:0,hi:7,label:"Sessions per week",xl:p=>fmt(p.d,{month:"short",day:"numeric"}),empty:"Starts once two weeks have a session."}),
+    [["var(--gser)","Finished weeks"],["var(--gsoft)","This week so far"]]);
+  $("#gwcharts").innerHTML=h;
+  /* What the numbers say, from the last 90 days. */
+  const all=[];for(let i=89;i>=0;i--){const d=shift(t,-i);all.push({d:d,w:gwDay(d),g:set.has(d)});}
+  const ins=[],hi8=all.filter(p=>slp(p)!=null&&slp(p)>=7.5&&rec(p)!=null),lo7=all.filter(p=>slp(p)!=null&&slp(p)<6.5&&rec(p)!=null);
+  if(hi8.length>=4&&lo7.length>=4)ins.push("After <b>7½ h or more</b> of sleep your recovery averages <b>"+gwNum(gwAvg(hi8.map(rec)),0)+"%</b>; after under 6½ h it averages <b>"+gwNum(gwAvg(lo7.map(rec)),0)+"%</b>.");
+  const bySplit={};S.gym.forEach(g=>{const w=gwDay(g.date);if(g.split&&g.whoop&&g.whoop.strain)(bySplit[g.split]=bySplit[g.split]||[]).push(g.whoop);});
+  const sp=Object.keys(bySplit).filter(k=>bySplit[k].length>=3).map(k=>[k,gwAvg(bySplit[k].map(x=>x.strain)),gwAvg(bySplit[k].map(x=>x.min))]).sort((a,b)=>b[1]-a[1]);
+  if(sp.length>=2)ins.push("Hardest sessions: <b>"+esc(sp[0][0])+"</b> (strain "+gwNum(sp[0][1],1)+", "+gwNum(sp[0][2],0)+" min). Lightest: <b>"+esc(sp[sp.length-1][0])+"</b> (strain "+gwNum(sp[sp.length-1][1],1)+").");
+  const s14=all.slice(-14).map(slp).filter(v=>v!=null);
+  if(s14.length>=7){const u=s14.filter(v=>v<8).length;ins.push("You slept under your 8 h goal on <b>"+u+" of the last "+s14.length+"</b> nights (average "+gwHM(gwAvg(s14))+").");}
+  const aft=[],rest=[];all.forEach((p,i)=>{if(i&&rec(p)!=null){const y=all[i-1];if(str(y)!=null)(str(y)>=14?aft:rest).push(rec(p));}});
+  if(aft.length>=4&&rest.length>=4)ins.push("The morning after a hard day (strain 14+) recovery averages <b>"+gwNum(gwAvg(aft),0)+"%</b>, against <b>"+gwNum(gwAvg(rest),0)+"%</b> after lighter days.");
+  $("#gwinsights").innerHTML=ins.map(x=>"<div>"+x+"</div>").join("");
+}
 function gym(){
+  if(!$("#gwtoday"))return;
   gymToday();
-  const c=cfg(),wd=wdOf(todayISO());
-  $("#split").innerHTML=ORDER.map(d=>'<div class="'+(d===wd?"today":"")+'"><b>'+DL[d]+'</b><span>'+esc((c.split||{})[d]||"—")+'</span></div>').join("");
-  $("#gymtoday").textContent=(c.split||{})[wd]||"";
+  const c=cfg(),t=todayISO(),wd=wdOf(t),mon=mondayOf(t),on=gwOn();
+  const set=new Set(S.gym.map(g=>g.date));
+  $("#split").innerHTML=ORDER.map((d,i)=>{
+    const iso=shift(mon,i),g=S.gym.find(x=>x.date===iso),r=gwRec(iso),past=iso<t;
+    return '<div class="'+(d===wd?"today ":"")+(g?"done":past?"miss":"")+'" title="'+esc(fmt(iso,{weekday:"long",month:"short",day:"numeric"})+(r!=null?" · recovery "+r+"%":""))+'">'+(r!=null?'<u style="background:'+gwCol(r)+'"></u>':"")
+      +'<b>'+DL[d]+'</b><span>'+esc((c.split||{})[d]||"—")+'</span><em>'+(g?"✓ "+(g.whoop&&g.whoop.min?g.whoop.min+" min":"done"):past?"no session":d===wd?esc((c.gymTime||{})[d]||"today"):"")+'</em></div>';
+  }).join("");
+  $("#gymtoday").textContent=ORDER.filter((d,i)=>set.has(shift(mon,i))).length+" of 7 this week";
   const logs=S.gym.slice().sort((a,b)=>b.date.localeCompare(a.date));
-  $("#gymlog").innerHTML=logs.length?logs.slice(0,12).map(g=>'<div class="note"><b>'+esc(fmt(g.date,{weekday:"short",month:"short",day:"numeric"}))+' — '+esc(g.split||"")+'</b>'+(g.note?'<p>'+esc(g.note)+'</p>':"")+'</div>').join(""):'<div class="empty">No sessions logged yet. The shutdown checklist asks for this.</div>';
-  $("#gymlast").textContent=logs[0]?"last: "+logs[0].date:"";
-  const set=new Set(logs.map(g=>g.date));
-  let cur=todayISO(),streak=0;
+  $("#gymlog").innerHTML=logs.length?'<div class="glog">'+logs.slice(0,14).map(g=>{const x=g.whoop;return '<div class="note"><b>'+esc(fmt(g.date,{weekday:"short",month:"short",day:"numeric"}))+' — '+esc(g.split||"")+'</b>'
+    +(x?'<div class="m"><span class="gbadge">WHOOP</span>'+esc(gwCap(x.sport))+' · '+(x.at?esc(x.at)+' · ':"")+x.min+' min · strain '+gwNum(x.strain,1)+(x.avgHr?' · avg '+x.avgHr+' bpm':"")+'</div>':"")
+    +(g.note?'<p>'+esc(g.note)+'</p>':"")+'</div>';}).join("")+'</div>':'<div class="empty">No sessions yet. '+(on?"The first workout WHOOP records will show up here on its own.":"Connect WHOOP above and they log themselves.")+'</div>';
+  $("#gymlast").textContent=logs[0]?"last: "+fmt(logs[0].date,{month:"short",day:"numeric"}):"";
+  let cur=t,streak=0;
   if(!set.has(cur))cur=shift(cur,-1);
   while(set.has(cur)){streak++;cur=shift(cur,-1);}
   $("#gymstreak").textContent=streak;
-  const cut=shift(todayISO(),-30);
+  const cut=shift(t,-30);
   $("#gym30").textContent=logs.filter(g=>g.date>=cut).length;
+  const wk=[];for(let i=0;i<7;i++)wk.push(gwDay(shift(t,-i)));
+  const ar=gwAvg(wk.map(w=>w&&w.recovery?w.recovery.score:null)),as=gwAvg(wk.map(w=>w&&w.sleep?w.sleep.hours:null));
+  $("#gwavgrec").textContent=ar==null?"—":Math.round(ar)+"%";
+  $("#gwavgsleep").textContent=as==null?"—":gwHM(as);
+  const m=S.whoop.meta;
+  $("#gwconn").innerHTML=on?'<span>WHOOP connected · synced '+esc(gwAgo(m.lastSync))+(m.error?' · last sync failed: '+esc(m.error):"")+'</span><button class="btn ghost" id="gwsync"'+(GW.busy?" disabled":"")+'>'+(GW.busy?"Syncing…":"Sync now")+'</button><button class="btn ghost" id="gwdisc">Disconnect</button>':"";
+  $("#gwconn").hidden=!on;
+  gwTrends();
 }
+async function gwCall(body){
+  if(!S.fn)throw new Error("offline");
+  const r=await S.fn("whoop",body);
+  if(r.error){let msg="";try{msg=(await r.error.context.json()).error||"";}catch(e){}throw new Error(msg||r.error.message||"failed");}
+  return r.data||{};
+}
+async function gwSync(days,quiet){
+  if(GW.busy||!gwOn())return;
+  GW.busy=true;if(!quiet){GW.flash=null;gym();}
+  try{const r=await gwCall({action:"sync",days:days});if(!quiet)GW.flash={t:"Synced "+(r.days||0)+" days from WHOOP"+(r.sessions?" · "+r.sessions+" new session"+(r.sessions===1?"":"s")+" logged":"")+"."};if(S.db)await S.db.load();}
+  catch(e){if(!quiet)GW.flash={t:"Couldn’t sync: "+e.message,bad:true};}
+  GW.busy=false;gym();
+}
+function gwAuto(){
+  const m=S.whoop.meta;
+  if(GW.auto||!m||!m.connected)return;
+  GW.auto=true;
+  if(!m.lastSync||Date.now()-Date.parse(m.lastSync)>20*60000)gwSync(4,true);
+}
+document.addEventListener("mousemove",e=>{
+  const hit=e.target.closest&&e.target.closest("#gwcharts .hit");
+  document.querySelectorAll("#gwcharts .gtip").forEach(x=>{if(!hit||x.parentNode!==hit.closest(".gch"))x.remove();});
+  if(!hit)return;
+  const card=hit.closest(".gch"),svg=hit.ownerSVGElement,sb2=svg.getBoundingClientRect(),cb=card.getBoundingClientRect(),k=sb2.width/520;
+  let tip=card.querySelector(".gtip");if(!tip){tip=document.createElement("div");tip.className="gtip";card.appendChild(tip);}
+  const p=hit.dataset.tip.split("|");tip.innerHTML="<b>"+esc(p[0])+"</b><br>"+esc(p[1]||"");
+  const x=sb2.left-cb.left+Number(hit.dataset.x)*k,half=tip.offsetWidth/2;
+  tip.style.left=Math.max(half+4,Math.min(cb.width-half-4,x))+"px";
+  tip.style.top=(sb2.top-cb.top+Number(hit.dataset.y)*k-8)+"px";
+});
 function projects(){
   const items=listInto("#projects-list","projects");
   $("#projcount").textContent=items.length?items.length+" open":"";
@@ -3785,12 +4044,26 @@ document.addEventListener("click",async e=>{
     }
     const tb=e.target.closest("[data-tally]");
     if(tb){HAB.open[tb.dataset.tally]=!HAB.open[tb.dataset.tally];habits();return;}
+    const gr=e.target.closest("#gwrange button");
+    if(gr){GW.range=Number(gr.dataset.r)||30;try{localStorage.setItem("afo-gwrange",String(GW.range));}catch(_){}gwTrends();return;}
     const id=e.target.id;
     if(id==="habprev"){HAB.ym=shiftYM(HAB.ym||ymOf(todayISO()),-1);habits();return;}
     if(id==="habnext"){HAB.ym=shiftYM(HAB.ym||ymOf(todayISO()),1);habits();return;}
     if(id==="gdid"){const n=$("#gnote");await logToday(n?n.value.trim():"");}
     if(id==="gnotebtn"){if(needDb())return;await S.db.doc("gymlog/"+todayISO()).update({note:$("#gnote").value.trim()});$("#impnote").textContent="";}
-    if(id==="gundo"){if(needDb())return;await S.db.doc("gymlog/"+todayISO()).delete();}
+    if(id==="gundo"){if(needDb())return;const gi=todayISO(),gg=S.gym.find(x=>x.date===gi);
+      if(gg&&gg.source==="WHOOP"&&S.whoop.map[gi])await S.db.doc("whoop/"+gi).update({nogym:true});
+      await S.db.doc("gymlog/"+gi).delete();}
+    if(id==="gwsync"){await gwSync(30,false);}
+    if(id==="gwdisc"){if(e.target.dataset.sure!=="1"){e.target.dataset.sure="1";e.target.textContent="Tap again to disconnect";return;}
+      try{await gwCall({action:"disconnect"});GW.flash={t:"WHOOP disconnected. Your past data stays here."};}catch(err){GW.flash={t:"Couldn\u2019t disconnect: "+err.message,bad:true};}
+      if(S.db)await S.db.load();gym();}
+    if(id==="gwconnect"){
+      const b=e.target,msg=$("#gwmsg");b.disabled=true;msg.textContent="Opening WHOOP\u2026";
+      try{const r=await gwCall({action:"connect",clientId:$("#gwcid").value.trim(),clientSecret:$("#gwsec").value.trim(),returnTo:location.origin+location.pathname});
+        if(r.url){location.href=r.url;return;}throw new Error("no link came back");}
+      catch(err){msg.textContent=err.message==="offline"?"Sign in first, then try again.":err.message;b.disabled=false;}
+    }
     if(id==="uselast"){
       const y=shift(todayISO(),-1), d=(S.days||[]).find(x=>x.date===y), tm=(d&&d.tomorrow)||{};
       $("#m-result").value=tm.result||""; $("#m-action").value=tm.firstAction||"";
@@ -5086,10 +5359,23 @@ async function start(){
   if(started)return;started=true;
   const db=makeDb();
   S.db=db;S.sample=makeSample();
+  S.fn=(name,body)=>sb.functions.invoke(name,{body:body});
+  try{const gr=Number(localStorage.getItem("afo-gwrange"));if([14,30,90].indexOf(gr)>=0)GW.range=gr;}catch(_){}
+  const wflag=new URLSearchParams(location.search).get("whoop");
+  if(wflag){
+    GW.flash=wflag==="connected"?{t:"WHOOP is connected. The last few days are in; the full history finishes loading in a minute."}
+      :{t:wflag==="denied"?"WHOOP access wasn\u2019t approved, so nothing was connected.":wflag==="expired"?"That WHOOP link expired \u2014 tap Connect again.":"WHOOP didn\u2019t accept the connection. Check the Client ID, Secret and Redirect URL, then try again.",bad:true};
+    try{history.replaceState(null,"",location.pathname);}catch(_){}
+    go("gym");
+    if(wflag==="connected")setTimeout(()=>{db.load().catch(()=>{});},45000);
+  }
+
   const bad=e=>{$("#status").textContent="Store error: "+((e&&e.code)||"unknown");};
   db.collection("tasks").limit(600).onSnapshot(s=>{S.tasks=s.docs.map(d=>Object.assign({id:d.id},d.data()));rail();today();school();learning();money();projects();finance();},bad);
   db.collection("notes").limit(400).onSnapshot(s=>{S.notes=s.docs.map(d=>Object.assign({id:d.id},d.data()));rail();notes();},bad);
   db.collection("gymlog").limit(400).onSnapshot(s=>{S.gym=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(g=>g.date);rail();gym();stats();},bad);
+  db.collection("whoop").limit(400).onSnapshot(s=>{const m={};s.docs.forEach(d=>{m[d.id]=d.data();});S.whoop.map=m;gym();},bad);
+  db.doc("meta/whoop").onSnapshot(s=>{S.whoop.meta=s.exists?s.data():null;gym();gwAuto();},bad);
   db.doc("daily/"+todayISO()).onSnapshot(s=>{S.daily=s.exists?s.data():null;today();stats();},bad);
   db.doc("daily/"+shift(todayISO(),1)).onSnapshot(s=>{S.tomorrow=s.exists?s.data():null;today();},bad);
   db.doc("weekly/"+mondayOf(todayISO())).onSnapshot(s=>{S.week=s.exists?s.data():null;week();},bad);
