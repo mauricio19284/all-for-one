@@ -975,6 +975,10 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-gym .gbhit.on{stroke:#fff; stroke-dasharray:5 4}
 #view-gym .gb3d{position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:pan-y; outline:0}
 #view-gym .gbstage.is3d .gbspin{display:none}
+#view-gym .gbpart{position:absolute; left:10px; bottom:10px; z-index:2; pointer-events:none; max-width:calc(100% - 20px); font-size:11.5px; font-weight:600; color:#2b2925; background:rgba(255,255,255,.72); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.9); border-radius:999px; padding:4px 11px; box-shadow:0 4px 12px rgba(40,34,26,.14)}
+#view-gym .gbpartline{font-size:12.5px; color:var(--gmut); padding-top:10px}
+#view-gym .gbpartline b{color:var(--ink); font-weight:650}
+#view-gym .gbinfo p.gbparts{font-size:12.5px; color:var(--gmut); margin-top:2px}
 #view-gym .gbstage.is3d{background:radial-gradient(ellipse at 50% 38%,#fbfbfd 0,#eef0f5 55%,#dfe2ea 100%)}
 #view-gym .gbrot{display:flex; align-items:center; gap:10px; padding:12px 4px 0}
 #view-gym .gbrot[hidden]{display:none}
@@ -985,7 +989,7 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-gym .gbctl{display:flex; align-items:center; justify-content:center; gap:8px; padding-top:12px}
 #view-gym .gbctl > .btn{padding:4px 12px; font-size:17px; line-height:1.2}
 #view-gym .gbleg{display:flex; align-items:center; justify-content:center; gap:8px; font-size:11px; color:var(--gmut); padding-top:10px}
-#view-gym .gbleg i{display:block; width:120px; height:8px; border-radius:99px; background:linear-gradient(90deg,rgba(246,132,108,.25),rgba(214,84,70,.75),rgba(150,6,22,.95))}
+#view-gym .gbleg i{display:block; width:120px; height:8px; border-radius:99px; background:linear-gradient(90deg,#c4877c,#d9796a,#cf4c40,#b3202a,#7d0611)}
 #view-gym .gbhint{font-size:11.5px; color:var(--gmut); text-align:center; padding-top:8px}
 #view-gym .gbinfo{background:rgba(255,255,255,.44); border:1px solid rgba(255,255,255,.65); border-radius:10px; padding:18px 20px; min-width:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
 #view-gym .gbinfo h3{font-size:30px; font-weight:600; line-height:1.1}
@@ -1978,7 +1982,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
         <div class="body">
           <div class="gbody">
             <div>
-              <div class="gbstage" id="gbstage"><div class="gbspin" id="gbspin"></div></div>
+              <div class="gbstage" id="gbstage"><div class="gbspin" id="gbspin"></div><div class="gbpart" id="gbpart" hidden></div></div>
               <div class="gbctl"><button class="btn ghost" id="gbprev" aria-label="Spin left">‹</button><span class="seg" id="gbviews"></span><button class="btn ghost" id="gbnext" aria-label="Spin right">›</button></div>
               <div class="gbleg"><span>Fresh</span><i></i><span>Very sore</span></div>
               <div class="gbrot" id="gbrotwrap" hidden><label for="gbrot">Rotate</label><input type="range" id="gbrot" min="0" max="360" step="1" value="0"><b id="gbrotv">0°</b></div>
@@ -3504,7 +3508,7 @@ const SPORT_LOAD=[
 ];
 const GB_LEVELS=["Fresh","Light","Moderate","Sore","Very sore"],GB_FEEL=[0,.24,.48,.72,.93];
 const GB_ORDER=["front","side","back","side2"],GB_NAMES={front:"Front",side:"Side",back:"Back",side2:"Other side"};
-const GB={view:0,sel:null,feel:{},busy:false,t:null};
+const GB={view:0,sel:null,part:null,feel:{},busy:false,t:null};
 const gbLevel=v=>v<.12?0:v<.36?1:v<.6?2:v<.82?3:4;
 const gbTone=v=>{const k=Math.max(0,Math.min(1,(v-.1)/.9)),m=(a,b)=>Math.round(a+(b-a)*k);return "rgba("+m(246,150)+","+m(132,6)+","+m(108,22)+","+(.4+.52*k).toFixed(2)+")";};
 function gbLoadOf(g){
@@ -3580,7 +3584,8 @@ function gbInfo(so){
     const M=MUSCLES[m],o=so[m],lv=gbLevel(o.v);
     box.innerHTML='<button class="btn ghost" id="gbback">← Whole body</button><h3>'+esc(M.n)+'</h3><div class="gbsub">'+esc(M.sub)+'</div>'
       +'<div class="gblvl"><i style="background:'+(lv?gbTone(o.v):"rgba(40,34,26,.12)")+'"></i><b>'+GB_LEVELS[lv]+'</b><span>'+Math.round(o.v*100)+' / 100</span></div><div class="gbbar"><u style="width:'+Math.round(o.v*100)+'%;background:'+gbTone(Math.max(.15,o.v))+'"></u></div>'
-      +'<p>'+esc(M.what)+'</p><h4>Why it is '+(lv?"":"not ")+'sore</h4><p>'+esc(gbWhy(m,o))+'</p>'
+      +(GB.part?'<div class="gbpartline">You clicked: <b>'+esc(GB.part.charAt(0).toUpperCase()+GB.part.slice(1))+'</b></div>':"")
+      +'<p>'+esc(M.what)+'</p>'+(G3.groups[m]&&G3.groups[m].parts.length>1?'<h4>Muscles in this group</h4><p class="gbparts">'+esc(G3.groups[m].parts.map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join(" \u00b7 "))+'</p>':"")+'<h4>Why it is '+(lv?"":"not ")+'sore</h4><p>'+esc(gbWhy(m,o))+'</p>'
       +'<h4>Three exercises</h4><ol>'+M.ex.map(e=>'<li><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</li>').join("")+'</ol>'
       +'<h4>How does it actually feel?</h4><div class="seg gbfeel">'+GB_LEVELS.map((l,i)=>'<button data-feel="'+i+'" aria-pressed="'+(o.felt===i)+'">'+l+'</button>').join("")+'</div>'
       +'<div class="hlegend">'+(o.felt!=null?'Using your answer for today. <a href="#" data-feel="-1">Back to the estimate</a>':"Tap one and it replaces the estimate for today.")+'</div>';
@@ -3624,7 +3629,7 @@ function gbSpin(dir,to){
 }
 function gbPick(m){
   if(!MUSCLES[m])return;
-  if(G3.ready){GB.sel=m;g3Focus(m);gbDraw();return;}
+  if(G3.ready){GB.sel=m;GB.part=null;g3Focus(m);gbDraw();return;}
   if(!gbViewOf(GB_ORDER[GB.view]).spots.some(x=>x[0]===m)){
     const to=GB_ORDER.findIndex(k=>k!=="side2"&&BODY_VIEWS[k].spots.some(x=>x[0]===m));
     if(to>=0){gbSpin(to>GB.view?1:-1,to);setTimeout(()=>{GB.sel=m;gbDraw();},460);return;}
@@ -3650,7 +3655,7 @@ async function gbFeel(m,i){
     const v=tg.closest("#gbviews button");if(v){const to=Number(v.dataset.view);if(to!==GB.view)gbSpin(to>GB.view?1:-1,to);return;}
     if(tg.closest("#gbnext")||tg.closest("#gbprev")){const dir=tg.closest("#gbnext")?1:-1;
       if(G3.ready){G3.rotT=Math.round(G3.rotT/(Math.PI/2))*(Math.PI/2)+dir*Math.PI/2;g3Slider();}else gbSpin(dir);return;}
-    if(tg.closest("#gbback")){GB.sel=null;g3Focus(null);gbDraw();return;}
+    if(tg.closest("#gbback")){GB.sel=null;GB.part=null;g3Focus(null);gbDraw();return;}
     const p=tg.closest("#gbinfo [data-pick]");if(p){gbPick(p.dataset.pick);return;}
     const f=tg.closest("#gbinfo [data-feel]");if(f&&GB.sel){e.preventDefault();gbFeel(GB.sel,Number(f.dataset.feel)).catch(()=>say("Couldn’t save that.",true));}
   });
@@ -3659,61 +3664,88 @@ async function gbFeel(m,i){
   document.addEventListener("pointerdown",e=>{down=e.target.closest&&e.target.closest("#gbstage")?{x:e.clientX,moved:false}:null;});
   document.addEventListener("pointerup",e=>{if(!down||G3.ready)return;const dx=e.clientX-down.x;if(Math.abs(dx)>45){down.moved=true;clearTimeout(GB.t);gbSpin(dx<0?1:-1);setTimeout(()=>{down=null;},260);}});
 })();
-/* ---------- gym: the body in 3D (BodyParts3D meshes, one mesh per muscle group) ---------- */
-const G3={ready:false,fail:false,loading:false,rot:0,rotT:0,camY:.83,camYT:.83,dist:3.5,distT:3.5,dirty:true,groups:{},hover:null};
+const BODY_PARTS={"p0":["hands","set of palmar interossei of hand","R"],"p1":["hands","set of palmar interossei of hand","L"],"p2":["hands","set of dorsal interossei of hand","L"],"p3":["hands","set of dorsal interossei of hand","R"],"p4":["hands","extensor pollicis brevis","L"],"p5":["hands","extensor pollicis brevis","R"],"p6":["hands","set of lumbricals of hand","R"],"p7":["hands","set of lumbricals of hand","L"],"p8":["hands","transverse head of adductor pollicis","L"],"p9":["hands","transverse head of adductor pollicis","R"],"p10":["hands","oblique head of adductor pollicis","L"],"p11":["hands","oblique head of adductor pollicis","R"],"p12":["hands","deep head of flexor pollicis brevis","L"],"p13":["hands","deep head of flexor pollicis brevis","R"],"p14":["hands","abductor digiti minimi of hand","L"],"p15":["hands","abductor digiti minimi of hand","R"],"p16":["hands","flexor digiti minimi brevis of hand","L"],"p17":["hands","flexor digiti minimi brevis of hand","R"],"p18":["hands","opponens pollicis","R"],"p19":["hands","opponens pollicis","L"],"p20":["hands","opponens digiti minimi of hand","L"],"p21":["hands","opponens digiti minimi of hand","R"],"p22":["hands","superficial head of flexor pollicis brevis","R"],"p23":["hands","superficial head of flexor pollicis brevis","L"],"p24":["hands","abductor pollicis brevis","L"],"p25":["hands","abductor pollicis brevis","R"],"p26":["tendon","calcaneal tendon","R"],"p27":["calves","plantaris","R"],"p28":["calves","plantaris","L"],"p29":["calves","soleus","R"],"p30":["calves","soleus","L"],"p31":["calves","popliteus","R"],"p32":["calves","popliteus","L"],"p33":["calves","tibialis posterior","L"],"p34":["calves","tibialis posterior","R"],"p35":["tendon","calcaneal tendon","L"],"p36":["calves","lateral head of gastrocnemius","L"],"p37":["calves","lateral head of gastrocnemius","R"],"p38":["calves","medial head of gastrocnemius","R"],"p39":["calves","medial head of gastrocnemius","L"],"p40":["lowerback","spinalis thoracis","R"],"p41":["lowerback","longissimus thoracis","R"],"p42":["lowerback","longissimus thoracis","L"],"p43":["lowerback","iliocostalis thoracis","R"],"p44":["lowerback","iliocostalis lumborum","L"],"p45":["lowerback","iliocostalis lumborum","R"],"p46":["lowerback","cervical rotator","R"],"p47":["lowerback","cervical rotator","L"],"p48":["lowerback","iliocostalis thoracis","L"],"p49":["lowerback","lumbar rotator","L"],"p50":["lowerback","lumbar rotator","R"],"p51":["lowerback","thoracic rotator",""],"p52":["lowerback","set of medial lumbar intertransversarius muscles",""],"p53":["lowerback","spinalis thoracis","L"],"p54":["lowerback","set of lateral lumbar intertransversarius muscles",""],"p55":["lowerback","set of posterior cervical intertransversarii",""],"p56":["lowerback","set of anterior cervical intertransversarii",""],"p57":["lowerback","set of interspinales lumborum",""],"p58":["lowerback","set of interspinales thoracis",""],"p59":["lowerback","set of interspinales cervicis",""],"p60":["lowerback","multifidus","L"],"p61":["lowerback","multifidus","R"],"p62":["lowerback","semispinalis thoracis","L"],"p63":["lowerback","semispinalis thoracis","R"],"p64":["delts","spinal part of deltoid","L"],"p65":["delts","acromial part of deltoid","R"],"p66":["delts","clavicular part of deltoid","L"],"p67":["delts","spinal part of deltoid","R"],"p68":["delts","acromial part of deltoid","L"],"p69":["delts","clavicular part of deltoid","R"],"p70":["delts","infraspinatus muscle","R"],"p71":["delts","supraspinatus","L"],"p72":["delts","supraspinatus","R"],"p73":["delts","infraspinatus muscle","L"],"p74":["delts","teres minor","L"],"p75":["delts","teres minor","R"],"p76":["delts","subscapularis","L"],"p77":["delts","subscapularis","R"],"p78":["tendon","intermediate tendon","R"],"p79":["other","procerus","L"],"p80":["other","procerus","R"],"p81":["other","depressor septi nasi","L"],"p82":["other","depressor septi nasi","R"],"p83":["other","nasalis","L"],"p84":["other","nasalis","R"],"p85":["other","set of levatores costarum longi","R"],"p86":["other","set of levatores costarum breves","L"],"p87":["other","set of levatores costarum longi","L"],"p88":["other","set of levatores costarum breves","R"],"p89":["other","zygomaticus minor","L"],"p90":["other","depressor labii inferioris","L"],"p91":["other","depressor labii inferioris","R"],"p92":["other","levator anguli oris","R"],"p93":["other","levator anguli oris","L"],"p94":["other","depressor anguli oris","R"],"p95":["other","mentalis","L"],"p96":["other","mentalis","R"],"p97":["other","buccinator","R"],"p98":["other","buccinator","L"],"p99":["tendon","flexor retinaculum of wrist","R"],"p100":["other","temporalis","R"],"p101":["tendon","flexor retinaculum of wrist","L"],"p102":["other","depressor anguli oris","L"],"p103":["other","temporalis","L"],"p104":["other","deep part of masseter","L"],"p105":["other","deep part of masseter","R"],"p106":["other","superficial part of masseter","R"],"p107":["other","superficial part of masseter","L"],"p108":["other","risorius","R"],"p109":["other","risorius","L"],"p110":["other","orbicularis oris",""],"p111":["other","medial pterygoid","L"],"p112":["other","medial pterygoid","R"],"p113":["other","levator labii superioris alaeque nasi","R"],"p114":["other","levator labii superioris","R"],"p115":["other","levator labii superioris","L"],"p116":["other","levator labii superioris alaeque nasi","L"],"p117":["other","upper head of lateral pterygoid","R"],"p118":["other","lower head of lateral pterygoid","L"],"p119":["other","lower head of lateral pterygoid","R"],"p120":["other","upper head of lateral pterygoid","L"],"p121":["other","zygomaticus minor","R"],"p122":["other","zygomaticus major","L"],"p123":["other","zygomaticus major","R"],"p124":["other","serratus posterior superior","R"],"p125":["other","serratus posterior inferior","R"],"p126":["other","serratus posterior superior","L"],"p127":["other","serratus posterior inferior","L"],"p128":["tendon","inguinal ligament","R"],"p129":["tendon","inguinal ligament","L"],"p130":["tendon","iliotibial tract","L"],"p131":["tendon","iliotibial tract","R"],"p132":["other","transversus thoracis","R"],"p133":["other","transversus thoracis","L"],"p134":["other","innermost intercostal muscle",""],"p135":["other","internal intercostal muscle",""],"p136":["other","external intercostal muscle",""],"p137":["other","corrugator supercilii","L"],"p138":["other","corrugator supercilii","R"],"p139":["other","orbital part of orbicularis oculi","R"],"p140":["other","orbital part of orbicularis oculi","L"],"p141":["other","palpebral part of orbicularis oculi","L"],"p142":["other","palpebral part of orbicularis oculi","R"],"p143":["tendon","intermediate tendon","L"],"p144":["other","frontalis","R"],"p145":["tendon","aponeurosis of epicranius",""],"p146":["other","temporoparietalis","R"],"p147":["other","temporoparietalis","L"],"p148":["other","frontalis","L"],"p149":["other","occipitalis","R"],"p150":["other","occipitalis","L"],"p151":["forearms","radial head of flexor digitorum superficialis","R"],"p152":["forearms","radial head of flexor digitorum superficialis","L"],"p153":["forearms","extensor indicis","L"],"p154":["forearms","extensor indicis","R"],"p155":["forearms","humeral head of flexor carpi ulnaris","R"],"p156":["forearms","ulnar head of flexor carpi ulnaris","R"],"p157":["forearms","humeral head of flexor carpi ulnaris","L"],"p158":["forearms","supinator","L"],"p159":["forearms","supinator","R"],"p160":["forearms","extensor digitorum","R"],"p161":["forearms","extensor digiti minimi","L"],"p162":["forearms","extensor digiti minimi","R"],"p163":["forearms","extensor digitorum","L"],"p164":["forearms","humeroulnar head of flexor digitorum superficialis","L"],"p165":["forearms","humeroulnar head of flexor digitorum superficialis","R"],"p166":["forearms","ulnar head of flexor carpi ulnaris","L"],"p167":["forearms","pronator quadratus","L"],"p168":["forearms","pronator quadratus","R"],"p169":["forearms","flexor digitorum profundus","R"],"p170":["forearms","flexor carpi radialis","L"],"p171":["forearms","flexor carpi radialis","R"],"p172":["forearms","extensor carpi radialis brevis","R"],"p173":["forearms","extensor carpi radialis brevis","L"],"p174":["forearms","brachioradialis","R"],"p175":["forearms","brachioradialis","L"],"p176":["forearms","flexor digitorum profundus","L"],"p177":["forearms","humeral head of pronator teres","L"],"p178":["forearms","humeral head of pronator teres","R"],"p179":["forearms","ulnar head of pronator teres","L"],"p180":["forearms","ulnar head of pronator teres","R"],"p181":["neck","rectus capitis posterior major","R"],"p182":["neck","rectus capitis posterior major","L"],"p183":["neck","rectus capitis posterior minor","R"],"p184":["neck","rectus capitis posterior minor","L"],"p185":["neck","obliquus capitis superior","R"],"p186":["neck","longissimus cervicis","L"],"p187":["neck","obliquus capitis superior","L"],"p188":["neck","obliquus capitis inferior","R"],"p189":["neck","longissimus capitis","R"],"p190":["neck","longissimus cervicis","R"],"p191":["neck","longissimus capitis","L"],"p192":["neck","extensor pollicis longus","R"],"p193":["neck","extensor pollicis longus","L"],"p194":["neck","iliocostalis cervicis","L"],"p195":["neck","iliocostalis cervicis","R"],"p196":["neck","scalenus anterior","R"],"p197":["neck","scalenus anterior","L"],"p198":["neck","abductor pollicis longus","L"],"p199":["neck","abductor pollicis longus","R"],"p200":["neck","scalenus medius","L"],"p201":["neck","splenius capitis","L"],"p202":["neck","scalenus medius","R"],"p203":["neck","splenius cervicis","R"],"p204":["neck","splenius capitis","R"],"p205":["neck","splenius cervicis","L"],"p206":["neck","obliquus capitis inferior","L"],"p207":["neck","thyrohyoid","L"],"p208":["neck","thyrohyoid","R"],"p209":["neck","sternothyroid","L"],"p210":["neck","sternothyroid","R"],"p211":["neck","fibularis longus","R"],"p212":["neck","fibularis longus","L"],"p213":["neck","adductor longus","L"],"p214":["neck","adductor longus","R"],"p215":["neck","extensor digitorum longus","L"],"p216":["neck","superior oblique part of longus colli","L"],"p217":["neck","vertical intermediate part of longus colli","R"],"p218":["neck","superior oblique part of longus colli","R"],"p219":["neck","inferior oblique part of longus colli","L"],"p220":["neck","extensor hallucis longus","R"],"p221":["neck","extensor hallucis longus","L"],"p222":["neck","vertical intermediate part of longus colli","L"],"p223":["neck","extensor digitorum longus","R"],"p224":["neck","inferior oblique part of longus colli","R"],"p225":["neck","palmaris longus","L"],"p226":["neck","palmaris longus","R"],"p227":["neck","scalenus posterior","L"],"p228":["neck","scalenus posterior","R"],"p229":["neck","extensor carpi radialis longus","L"],"p230":["neck","extensor carpi radialis longus","R"],"p231":["neck","flexor pollicis longus","L"],"p232":["neck","flexor pollicis longus","R"],"p233":["neck","flexor hallucis longus","L"],"p234":["neck","flexor hallucis longus","R"],"p235":["neck","flexor digitorum longus","L"],"p236":["neck","flexor digitorum longus","R"],"p237":["neck","sternohyoid","L"],"p238":["neck","omohyoid","R"],"p239":["neck","sternohyoid","R"],"p240":["neck","spinalis cervicis","R"],"p241":["neck","omohyoid","L"],"p242":["neck","spinalis cervicis","L"],"p243":["neck","stylohyoid","R"],"p244":["neck","stylohyoid","L"],"p245":["neck","anterior belly of digastric","R"],"p246":["neck","anterior belly of digastric","L"],"p247":["neck","posterior belly of digastric","R"],"p248":["neck","posterior belly of digastric","L"],"p249":["neck","longus capitis","R"],"p250":["neck","longus capitis","L"],"p251":["neck","rectus capitis anterior","L"],"p252":["neck","rectus capitis anterior","R"],"p253":["neck","rectus capitis lateralis","L"],"p254":["neck","rectus capitis lateralis","R"],"p255":["neck","mylohyoid","R"],"p256":["neck","mylohyoid","L"],"p257":["neck","geniohyoid","L"],"p258":["neck","geniohyoid","R"],"p259":["neck","sternocleidomastoid","R"],"p260":["neck","sternocleidomastoid","L"],"p261":["neck","platysma","R"],"p262":["neck","platysma","L"],"p263":["neck","semispinalis capitis","L"],"p264":["neck","semispinalis cervicis","L"],"p265":["neck","semispinalis capitis","R"],"p266":["neck","semispinalis cervicis","R"],"p267":["pecs","clavicular part of pectoralis major","L"],"p268":["pecs","clavicular part of pectoralis major","R"],"p269":["pecs","pectoralis minor","R"],"p270":["pecs","pectoralis minor","L"],"p271":["pecs","sternocostal part of pectoralis major","L"],"p272":["pecs","subclavius","R"],"p273":["pecs","subclavius","L"],"p274":["pecs","sternocostal part of pectoralis major","R"],"p275":["pecs","abdominal part of pectoralis major","L"],"p276":["pecs","abdominal part of pectoralis major","R"],"p277":["glutes","piriformis","R"],"p278":["glutes","piriformis","L"],"p279":["glutes","obturator externus","R"],"p280":["glutes","obturator internus","L"],"p281":["glutes","gluteus maximus","R"],"p282":["glutes","obturator externus","L"],"p283":["glutes","obturator internus","R"],"p284":["glutes","gluteus maximus","L"],"p285":["glutes","quadratus femoris","L"],"p286":["glutes","quadratus femoris","R"],"p287":["glutes","gemellus inferior","L"],"p288":["glutes","gemellus inferior","R"],"p289":["glutes","gemellus superior","L"],"p290":["glutes","gemellus superior","R"],"p291":["glutes","gluteus minimus","L"],"p292":["glutes","gluteus minimus","R"],"p293":["glutes","gluteus medius","L"],"p294":["glutes","gluteus medius","R"],"p295":["glutes","tensor fasciae latae","R"],"p296":["glutes","tensor fasciae latae","L"],"p297":["hipflex","psoas major","R"],"p298":["hipflex","psoas major","L"],"p299":["hipflex","iliacus","R"],"p300":["hipflex","iliacus","L"],"p301":["obliques","transversus abdominis","R"],"p302":["obliques","transversus abdominis","L"],"p303":["obliques","quadratus lumborum","R"],"p304":["obliques","quadratus lumborum","L"],"p305":["obliques","external oblique","R"],"p306":["obliques","external oblique","L"],"p307":["obliques","internal oblique","L"],"p308":["obliques","internal oblique","R"],"p309":["abs","pyramidalis","R"],"p310":["abs","pyramidalis","L"],"p311":["quads","sartorius","R"],"p312":["quads","sartorius","L"],"p313":["quads","vastus lateralis","R"],"p314":["quads","vastus intermedius","L"],"p315":["quads","vastus intermedius","R"],"p316":["quads","vastus medialis","L"],"p317":["quads","vastus medialis","R"],"p318":["quads","vastus lateralis","L"],"p319":["quads","rectus femoris","R"],"p320":["quads","rectus femoris","L"],"p321":["hamstrings","semitendinosus","R"],"p322":["hamstrings","semitendinosus","L"],"p323":["hamstrings","semimembranosus","R"],"p324":["hamstrings","semimembranosus","L"],"p325":["hamstrings","long head of biceps femoris","L"],"p326":["hamstrings","long head of biceps femoris","R"],"p327":["hamstrings","short head of biceps femoris","L"],"p328":["hamstrings","short head of biceps femoris","R"],"p329":["serratus","serratus anterior","R"],"p330":["serratus","serratus anterior","L"],"p331":["feet","set of dorsal interossei of foot","L"],"p332":["feet","set of dorsal interossei of foot","R"],"p333":["feet","third plantar interosseous of foot","R"],"p334":["feet","third plantar interosseous of foot","L"],"p335":["feet","second plantar interosseous of foot","R"],"p336":["feet","second plantar interosseous of foot","L"],"p337":["feet","first plantar interosseous of foot","R"],"p338":["feet","first plantar interosseous of foot","L"],"p339":["feet","first lumbrical of foot","R"],"p340":["feet","oblique head of adductor hallucis","R"],"p341":["feet","oblique head of adductor hallucis","L"],"p342":["feet","second lumbrical of foot","L"],"p343":["feet","opponens digiti minimi of foot","R"],"p344":["feet","opponens digiti minimi of foot","L"],"p345":["feet","second lumbrical of foot","R"],"p346":["feet","first lumbrical of foot","L"],"p347":["feet","extensor digitorum brevis","R"],"p348":["feet","extensor digitorum brevis","L"],"p349":["feet","extensor hallucis brevis","R"],"p350":["feet","extensor hallucis brevis","L"],"p351":["feet","transverse head of adductor hallucis","R"],"p352":["feet","transverse head of adductor hallucis","L"],"p353":["feet","flexor accessorius","L"],"p354":["feet","abductor digiti minimi of foot","L"],"p355":["feet","flexor accessorius","R"],"p356":["feet","flexor digitorum brevis","L"],"p357":["feet","abductor digiti minimi of foot","R"],"p358":["feet","abductor hallucis","L"],"p359":["feet","flexor digitorum brevis","R"],"p360":["feet","abductor hallucis","R"],"p361":["feet","medial head of flexor hallucis brevis","R"],"p362":["feet","medial head of flexor hallucis brevis","L"],"p363":["feet","lateral head of flexor hallucis brevis","R"],"p364":["feet","lateral head of flexor hallucis brevis","L"],"p365":["feet","fourth lumbrical of foot","R"],"p366":["feet","third lumbrical of foot","R"],"p367":["feet","fourth lumbrical of foot","L"],"p368":["feet","third lumbrical of foot","L"],"p369":["feet","flexor digiti minimi brevis of foot","L"],"p370":["feet","flexor digiti minimi brevis of foot","R"],"p371":["traps","levator scapulae","L"],"p372":["traps","levator scapulae","R"],"p373":["traps","descending part of trapezius","L"],"p374":["traps","transverse part of trapezius","L"],"p375":["traps","descending part of trapezius","R"],"p376":["traps","ascending part of trapezius","L"],"p377":["traps","transverse part of trapezius","R"],"p378":["traps","ascending part of trapezius","R"],"p379":["traps","rhomboid minor","L"],"p380":["traps","rhomboid minor","R"],"p381":["traps","rhomboid major","L"],"p382":["traps","rhomboid major","R"],"p383":["lats","teres major","L"],"p384":["lats","teres major","R"],"p385":["lats","latissimus dorsi","L"],"p386":["lats","latissimus dorsi","R"],"p387":["adductors","pectineus","L"],"p388":["adductors","adductor brevis","R"],"p389":["adductors","pectineus","R"],"p390":["adductors","adductor magnus","R"],"p391":["adductors","adductor brevis","L"],"p392":["adductors","adductor magnus","L"],"p393":["adductors","adductor minimus","L"],"p394":["adductors","adductor minimus","R"],"p395":["adductors","gracilis","L"],"p396":["adductors","gracilis","R"],"p397":["tibialis","fibularis brevis","R"],"p398":["tibialis","fibularis brevis","L"],"p399":["tibialis","fibularis tertius","R"],"p400":["tibialis","fibularis tertius","L"],"p401":["tibialis","tibialis anterior","R"],"p402":["tibialis","tibialis anterior","L"],"p403":["triceps","long head of triceps brachii","L"],"p404":["triceps","anconeus","L"],"p405":["triceps","anconeus","R"],"p406":["triceps","medial head of triceps brachii","R"],"p407":["triceps","medial head of triceps brachii","L"],"p408":["triceps","lateral head of triceps brachii","R"],"p409":["triceps","lateral head of triceps brachii","L"],"p410":["triceps","long head of triceps brachii","R"],"p411":["biceps","long head of biceps brachii","R"],"p412":["biceps","long head of biceps brachii","L"],"p413":["biceps","short head of biceps brachii","R"],"p414":["biceps","short head of biceps brachii","L"],"p415":["biceps","brachialis","L"],"p416":["biceps","brachialis","R"],"p417":["biceps","coracobrachialis","L"],"p418":["biceps","coracobrachialis","R"],"p419":["extra","eyeball",""],"p420":["extra","ear",""],"p421":["extra","nasal cartilages",""]};
+/* ---------- gym: the body in 3D (BodyParts3D, every muscle its own mesh, fascia lines from an id pass) ---------- */
+const G3={ready:false,fail:false,loading:false,rot:0,rotT:0,camY:.83,camYT:.83,dist:3.5,distT:3.5,dirty:true,groups:{},hover:null,hoverPart:null};
 const G3_HOME={y:.83,d:3.5};
 async function g3Init(){
   if(G3.loading||G3.ready||G3.fail)return;
   const stage=$("#gbstage");if(!stage||!stage.offsetWidth)return;
   G3.loading=true;
   try{
-    const THREE=await import("three"),GL=await import("three/addons/loaders/GLTFLoader.js");
-    const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    const THREE=await import("three"),GL=await import("three/addons/loaders/GLTFLoader.js"),MO=await import("three/addons/libs/meshopt_decoder.module.js");
+    const renderer=new THREE.WebGLRenderer({antialias:false,alpha:true,premultipliedAlpha:true});
+    const dpr=Math.min(window.devicePixelRatio||1,2);renderer.setPixelRatio(dpr);renderer.setClearColor(0x000000,0);
     const cv=renderer.domElement;cv.className="gb3d";
     const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(30,1,.1,30);
-    scene.add(new THREE.HemisphereLight(0xffffff,0xb9a696,1.15));
-    const key=new THREE.DirectionalLight(0xffffff,1.9);key.position.set(1.6,2.6,3.2);scene.add(key);
-    const rim=new THREE.DirectionalLight(0xdfe8ff,.9);rim.position.set(-2.2,1.6,-2.6);scene.add(rim);
-    const fill=new THREE.DirectionalLight(0xfff1e6,.5);fill.position.set(-2,.6,2.4);scene.add(fill);
-    const gltf=await new GL.GLTFLoader().loadAsync("img/body.glb");
+    scene.add(new THREE.HemisphereLight(0xffffff,0xb9a696,1.2));
+    const key=new THREE.DirectionalLight(0xffffff,2.0);key.position.set(1.6,2.6,3.2);scene.add(key);
+    const rim=new THREE.DirectionalLight(0xdfe8ff,1.0);rim.position.set(-2.2,1.6,-2.6);scene.add(rim);
+    const fill=new THREE.DirectionalLight(0xfff1e6,.55);fill.position.set(-2,.6,2.4);scene.add(fill);
+    const loader=new GL.GLTFLoader();loader.setMeshoptDecoder(MO.MeshoptDecoder);
+    const gltf=await loader.loadAsync("img/body2.glb");
     const pivot=new THREE.Group();scene.add(pivot);
     const box=new THREE.Box3().setFromObject(gltf.scene),ctr=box.getCenter(new THREE.Vector3());
-    gltf.scene.position.set(-ctr.x,-box.min.y,-ctr.z);pivot.add(gltf.scene);
-    const meshes=[],nameOf=o=>{for(let p=o;p;p=p.parent){const n=(p.name||"").replace(/[^a-z]/gi,"").toLowerCase();if(n==="bones"||n==="hands"||n==="feet"||MUSCLES[n])return n;}return "";};
+    gltf.scene.position.set(-ctr.x,-box.min.y,-ctr.z);pivot.add(gltf.scene);pivot.updateMatrixWorld(true);
+    const meshes=[],BASE={m:0xc4877c,tendon:0xf0ebe0,extra:0xd9c4b6,bones:0xe8e1d2};
+    const keyOf=o=>{for(let p=o;p;p=p.parent){const n=p.name||"";if(n==="bones"||BODY_PARTS[n])return n;}return "";};
+    let idn=0;
     gltf.scene.traverse(o=>{
       if(!o.isMesh)return;
-      const k=nameOf(o),bone=k==="bones";
-      o.geometry.deleteAttribute("normal");if(o.geometry.attributes.color)o.geometry.deleteAttribute("color");o.geometry.computeVertexNormals();
-      o.material=new THREE.MeshStandardMaterial({color:bone?0xece6d8:0xc9897f,roughness:bone?.7:.5,metalness:0});
-      o.userData.k=k;meshes.push(o);
-      if(MUSCLES[k])G3.groups[k]={mesh:o};
+      const nm=keyOf(o),info=BODY_PARTS[nm]||null,k=nm==="bones"?"bones":info?info[0]:"";
+      const kind=k==="bones"?"bones":k==="tendon"?"tendon":k==="extra"?"extra":"m";
+      if(o.geometry.attributes.color)o.geometry.deleteAttribute("color");
+      o.geometry.deleteAttribute("normal");o.geometry.computeVertexNormals();
+      o.material=new THREE.MeshStandardMaterial({color:BASE[kind],roughness:kind==="m"?.48:kind==="tendon"?.36:.7,metalness:0});
+      idn++;const hex=((idn*2654435761)>>>0)&0xffffff;
+      o.userData={k:k,kind:kind,name:info?info[1]:"",side:info?info[2]:"",mat:o.material,idMat:new THREE.MeshBasicMaterial({color:hex||1})};
+      meshes.push(o);
+      if(MUSCLES[k]){const g=G3.groups[k]||(G3.groups[k]={meshes:[],parts:[]});g.meshes.push(o);if(g.parts.indexOf(o.userData.name)<0)g.parts.push(o.userData.name);}
     });
-    pivot.updateMatrixWorld(true);
-    Object.keys(G3.groups).forEach(k=>{const g=G3.groups[k],b=new THREE.Box3().setFromObject(g.mesh),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
-      // paired muscles sit on both sides, so face the camera by front/back only
-      const pos=g.mesh.geometry.attributes.position;let zs=0;for(let i=0;i<pos.count;i+=7)zs+=pos.getZ(i);
-      g.c=c;g.size=Math.max(s.y,s.x*.8);g.face=(zs/Math.ceil(pos.count/7)+gltf.scene.position.z)>=0?0:Math.PI;});
-    const size=()=>{const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();G3.dirty=true;};
+    Object.keys(G3.groups).forEach(k=>{const g=G3.groups[k],b=new THREE.Box3();let zs=0,n=0;
+      g.meshes.forEach(m=>{b.expandByObject(m);const p=m.geometry.attributes.position,w=new THREE.Vector3();for(let i=0;i<p.count;i+=9){w.fromBufferAttribute(p,i).applyMatrix4(m.matrixWorld);zs+=w.z;n++;}});
+      const c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());g.c=c;g.size=Math.max(s.y,s.x*.8);g.face=zs/Math.max(1,n)>=0?0:Math.PI;});
+    /* two passes: the lit picture, and a flat one where each muscle has its own colour; a line is drawn wherever that colour changes */
+    const rtC=new THREE.WebGLRenderTarget(4,4,{samples:4,type:THREE.HalfFloatType}),rtI=new THREE.WebGLRenderTarget(4,4,{minFilter:THREE.NearestFilter,magFilter:THREE.NearestFilter});
+    const post=new THREE.ShaderMaterial({uniforms:{tC:{value:rtC.texture},tI:{value:rtI.texture},px:{value:new THREE.Vector2(1,1)}},transparent:true,depthTest:false,depthWrite:false,blending:THREE.NoBlending,
+      vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}",
+      fragmentShader:"precision highp float;uniform sampler2D tC;uniform sampler2D tI;uniform vec2 px;varying vec2 vUv;"
+        +"float df(vec2 o,vec4 id){vec4 n=texture2D(tI,vUv+o*px);return step(.003,distance(id.rgb,n.rgb)+abs(id.a-n.a));}"
+        +"void main(){vec4 c=texture2D(tC,vUv);vec4 id=texture2D(tI,vUv);"
+        +"float e=max(max(df(vec2(1.,0.),id),df(vec2(0.,1.),id)),.6*df(vec2(.75,.75),id));"
+        +"e=clamp(e,0.,1.);vec3 rgb=pow(max(c.rgb,0.),vec3(1./2.2));float a=max(c.a,e);"
+        +"rgb=mix(rgb,vec3(.985,.97,.94),e*.88);gl_FragColor=vec4(rgb*a,a);}"});
+    const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),post),qScene=new THREE.Scene(),qCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);quad.frustumCulled=false;qScene.add(quad);
+    const size=()=>{const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);rtC.setSize(w*dpr,h*dpr);rtI.setSize(w*dpr,h*dpr);
+      const t=Math.max(1,dpr*.7);post.uniforms.px.value.set(t/(w*dpr),t/(h*dpr));cam.aspect=w/h;cam.updateProjectionMatrix();G3.dirty=true;};
     stage.appendChild(cv);size();
     if(window.ResizeObserver)new ResizeObserver(size).observe(stage);
     const ray=new THREE.Raycaster(),pt=new THREE.Vector2();
-    const hit=e=>{const r=cv.getBoundingClientRect();pt.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(pt,cam);const h=ray.intersectObjects(meshes,false)[0];return h&&MUSCLES[h.object.userData.k]?h.object.userData.k:null;};
+    const hit=e=>{const r=cv.getBoundingClientRect();pt.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(pt,cam);const h=ray.intersectObjects(meshes,false)[0];return h?h.object:null;};
+    const label=o=>{const el=$("#gbpart");if(!el)return;const u=o&&o.userData;
+      if(!u||!u.name){el.hidden=true;return;}el.hidden=false;el.textContent=u.name.charAt(0).toUpperCase()+u.name.slice(1)+(u.side?" ("+(u.side==="L"?"left":"right")+")":"")+(MUSCLES[u.k]?" · "+MUSCLES[u.k].n:"");};
     let drag=null,lastTap=0;
     cv.addEventListener("pointerdown",e=>{drag={x:e.clientX,r:G3.rotT,moved:false};try{cv.setPointerCapture(e.pointerId);}catch(_){}});
     cv.addEventListener("pointermove",e=>{
       if(drag){const dx=e.clientX-drag.x;if(Math.abs(dx)>4)drag.moved=true;if(drag.moved){G3.rotT=drag.r+dx*.012;G3.rot=G3.rotT;g3Slider();G3.dirty=true;}return;}
-      const k=hit(e);if(k!==G3.hover){G3.hover=k;cv.style.cursor=k?"pointer":"grab";g3Paint();}
+      const o=hit(e),k=o&&MUSCLES[o.userData.k]?o.userData.k:null;
+      if(o!==G3.hoverPart){G3.hoverPart=o;label(o);}
+      if(k!==G3.hover){G3.hover=k;cv.style.cursor=k?"pointer":"grab";g3Paint();}
     });
     cv.addEventListener("pointerup",e=>{
       const d=drag;drag=null;if(!d||d.moved)return;
       const now=Date.now();
-      if(now-lastTap<320){lastTap=0;clearTimeout(GB.t);GB.sel=null;g3Focus(null);G3.rotT=Math.round(G3.rotT/(Math.PI/2))*(Math.PI/2)+Math.PI/2;g3Slider();gbDraw();return;}
-      lastTap=now;const k=hit(e);clearTimeout(GB.t);
-      GB.t=setTimeout(()=>{if(k){if(GB.sel===k){GB.sel=null;g3Focus(null);}else{GB.sel=k;g3Focus(k);}gbDraw();}else if(GB.sel){GB.sel=null;g3Focus(null);gbDraw();}},330);
+      if(now-lastTap<320){lastTap=0;clearTimeout(GB.t);GB.sel=null;GB.part=null;g3Focus(null);G3.rotT=Math.round(G3.rotT/(Math.PI/2))*(Math.PI/2)+Math.PI/2;g3Slider();gbDraw();return;}
+      lastTap=now;const o=hit(e),k=o&&MUSCLES[o.userData.k]?o.userData.k:null;clearTimeout(GB.t);label(o);
+      GB.t=setTimeout(()=>{
+        if(k){const part=o.userData.name+(o.userData.side?" ("+(o.userData.side==="L"?"left":"right")+")":"");
+          if(GB.sel===k&&GB.part===part){GB.sel=null;GB.part=null;g3Focus(null);}else{const same=GB.sel===k;GB.sel=k;GB.part=part;if(!same)g3Focus(k);}
+          gbDraw();}
+        else if(GB.sel){GB.sel=null;GB.part=null;g3Focus(null);gbDraw();}
+      },330);
     });
-    cv.addEventListener("pointerleave",()=>{if(G3.hover){G3.hover=null;g3Paint();}});
-    G3.T=THREE;G3.cam=cam;G3.pivot=pivot;G3.renderer=renderer;G3.scene=scene;
+    cv.addEventListener("pointerleave",()=>{G3.hoverPart=null;label(null);if(G3.hover){G3.hover=null;g3Paint();}});
+    G3.T=THREE;G3.meshes=meshes;
     const loop=()=>{
       requestAnimationFrame(loop);
       if(!stage.offsetWidth)return;
@@ -3721,7 +3753,11 @@ async function g3Init(){
       if(e(G3.rot,G3.rotT)||e(G3.camY,G3.camYT)||e(G3.dist,G3.distT)){G3.rot+=(G3.rotT-G3.rot)*.16;G3.camY+=(G3.camYT-G3.camY)*.14;G3.dist+=(G3.distT-G3.dist)*.14;G3.dirty=true;}
       if(!G3.dirty)return;G3.dirty=false;
       pivot.rotation.y=G3.rot;cam.position.set(0,G3.camY+(G3.dist-1)*.02,G3.dist);cam.lookAt(0,G3.camY,0);
-      renderer.render(scene,cam);
+      renderer.setRenderTarget(rtC);renderer.setClearColor(0x000000,0);renderer.clear();renderer.render(scene,cam);
+      meshes.forEach(m=>{m.material=m.userData.idMat;});
+      renderer.setRenderTarget(rtI);renderer.clear();renderer.render(scene,cam);
+      meshes.forEach(m=>{m.material=m.userData.mat;});
+      renderer.setRenderTarget(null);renderer.clear();renderer.render(qScene,qCam);
     };
     G3.ready=true;stage.classList.add("is3d");$("#gbrotwrap").hidden=false;$("#gbviews").hidden=true;
     $("#gbhint").textContent="Drag the body or the slider to rotate · double-click turns it a quarter · click a muscle to open it";
@@ -3736,15 +3772,19 @@ function g3Focus(k){
   const turns=Math.round((G3.rotT-g.face)/(2*Math.PI));G3.rotT=g.face+turns*2*Math.PI;g3Slider();
   G3.camYT=g.c.y;G3.distT=Math.max(1.15,Math.min(2.6,g.size*3.1+.55));
 }
+/* Five clearly different reds, one per level, so a manual change is visible at once. */
+const G3_TONES=[0xc4877c,0xd9796a,0xcf4c40,0xb3202a,0x7d0611];
 function g3Paint(so){
   if(!G3.ready)return;
   so=so||G3.so;if(!so)return;G3.so=so;
-  const C=G3.T.Color,base=new C(0xc9897f),lo=new C(0xd9685a),hi=new C(0x8d0714);
-  Object.keys(G3.groups).forEach(k=>{
-    const m=G3.groups[k].mesh.material,v=so[k]?so[k].v:0,on=GB.sel===k,hv=G3.hover===k;
-    if(v<.12)m.color.copy(base);else m.color.copy(lo).lerp(hi,Math.min(1,(v-.12)/.88));
-    if(GB.sel&&!on)m.color.lerp(new C(0xd8cfc6),.45);
-    m.emissive.setHex(on?0x4a1410:hv?0x2a1614:0x000000);
+  const C=G3.T.Color,pale=new C(0xd9d0c8);
+  G3.meshes.forEach(m=>{
+    const u=m.userData;if(u.kind!=="m")return;
+    const g=MUSCLES[u.k]?u.k:null,v=g&&so[g]?so[g].v:0,lv=gbLevel(v),on=g&&GB.sel===g,hv=g&&G3.hover===g;
+    const a=new C(G3_TONES[lv]);
+    if(lv>0&&lv<4){const lo=[.12,.36,.6,.82][lv-1],hi=[.36,.6,.82,1][lv-1];a.lerp(new C(G3_TONES[lv+1]),Math.max(0,Math.min(1,(v-lo)/(hi-lo)))*.45);}
+    if(GB.sel&&!on)a.lerp(pale,.5);
+    u.mat.color.copy(a);u.mat.emissive.setHex(hv&&!on?0x1d1512:0x000000);
   });
   G3.dirty=true;
 }
