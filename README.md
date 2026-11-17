@@ -101,7 +101,7 @@ Hotspot shapes are in `BODY_VIEWS`, in each picture's pixels.
 `gwFeed()` sets today's Stats sleep, Rest and Energy from WHOOP once per score (`statday.whoop` is the marker) and writes the
 `sleep`, `rhr`, `hrv` and `sunday` (cardio minutes) records, tagging entries with the note "WHOOP" and never replacing a typed one.
 
-The Body card renders in 3D when WebGL is available: `img/body3.glb` (meshopt-compressed; the oblique and transversus sheets are trimmed where they wrap over the rectus abdominis) holds every muscle as its own mesh plus bones, tendons, eyes and ears (`BODY_PARTS` maps each mesh to its group, name and side; a second flat-colour render pass draws the white fascia lines wherever two meshes meet), built from
+The Body card renders in 3D when WebGL is available: `img/body4.glb` (about 1M triangles, meshopt-compressed; each part carries a depth layer 0-2 found by ray casting, used by the All / Under the surface / Deepest buttons; the oblique and transversus sheets are trimmed where they wrap over the rectus abdominis) holds every muscle as its own mesh plus bones, tendons, eyes and ears (`BODY_PARTS` maps each mesh to its group, name and side; a second flat-colour render pass draws the white fascia lines wherever two meshes meet), built from
 BodyParts3D (© The Database Center for Life Science, CC BY-SA 2.1 Japan — the credit line under the body must stay) by simplifying
 its per-muscle STL files. three.js loads from jsDelivr through the import map in `<head>`; `g3Init()` builds the viewer the first
 time the Gym tab is shown, `g3Paint()` colours each group by soreness, the slider and drag set the rotation, and a click raycasts
