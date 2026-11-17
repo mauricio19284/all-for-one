@@ -31,7 +31,9 @@ A personal command center: a home page with calendar and to-dos, plus a page per
 - note: `{folder, title, body, mark, createdAt}`
 - daily: `{date, must: {result, firstAction, block, obstacle, done}, secondary: [{label, done}], shutdown: [{label, done}],
   reflection: {resume, worked?, interfered?}, tomorrow: {result, firstAction}, suggestion?: {...}, savedAt}`
-- gymlog: `{date, split, note, loggedAt}`
+- gymlog: `{date, split, note, loggedAt, source?: "WHOOP"|"Noctis", whoop?: {sport, min, strain, avgHr, at}}` — written by hand, or by the WHOOP sync when a workout was recorded that day (it never overwrites a hand-logged one)
+- whoop (one per day): `{date, recovery: {score, hrv, rhr, spo2, skin}, sleep: {hours, need, perf, eff, cons, bed, wake, rem, deep, light, awake}, strain, workouts: [{sport, at, min, strain, avgHr, maxHr, kcal, zones, training}], nogym?, syncedAt}`
+- meta/whoop: `{connected, lastSync, error}`
 - habits/log: `{"YYYY-MM-DD": {morning, shutdown, lights}}`
 - critique: `{text, week: "monday YYYY-MM-DD", status: open|fixed, createdAt, fixedAt?, fixedWeek?, change?}` — the Review page's
   "Critiques": what he says isn't working, written when noticed. Open ones are listed in the Week tab's Sunday review; ticking one
@@ -77,3 +79,13 @@ stores the XP earned under the id. Sources: Endurance, Speed & Agility, Looks, K
 plan documents; Growth & Health (Height & Build), Critical thinking (Judgment), Focus, Creativity, Mindfulness (Emotional Control),
 Social skills, Influence & Leadership, Money & Income (Financial) and Discipline from his Google Docs; Practical Skills written for him.
 The start date is in `meta/stats.planStart` (⋯ next to the day counter), default 2026-10-21.
+
+## Gym tab and WHOOP
+
+The Gym tab reads `whoop/<date>` and `gymlog/<date>`: today's recovery with a train-hard / as-planned / go-light call, the week's
+split with sessions ticked, trend charts (recovery, sleep, strain, HRV, resting HR, sessions per week) and a session log.
+The `whoop` edge function (`supabase/functions/whoop`, verify_jwt off, it checks the owner itself) does the OAuth with WHOOP's
+API v2 and the sync; `supabase/whoop.sql` creates the private `whoop_auth` row (app credentials and tokens, no policies, service
+role only) and an hourly `pg_cron` job that calls the function. The page also syncs when opened if the last sync is over 20 minutes
+old. Setup: create an app at developer-dashboard.whoop.com with redirect URL `<project>/functions/v1/whoop`, then paste its
+Client ID and Secret into the Gym tab and tap Connect. Activities like golf or walking are not counted as sessions (`NOT_TRAINING`).
