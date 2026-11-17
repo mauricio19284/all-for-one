@@ -109,3 +109,5 @@ to a muscle and zooms to it. The flat picture view stays as the fallback when th
 Every muscle is selectable on its own: a click on the body selects that muscle (`GB.msel`), the list selects a whole area (`GB.sel`).
 `gbMV()` gives one muscle's soreness — his own answer for it (`feel["m:<name>"]`), else his answer for the area, else the area's
 estimate times `PART_FACTOR`. `MUSCLE_NOTE` holds the one-line description per muscle.
+Each muscle's material adds fibre striations along the muscle's long axis and whitens its two ends like tendons (principal axis found
+at load, shader patched in `onBeforeCompile`); the face muscles are drawn but are not a selectable area.
