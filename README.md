@@ -89,3 +89,14 @@ API v2 and the sync; `supabase/whoop.sql` creates the private `whoop_auth` row (
 role only) and an hourly `pg_cron` job that calls the function. The page also syncs when opened if the last sync is over 20 minutes
 old. Setup: create an app at developer-dashboard.whoop.com with redirect URL `<project>/functions/v1/whoop`, then paste its
 Client ID and Secret into the Gym tab and tap Connect. Activities like golf or walking are not counted as sessions (`NOT_TRAINING`).
+
+### Body map and the Stats feed
+
+The Gym tab's Body card shows three views of one figure (`img/body-front|side|back.jpg`; the fourth view is the side mirrored) with
+a red tint per muscle. Double-click or drag spins it; clicking a muscle zooms in and shows what it is, three exercises and why it is
+or isn't sore. Soreness is an estimate, not a measurement: each session in the last five days loads the muscles its split or WHOOP
+sport maps to (`SPLIT_LOAD`, `SPORT_LOAD`), scaled by the session's WHOOP strain, shaped by a curve that peaks 24–48 h after, and
+sped up or slowed by the recovery scores since. `musc/<date>: {feel: {<muscle>: 0-4}}` holds his own correction for the day.
+Hotspot shapes are in `BODY_VIEWS`, in each picture's pixels.
+`gwFeed()` sets today's Stats sleep, Rest and Energy from WHOOP once per score (`statday.whoop` is the marker) and writes the
+`sleep`, `rhr`, `hrv` and `sunday` (cardio minutes) records, tagging entries with the note "WHOOP" and never replacing a typed one.

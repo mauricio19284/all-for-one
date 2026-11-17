@@ -963,6 +963,43 @@ body:has(:is(#view-today,#view-week,#view-learning,#view-school,#view-gym,#view-
 #view-gym .gconn .btn{padding:5px 12px; font-size:12px}
 #view-gym .gmanual{margin-top:12px}
 #view-gym .gmanual summary{cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink-2); padding:4px 0}
+#view-gym .gbody{display:grid; grid-template-columns:minmax(280px,400px) minmax(0,1fr); gap:22px; align-items:start; padding-top:4px}
+#view-gym .gbstage{position:relative; height:620px; border-radius:10px; overflow:hidden; perspective:1100px; cursor:grab; user-select:none; -webkit-user-select:none; touch-action:pan-y;
+  background:linear-gradient(180deg,#f3f4f8 0,#eceef3 100%); border:1px solid rgba(255,255,255,.8); box-shadow:inset 0 1px 0 #fff, 0 10px 26px rgba(40,34,26,.16)}
+#view-gym .gbspin{position:absolute; inset:0; display:flex; justify-content:center; transform-style:preserve-3d; will-change:transform}
+#view-gym .gbspin svg{height:100%; width:auto; max-width:none; display:block; transition:transform .45s cubic-bezier(.2,.7,.2,1); -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%); mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%)}
+#view-gym .gbstage.zoom .gbspin svg{-webkit-mask-image:none; mask-image:none}
+#view-gym .gbtint{mix-blend-mode:multiply}
+#view-gym .gbhit{fill:transparent; stroke:transparent; stroke-width:2; cursor:pointer; transition:stroke .15s, fill .15s}
+#view-gym .gbhit:hover{stroke:rgba(255,255,255,.95); fill:rgba(255,255,255,.12)}
+#view-gym .gbhit.on{stroke:#fff; stroke-dasharray:5 4}
+#view-gym .gbctl{display:flex; align-items:center; justify-content:center; gap:8px; padding-top:12px}
+#view-gym .gbctl > .btn{padding:4px 12px; font-size:17px; line-height:1.2}
+#view-gym .gbleg{display:flex; align-items:center; justify-content:center; gap:8px; font-size:11px; color:var(--gmut); padding-top:10px}
+#view-gym .gbleg i{display:block; width:120px; height:8px; border-radius:99px; background:linear-gradient(90deg,rgba(246,132,108,.25),rgba(214,84,70,.75),rgba(150,6,22,.95))}
+#view-gym .gbhint{font-size:11.5px; color:var(--gmut); text-align:center; padding-top:8px}
+#view-gym .gbinfo{background:rgba(255,255,255,.44); border:1px solid rgba(255,255,255,.65); border-radius:10px; padding:18px 20px; min-width:0; box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+#view-gym .gbinfo h3{font-size:30px; font-weight:600; line-height:1.1}
+#view-gym .gbinfo #gbback{margin-bottom:12px; padding:5px 12px; font-size:12px}
+#view-gym .gbinfo .gbsub{font-size:13px; color:var(--gmut); padding-top:3px}
+#view-gym .gbinfo h4{font-family:var(--sans); font-size:10px; font-weight:650; letter-spacing:.2em; text-transform:uppercase; color:var(--gmut); margin:16px 0 4px}
+#view-gym .gbinfo p{margin:8px 0 0; font-size:14px; color:var(--ink-2); max-width:64ch}
+#view-gym .gbinfo ol{margin:4px 0 0; padding-left:20px; font-size:14px; color:var(--ink-2)}
+#view-gym .gbinfo li{padding:2px 0}
+#view-gym .gblvl{display:flex; align-items:center; gap:9px; padding-top:12px}
+#view-gym .gblvl i{width:13px; height:13px; border-radius:50%}
+#view-gym .gblvl b{font-family:var(--display); font-size:22px; font-weight:600}
+#view-gym .gblvl span{font-size:12px; color:var(--gmut); font-variant-numeric:tabular-nums}
+#view-gym .gbbar{height:7px; border-radius:99px; background:rgba(40,34,26,.09); margin-top:6px; overflow:hidden}
+#view-gym .gbbar u{display:block; height:100%; border-radius:99px}
+#view-gym .gbfeel{flex-wrap:wrap; background:rgba(255,255,255,.5); border-radius:6px; padding:3px}
+#view-gym .gblist{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:2px 18px; padding-top:12px}
+#view-gym .gblist button{display:grid; grid-template-columns:86px minmax(0,1fr) 68px; align-items:center; gap:10px; background:none; border:0; border-radius:6px; padding:6px 6px; font:inherit; font-size:13.5px; color:var(--ink); text-align:left; cursor:pointer}
+#view-gym .gblist button:hover{background:rgba(255,255,255,.55)}
+#view-gym .gblist i{display:block; height:7px; border-radius:99px; background:rgba(40,34,26,.09); overflow:hidden}
+#view-gym .gblist u{display:block; height:100%; border-radius:99px}
+#view-gym .gblist em{font-style:normal; font-size:11.5px; color:var(--gmut); text-align:right}
+@media (max-width:820px){#view-gym .gbody{grid-template-columns:1fr} #view-gym .gbstage{height:520px}}
 @media (max-width:700px){
   #view-gym .gtop{grid-template-columns:1fr; justify-items:center; text-align:center} #view-gym .gverdict{justify-content:center}
   #view-gym .gsetup{grid-template-columns:1fr}
@@ -1927,6 +1964,20 @@ body:has(#view-home:not([hidden])) .cape{display:block}
         </div>
       </div>
       <div class="panel wide">
+        <header><h2>Body</h2><span class="right" id="gbsum"></span></header>
+        <div class="body">
+          <div class="gbody">
+            <div>
+              <div class="gbstage" id="gbstage"><div class="gbspin" id="gbspin"></div></div>
+              <div class="gbctl"><button class="btn ghost" id="gbprev" aria-label="Spin left">‹</button><span class="seg" id="gbviews"></span><button class="btn ghost" id="gbnext" aria-label="Spin right">›</button></div>
+              <div class="gbleg"><span>Fresh</span><i></i><span>Very sore</span></div>
+              <div class="gbhint">Double-click or drag to spin · click a muscle to open it</div>
+            </div>
+            <div class="gbinfo" id="gbinfo"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel wide">
         <header><h2>This week</h2><span class="right" id="gymtoday"></span></header>
         <div class="body">
           <div class="split gweek" id="split"></div>
@@ -2056,6 +2107,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
               <span class="qsleep"><label for="st-sleep">Slept</label><input type="number" id="st-sleep" min="0" max="14" step="0.5" placeholder="h"><button class="btn ghost" data-q="sleep">Set</button></span>
               <span id="st-meternote"></span>
             </div>
+            <div class="hlegend" id="st-whoop"></div>
           </div>
         </div>
         <div class="gpanel">
@@ -3354,6 +3406,268 @@ function renderPhases(box,pctSel,doc,key){
   }).join("");
   document.querySelector(pctSel).textContent=all?Math.round(done/all*100)+"% complete":"";
 }
+/* Hotspots per view, in each picture's own pixels. e: ellipse [cx,cy,rx,ry,rot]; p: polygon. m:1 mirrors it across the body's centre line. */
+const BODY_VIEWS={
+  front:{w:500,h:1040,cx:250,label:"Front",spots:[
+    ["neck",{e:[250,155,30,22,0]}],
+    ["delts",{e:[132,222,30,38,18],m:1}],
+    ["pecs",{e:[200,243,50,38,-8],m:1}],
+    ["biceps",{e:[116,312,20,50,10],m:1}],
+    ["forearms",{e:[82,428,21,58,16],m:1}],
+    ["serratus",{e:[180,318,13,30,-12],m:1}],
+    ["abs",{e:[250,352,37,80,0]}],
+    ["obliques",{e:[190,392,15,44,-6],m:1}],
+    ["quads",{e:[194,605,46,112,4],m:1}],
+    ["tibialis",{e:[181,845,17,82,3],m:1}]
+  ]},
+  side:{w:300,h:1040,cx:150,label:"Side",spots:[
+    ["neck",{e:[160,152,16,26,-14]}],
+    ["traps",{e:[122,186,20,24,0]}],
+    ["delts",{e:[135,236,32,42,0]}],
+    ["pecs",{e:[196,268,22,36,0]}],
+    ["triceps",{e:[116,322,16,48,6]}],
+    ["biceps",{e:[150,322,14,42,6]}],
+    ["forearms",{e:[150,440,22,60,-6]}],
+    ["serratus",{e:[186,330,13,26,0]}],
+    ["abs",{e:[208,378,12,58,4]}],
+    ["obliques",{e:[184,400,16,38,0]}],
+    ["glutes",{e:[106,520,30,50,0]}],
+    ["quads",{e:[166,640,32,105,-3]}],
+    ["hamstrings",{e:[116,665,22,88,-4]}],
+    ["calves",{e:[106,842,28,70,-4]}],
+    ["tibialis",{e:[150,852,12,70,-4]}]
+  ]},
+  back:{w:500,h:1040,cx:250,label:"Back",spots:[
+    ["traps",{p:[250,138,292,190,322,212,278,262,250,345,222,262,178,212,208,190]}],
+    ["delts",{e:[140,228,30,37,16],m:1}],
+    ["triceps",{e:[114,312,20,50,10],m:1}],
+    ["forearms",{e:[80,424,21,56,16],m:1}],
+    ["lats",{e:[198,345,34,72,-12],m:1}],
+    ["glutes",{e:[204,482,50,54,0],m:1}],
+    ["hamstrings",{e:[196,655,42,100,3],m:1}],
+    ["calves",{e:[190,832,28,66,2],m:1}]
+  ]}
+};
+/* ---------- gym: body map (soreness estimate per muscle) ---------- */
+const MUSCLES={
+  neck:{n:"Neck",sub:"Sternocleidomastoid · front and side of the neck",what:"The two cords running from behind the ear to the collarbone. They turn and tilt the head and help hold posture under heavy pulls and carries.",ex:[["Neck flexion with a plate","lying on a bench, slow nods"],["Farmer’s carry","neck stays tall under load"],["Chin tucks","10 slow reps against the wall"]]},
+  delts:{n:"Shoulders",sub:"Deltoid · the cap of the shoulder",what:"Three heads (front, side, rear) that lift the arm in every direction. They give the shoulders their width and work in every press and most pulls.",ex:[["Overhead press","bar or dumbbells, full lockout"],["Lateral raise","lead with the elbows, no swing"],["Face pull","for the rear head and posture"]]},
+  pecs:{n:"Chest",sub:"Pectoralis major · front of the chest",what:"The big fan-shaped muscle that pushes the arms forward and pulls them across the body. It is the main mover in every bench and push-up.",ex:[["Bench press","shoulder blades pinned back"],["Incline dumbbell press","for the upper chest"],["Cable fly","slow stretch, squeeze at the middle"]]},
+  biceps:{n:"Biceps",sub:"Biceps brachii · front of the upper arm",what:"Bends the elbow and turns the palm up. It also helps in every row and pull-up, which is why back day leaves it tired.",ex:[["Barbell or EZ curl","elbows fixed at your sides"],["Incline dumbbell curl","long stretch at the bottom"],["Hammer curl","adds the brachialis for thickness"]]},
+  triceps:{n:"Triceps",sub:"Triceps brachii · back of the upper arm",what:"Straightens the elbow. It is about two thirds of the upper arm and finishes every press, so chest and shoulder work already loads it.",ex:[["Rope pushdown","spread the rope at the bottom"],["Overhead extension","stretches the long head"],["Close-grip bench or dips","the heavy one"]]},
+  forearms:{n:"Forearms",sub:"Wrist flexors and extensors",what:"The muscles that close the hand and move the wrist. Grip is usually what gives out first on heavy rows and deadlifts.",ex:[["Wrist curl and reverse wrist curl","light, high reps"],["Dead hang","build up to 60 seconds"],["Farmer’s carry","heavy, 30–40 m"]]},
+  serratus:{n:"Serratus",sub:"Serratus anterior · the ribs under the armpit",what:"The finger-like muscle on the ribs that slides the shoulder blade forward and keeps it flat. It protects the shoulder in presses and overhead work.",ex:[["Push-up plus","extra push at the top"],["Cable or band punch","reach long"],["Ab-wheel rollout","also hits the abs"]]},
+  abs:{n:"Abs",sub:"Rectus abdominis · front of the trunk",what:"The six-pack muscle. It curls the trunk and, more importantly, braces the spine in squats, deadlifts and overhead presses.",ex:[["Hanging leg raise","no swing, curl the hips up"],["Cable crunch","round the spine, don’t pull with the arms"],["Ab-wheel rollout","stop before the lower back sags"]]},
+  obliques:{n:"Obliques",sub:"External oblique · sides of the waist",what:"Rotates and side-bends the trunk and resists twisting when you carry or lift something uneven.",ex:[["Pallof press","resist the rotation"],["Side plank","hips high, 30–45 s a side"],["Cable woodchop","rotate from the trunk, not the arms"]]},
+  traps:{n:"Traps",sub:"Trapezius · neck to mid-back",what:"The diamond from the base of the skull to the middle of the back. It lifts, squeezes and steadies the shoulder blades in every row, shrug and deadlift.",ex:[["Barbell or dumbbell shrug","straight up, pause at the top"],["Face pull","for the middle and lower fibres"],["Chest-supported row","squeeze the blades together"]]},
+  lats:{n:"Lats",sub:"Latissimus dorsi · sides of the back",what:"The widest muscle of the back. It pulls the arm down and back, and is what gives the V shape.",ex:[["Pull-up or lat pulldown","drive the elbows to the hips"],["Barbell or dumbbell row","flat back, pull to the hip"],["Straight-arm pulldown","lats only, no biceps"]]},
+  glutes:{n:"Glutes",sub:"Gluteus maximus · the hips",what:"The strongest muscle in the body. It extends the hip, so it powers squats, deadlifts, sprinting and jumping.",ex:[["Hip thrust","pause at the top"],["Romanian deadlift","push the hips back"],["Bulgarian split squat","long stride, lean slightly forward"]]},
+  quads:{n:"Quads",sub:"Quadriceps and sartorius · front of the thigh",what:"Four muscles that straighten the knee. They do most of the work in squats, leg press and running uphill.",ex:[["Back or front squat","full depth you can control"],["Leg press","feet low for more quad"],["Leg extension","slow lowering"]]},
+  hamstrings:{n:"Hamstrings",sub:"Biceps femoris, semitendinosus, semimembranosus · back of the thigh",what:"Bend the knee and extend the hip. They brake you when you sprint and are the most commonly strained muscle in fast sports.",ex:[["Romanian deadlift","feel the stretch, flat back"],["Lying or seated leg curl","control the way down"],["Nordic curl","start with assisted reps"]]},
+  calves:{n:"Calves",sub:"Gastrocnemius · back of the lower leg",what:"Points the foot and pushes you off the ground when you walk, run and jump. It takes a lot of load on cardio days.",ex:[["Standing calf raise","full stretch, pause at the top"],["Seated calf raise","for the soleus underneath"],["Jump rope","2–3 minutes"]]},
+  tibialis:{n:"Shins",sub:"Tibialis anterior · front of the lower leg",what:"Lifts the foot and controls it as it lands. Strong shins help with running, deceleration and knee comfort.",ex:[["Tibialis raise","back against the wall, toes up"],["Heel walks","20–30 m"],["Banded dorsiflexion","slow, 15–20 reps"]]}
+};
+const MUSCLE_ORDER=["neck","traps","delts","pecs","biceps","triceps","forearms","serratus","abs","obliques","lats","glutes","quads","hamstrings","calves","tibialis"];
+/* What a session loads: 1 = trained directly, less = helper muscle. Matched against the split name. */
+const SPLIT_LOAD=[
+  [/chest|pec|push/i,{pecs:1,serratus:.4,delts:.5,triceps:.5}],
+  [/shoulder|delt/i,{delts:1,traps:.4,triceps:.35,neck:.15}],
+  [/tricep|\btri\b|\btris\b/i,{triceps:1}],
+  [/back|pull|\blat/i,{lats:1,traps:1,biceps:.5,forearms:.5,delts:.3,neck:.2}],
+  [/bicep|curl|\barm/i,{biceps:1,forearms:.6}],
+  [/leg|squat|lower/i,{quads:1,hamstrings:1,glutes:1,calves:.7,tibialis:.3,abs:.2}],
+  [/glute|hip/i,{glutes:1,hamstrings:.5}],
+  [/abs|core/i,{abs:1,obliques:.8,serratus:.3}],
+  [/cardio|run|hiit|conditioning/i,{calves:.6,quads:.5,hamstrings:.4,glutes:.3,tibialis:.4,abs:.15}]
+];
+const SPORT_LOAD=[
+  [/run|jog|track|treadmill|stair|hik/i,{calves:.7,quads:.55,hamstrings:.45,glutes:.35,tibialis:.45,abs:.15}],
+  [/cycl|spin|bike/i,{quads:.9,glutes:.5,hamstrings:.4,calves:.4}],
+  [/swim/i,{lats:.8,delts:.8,triceps:.5,pecs:.4,abs:.3}],
+  [/row/i,{lats:.7,quads:.6,hamstrings:.5,glutes:.5,biceps:.4,forearms:.4,traps:.4}],
+  [/soccer|football|basket|tennis|padel|squash|rugby|hockey|volley/i,{quads:.6,hamstrings:.6,calves:.6,glutes:.5,tibialis:.3,abs:.2}],
+  [/box|kickbox|martial|mma|jiu/i,{delts:.7,abs:.5,obliques:.5,lats:.4,calves:.4,triceps:.3}]
+];
+const GB_LEVELS=["Fresh","Light","Moderate","Sore","Very sore"],GB_FEEL=[0,.24,.48,.72,.93];
+const GB_ORDER=["front","side","back","side2"],GB_NAMES={front:"Front",side:"Side",back:"Back",side2:"Other side"};
+const GB={view:0,sel:null,feel:{},busy:false,t:null};
+const gbLevel=v=>v<.12?0:v<.36?1:v<.6?2:v<.82?3:4;
+const gbTone=v=>{const k=Math.max(0,Math.min(1,(v-.1)/.9)),m=(a,b)=>Math.round(a+(b-a)*k);return "rgba("+m(246,150)+","+m(132,6)+","+m(108,22)+","+(.4+.52*k).toFixed(2)+")";};
+function gbLoadOf(g){
+  const out={},add=o=>Object.keys(o).forEach(k=>{out[k]=Math.max(out[k]||0,o[k]);});
+  const sport=g.whoop?g.whoop.sport:"";
+  SPORT_LOAD.forEach(([re,o])=>{if(re.test(sport))add(o);});
+  if(!Object.keys(out).length||/\+/.test(sport))SPLIT_LOAD.forEach(([re,o])=>{if(re.test(g.split||""))add(o);});
+  return out;
+}
+/* Soreness 0..1 per muscle: what was trained, how hard, how long ago, and how well he recovered since. */
+function gbSore(){
+  const c=cfg(),t=todayISO(),now=Date.parse(new Date().toLocaleString("sv-SE",{timeZone:TZ}).replace(" ","T")+"Z"),out={};
+  MUSCLE_ORDER.forEach(m=>{out[m]={v:0,est:0,src:[],last:null};});
+  S.gym.forEach(g=>{
+    if(!g.date||g.date>t)return;
+    const load=gbLoadOf(g),x=g.whoop||null,tm=(x&&x.at)||(c.gymTime||{})[wdOf(g.date)]||"18:00";
+    const end=Date.parse(g.date+"T"+tm+":00Z")+((x&&x.min)||80)*60000,h=(now-end)/3600000;
+    Object.keys(load).forEach(m=>{if(out[m]&&load[m]>=.5&&(!out[m].last||g.date>out[m].last))out[m].last=g.date;});
+    if(h<-1||h>130)return;
+    let L=.8;
+    if(x&&x.strain){L=.55+(x.strain-8)*.07;if(!/run|cycl|swim|row|cardio/i.test(x.sport||""))L=Math.max(L,.75);L=Math.max(.45,Math.min(1.25,L));if(x.min&&x.min<30)L*=.7;}
+    const recs=[];for(let d=shift(g.date,1);d<=t;d=shift(d,1)){const r=gwRec(d);if(r!=null)recs.push(r);}
+    const ar=gwAvg(recs),speed=ar==null?1:ar>=67?1.2:ar<34?.75:1;
+    const he=Math.max(0,h)<=48?Math.max(0,h):48+(h-48)*speed;
+    const f=he<6?.45+.15*he/6:he<24?.6+.4*(he-6)/18:he<48?1:he<84?1-.75*(he-48)/36:he<120?.25*(1-(he-84)/36):0;
+    if(f<=0)return;
+    Object.keys(load).forEach(m=>{if(!out[m])return;const cval=L*load[m]*f;out[m].est+=cval;out[m].src.push({g:g,h:Math.max(0,h),c:cval,w:load[m],ar:ar});});
+  });
+  MUSCLE_ORDER.forEach(m=>{const o=out[m];o.est=Math.min(1,o.est);o.src.sort((a,b)=>b.c-a.c);o.felt=GB.feel[m]!=null?GB.feel[m]:null;o.v=o.felt!=null?GB_FEEL[o.felt]:o.est;});
+  return out;
+}
+function gbShape(s,v,mir){
+  if(s.e){const x=mir?2*v.cx-s.e[0]:s.e[0],r=mir?-s.e[4]:s.e[4];return '<ellipse cx="'+x+'" cy="'+s.e[1]+'" rx="'+s.e[2]+'" ry="'+s.e[3]+'" transform="rotate('+r+' '+x+' '+s.e[1]+')"';}
+  return '<polygon points="'+s.p.map((q,i)=>i%2?q:(mir?2*v.cx-q:q)).join(" ")+'"';
+}
+const gbViewOf=k=>BODY_VIEWS[k==="side2"?"side":k];
+function gbSpotCenter(m){
+  const k=GB_ORDER[GB.view],v=gbViewOf(k),sp=v.spots.find(x=>x[0]===m);if(!sp)return null;
+  const s=sp[1];let x,y;if(s.e){x=s.e[0];y=s.e[1];}else{x=0;y=0;for(let i=0;i<s.p.length;i+=2){x+=s.p[i];y+=s.p[i+1];}x/=s.p.length/2;y/=s.p.length/2;}
+  if(s.m)x=v.cx;
+  if(k==="side2")x=v.w-x;
+  return [x/v.w*100,y/v.h*100,s.m?1.75:2.2];
+}
+function gbSvg(so){
+  const k=GB_ORDER[GB.view],v=gbViewOf(k);let tint="",hit="";
+  v.spots.forEach(([m,s])=>{const lv=so[m]?so[m].v:0;(s.m?[false,true]:[false]).forEach(mir=>{const sh=gbShape(s,v,mir);
+    if(lv>=.12)tint+=sh+' fill="'+gbTone(lv)+'"/>';
+    hit+=sh+' class="gbhit'+(GB.sel===m?" on":"")+'" data-m="'+m+'" role="button" aria-label="'+esc(MUSCLES[m].n+", "+GB_LEVELS[gbLevel(lv)])+'"/>';});});
+  return '<svg viewBox="0 0 '+v.w+' '+v.h+'" role="group" aria-label="Body, '+GB_NAMES[k]+' view"><defs><filter id="gbblur" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter></defs>'
+    +'<g'+(k==="side2"?' transform="translate('+v.w+' 0) scale(-1 1)"':"")+'><image href="img/body-'+(k==="side2"?"side":k)+'.jpg" width="'+v.w+'" height="'+v.h+'" preserveAspectRatio="none"/>'
+    +'<g class="gbtint" filter="url(#gbblur)">'+tint+'</g><g>'+hit+'</g></g></svg>';
+}
+function gbWhy(m,o){
+  const t=todayISO(),c=cfg(),day=d=>d===t?"today":d===shift(t,-1)?"yesterday":fmt(d,{weekday:"long"}),ago=h=>h<1?"just now":h<36?Math.round(h)+" h ago":Math.round(h/24)+" days ago";
+  let s="";
+  if(o.felt!=null)s+="You marked it as "+GB_LEVELS[o.felt].toLowerCase()+" today, so that replaces the estimate ("+GB_LEVELS[gbLevel(o.est)].toLowerCase()+"). ";
+  if(o.src.length){
+    const a=o.src[0],x=a.g.whoop;
+    s+=(a.w>=.8?"Trained directly ":"Worked as a helper muscle ")+day(a.g.date)+" ("+(a.g.split||"session")+(x?", "+x.min+" min, strain "+gwNum(x.strain,1):"")+"), "+ago(a.h)+". ";
+    s+=a.h<24?"Soreness is still building — it usually peaks 24 to 48 hours after.":a.h<48?"This is the window where soreness peaks (24 to 48 hours after).":"It is past the peak and fading; most of it is gone by day four.";
+    if(a.ar!=null)s+=a.ar<34?" Your recovery since has averaged "+Math.round(a.ar)+"%, which is low, so repair is running slower.":a.ar>=67?" Your recovery since has averaged "+Math.round(a.ar)+"%, so it should clear faster than usual.":" Recovery since has averaged "+Math.round(a.ar)+"%, a normal pace.";
+    if(o.src.length>1)s+=" It also took load "+day(o.src[1].g.date)+" ("+(o.src[1].g.split||"session")+").";
+  }else{
+    s+=o.last?"Last trained hard "+Math.round((Date.parse(t)-Date.parse(o.last))/86400000)+" days ago ("+fmt(o.last,{month:"short",day:"numeric"})+"), so it has had time to recover fully.":"No logged session has hit it recently, so there is nothing to be sore from.";
+  }
+  for(let i=0;i<7;i++){const d=shift(t,i),sp=(c.split||{})[wdOf(d)]||"",ld=gbLoadOf({split:sp});
+    if((ld[m]||0)>=.8&&!(i===0&&S.gym.some(g=>g.date===t))){s+=" Next planned: "+(i===0?"today":i===1?"tomorrow":fmt(d,{weekday:"long"}))+" ("+sp+").";break;}}
+  return s;
+}
+function gbInfo(so){
+  const box=$("#gbinfo"),m=GB.sel;
+  if(m&&MUSCLES[m]){
+    const M=MUSCLES[m],o=so[m],lv=gbLevel(o.v);
+    box.innerHTML='<button class="btn ghost" id="gbback">← Whole body</button><h3>'+esc(M.n)+'</h3><div class="gbsub">'+esc(M.sub)+'</div>'
+      +'<div class="gblvl"><i style="background:'+(lv?gbTone(o.v):"rgba(40,34,26,.12)")+'"></i><b>'+GB_LEVELS[lv]+'</b><span>'+Math.round(o.v*100)+' / 100</span></div><div class="gbbar"><u style="width:'+Math.round(o.v*100)+'%;background:'+gbTone(Math.max(.15,o.v))+'"></u></div>'
+      +'<p>'+esc(M.what)+'</p><h4>Why it is '+(lv?"":"not ")+'sore</h4><p>'+esc(gbWhy(m,o))+'</p>'
+      +'<h4>Three exercises</h4><ol>'+M.ex.map(e=>'<li><b>'+esc(e[0])+'</b> — '+esc(e[1])+'</li>').join("")+'</ol>'
+      +'<h4>How does it actually feel?</h4><div class="seg gbfeel">'+GB_LEVELS.map((l,i)=>'<button data-feel="'+i+'" aria-pressed="'+(o.felt===i)+'">'+l+'</button>').join("")+'</div>'
+      +'<div class="hlegend">'+(o.felt!=null?'Using your answer for today. <a href="#" data-feel="-1">Back to the estimate</a>':"Tap one and it replaces the estimate for today.")+'</div>';
+    return;
+  }
+  const list=MUSCLE_ORDER.map(k=>[k,so[k].v]).sort((a,b)=>b[1]-a[1]),hot=list.filter(x=>x[1]>=.36),t=todayISO(),sp=(cfg().split||{})[wdOf(t)]||"",ld=gbLoadOf({split:sp});
+  const mine=Object.keys(ld).filter(k=>ld[k]>=.8&&so[k]),worst=mine.map(k=>[k,so[k].v]).sort((a,b)=>b[1]-a[1])[0];
+  let tip="";
+  if(!S.gym.some(g=>g.date===t)&&worst)tip=worst[1]>=.6?"Today’s "+sp.toLowerCase()+" hits your "+MUSCLES[worst[0]].n.toLowerCase()+", which "+(/s$/.test(MUSCLES[worst[0]].n)?"are":"is")+" still "+GB_LEVELS[gbLevel(worst[1])].toLowerCase()+". Warm up longer and start lighter, or swap the day.":"The muscles for today’s "+sp.toLowerCase()+" are "+(worst[1]<.36?"fresh":"only lightly sore")+" — good to go.";
+  box.innerHTML='<h3>'+(hot.length?"Sorest right now":"Everything is fresh")+'</h3><div class="gbsub">'+esc(tip||"Click a muscle on the body or in this list.")+'</div>'
+    +'<div class="gblist">'+list.map(x=>'<button data-pick="'+x[0]+'"><span>'+esc(MUSCLES[x[0]].n)+'</span><i><u style="width:'+Math.round(x[1]*100)+'%;background:'+gbTone(Math.max(.15,x[1]))+'"></u></i><em>'+GB_LEVELS[gbLevel(x[1])]+'</em></button>').join("")+'</div>'
+    +'<div class="hlegend">An estimate from what you trained, how hard WHOOP says the session was, the hours since, and your recovery. WHOOP does not measure single muscles, so correct any that feel different.</div>';
+}
+function gbDraw(){
+  const spin=$("#gbspin");if(!spin)return;
+  const so=gbSore();
+  spin.innerHTML=gbSvg(so);
+  const svg=spin.firstChild,c=GB.sel?gbSpotCenter(GB.sel):null;
+  if(c){svg.style.transformOrigin=c[0]+"% "+c[1]+"%";svg.style.transform="translate("+(50-c[0])+"%,"+(46-c[1])+"%) scale("+c[2]+")";}
+  $("#gbstage").classList.toggle("zoom",!!c);
+  $("#gbviews").innerHTML=GB_ORDER.map((k,i)=>'<button data-view="'+i+'" aria-pressed="'+(i===GB.view)+'">'+GB_NAMES[k]+'</button>').join("");
+  const hot=MUSCLE_ORDER.filter(k=>so[k].v>=.6).sort((a,b)=>so[b].v-so[a].v);
+  $("#gbsum").textContent=hot.length?"Sore: "+hot.slice(0,3).map(k=>MUSCLES[k].n).join(", "):"Nothing sore";
+  gbInfo(so);
+}
+function gbSpin(dir,to){
+  if(GB.busy)return;
+  const spin=$("#gbspin");GB.busy=true;GB.sel=null;
+  spin.style.transition="transform .2s ease-in";spin.style.transform="rotateY("+(dir>0?-90:90)+"deg)";
+  setTimeout(()=>{
+    GB.view=to!=null?to:(GB.view+dir+GB_ORDER.length)%GB_ORDER.length;gbDraw();
+    spin.style.transition="none";spin.style.transform="rotateY("+(dir>0?90:-90)+"deg)";
+    void spin.offsetWidth;
+    spin.style.transition="transform .22s ease-out";spin.style.transform="rotateY(0deg)";
+    setTimeout(()=>{GB.busy=false;},230);
+  },200);
+}
+function gbPick(m){
+  if(!MUSCLES[m])return;
+  if(!gbViewOf(GB_ORDER[GB.view]).spots.some(x=>x[0]===m)){
+    const to=GB_ORDER.findIndex(k=>k!=="side2"&&BODY_VIEWS[k].spots.some(x=>x[0]===m));
+    if(to>=0){gbSpin(to>GB.view?1:-1,to);setTimeout(()=>{GB.sel=m;gbDraw();},460);return;}
+  }
+  GB.sel=m;gbDraw();
+}
+async function gbFeel(m,i){
+  if(needDb())return;
+  const f=Object.assign({},GB.feel);if(i<0)delete f[m];else f[m]=i;
+  GB.feel=f;gbDraw();
+  await S.db.doc("musc/"+todayISO()).set({date:todayISO(),feel:f,savedAt:new Date().toISOString()});
+}
+(function(){
+  const st=()=>$("#gbstage");let down=null;
+  document.addEventListener("click",e=>{
+    const tg=e.target;if(!tg.closest)return;
+    if(tg.closest("#gbstage")){
+      const h=tg.closest(".gbhit");clearTimeout(GB.t);
+      GB.t=setTimeout(()=>{if(down&&down.moved)return;if(h){if(GB.sel===h.dataset.m){GB.sel=null;gbDraw();}else gbPick(h.dataset.m);}else if(GB.sel){GB.sel=null;gbDraw();}},230);
+      return;
+    }
+    const v=tg.closest("#gbviews button");if(v){const to=Number(v.dataset.view);if(to!==GB.view)gbSpin(to>GB.view?1:-1,to);return;}
+    if(tg.closest("#gbnext")){gbSpin(1);return;}
+    if(tg.closest("#gbprev")){gbSpin(-1);return;}
+    if(tg.closest("#gbback")){GB.sel=null;gbDraw();return;}
+    const p=tg.closest("#gbinfo [data-pick]");if(p){gbPick(p.dataset.pick);return;}
+    const f=tg.closest("#gbinfo [data-feel]");if(f&&GB.sel){e.preventDefault();gbFeel(GB.sel,Number(f.dataset.feel)).catch(()=>say("Couldn’t save that.",true));}
+  });
+  document.addEventListener("dblclick",e=>{if(e.target.closest&&e.target.closest("#gbstage")){e.preventDefault();clearTimeout(GB.t);gbSpin(1);}});
+  document.addEventListener("pointerdown",e=>{down=e.target.closest&&e.target.closest("#gbstage")?{x:e.clientX,moved:false}:null;});
+  document.addEventListener("pointerup",e=>{if(!down)return;const dx=e.clientX-down.x;if(Math.abs(dx)>45){down.moved=true;clearTimeout(GB.t);gbSpin(dx<0?1:-1);setTimeout(()=>{down=null;},260);}});
+})();
+/* ---------- stats and records fed by WHOOP ---------- */
+let gwFeedBusy=false;
+async function gwFeed(){
+  if(gwFeedBusy||!S.db||!S.st.loaded||!gwOn())return;
+  gwFeedBusy=true;
+  try{
+    const t=todayISO(),w=gwDay(t),note=$("#st-whoop");
+    if(w&&w.sleep&&w.sleep.hours!=null){
+      const rs=w.recovery&&w.recovery.score!=null?w.recovery.score:null,mark=w.sleep.hours+"/"+(rs==null?"":rs),d=stDay(t);
+      if(!d||d.whoop!==mark)await stDayPatch(t,x=>{
+        const rest=clamp(Math.round(w.sleep.perf!=null?w.sleep.perf:w.sleep.hours/8*100),0,100);
+        x.sleep=Math.round(w.sleep.hours*10)/10;x.meters.rest=rest;
+        if(rs!=null)x.meters.energy=clamp(Math.round((rest+rs)/2),0,100);
+        x.whoop=mark;return x;});
+      if(note)note.textContent="Today from WHOOP: slept "+gwHM(w.sleep.hours)+(rs!=null?", recovery "+rs+"%":"")+" — Rest and Energy were set from it. Move a slider if it feels different.";
+    }else if(note)note.textContent="WHOOP is connected; Rest and Energy fill in once last night’s sleep is scored.";
+    const cardio=x=>x.training&&/run|cycl|swim|row|cardio|hiit|stair|ellip|hik/i.test(x.sport||"");
+    const feeds=[["sleep",x=>x.sleep&&x.sleep.hours!=null?Math.round(x.sleep.hours*10)/10:null],
+      ["rhr",x=>x.recovery&&x.recovery.rhr!=null?x.recovery.rhr:null],["hrv",x=>x.recovery&&x.recovery.hrv!=null?Math.round(x.recovery.hrv):null],
+      ["sunday",(x,d)=>{if(wdOf(d)!=="sun")return null;const mn=(x.workouts||[]).filter(cardio).reduce((n,k)=>n+(k.min||0),0);return mn||null;}]];
+    for(const [id,fn] of feeds){
+      const r=recAll().find(x=>x.id===id);if(!r)continue;
+      const by=new Map((r.entries||[]).map(e=>[e.d,e]));let ch=false;
+      for(let i=0;i<30;i++){const d=shift(t,-i),x=gwDay(d);if(!x)continue;const v=fn(x,d);if(v==null)continue;const e=by.get(d);
+        if(!e||(e.note==="WHOOP"&&e.v!==v)){by.set(d,{d:d,v:v,note:"WHOOP"});ch=true;}}
+      if(ch)await S.db.doc("rec/"+id).set({name:r.name,unit:r.unit||"",stat:r.stat||"",fam:r.fam,hi:r.hi,custom:!!r.custom,when:r.when||"",entries:Array.from(by.values()).sort((a,b)=>a.d.localeCompare(b.d)),createdAt:r.createdAt||new Date().toISOString()});
+    }
+  }catch(e){console.error(e);}
+  gwFeedBusy=false;
+}
 /* ---------- gym: WHOOP readiness, self-logging sessions, trends ---------- */
 const GW={range:30,auto:false,busy:false,flash:null};
 const REDIRECT_WHOOP="https://lijjbumgqelkqwpljjov.supabase.co/functions/v1/whoop";
@@ -3530,6 +3844,8 @@ function gym(){
   $("#gwconn").innerHTML=on?'<span>WHOOP connected · synced '+esc(gwAgo(m.lastSync))+(m.error?' · last sync failed: '+esc(m.error):"")+'</span><button class="btn ghost" id="gwsync"'+(GW.busy?" disabled":"")+'>'+(GW.busy?"Syncing…":"Sync now")+'</button><button class="btn ghost" id="gwdisc">Disconnect</button>':"";
   $("#gwconn").hidden=!on;
   gwTrends();
+  gbDraw();
+  gwFeed();
 }
 async function gwCall(body){
   if(!S.fn)throw new Error("offline");
@@ -3755,7 +4071,9 @@ const REC_PRESETS=[
   ["height","Height","cm","build",0,"body","Growth plan: once a month, same wall, same time of day"],
   ["weight","Weight","lb","build",0,"body","Weigh-in days"],
   ["bodyfat","Body fat","%","build",0,"body","Whenever you measure it the same way"],
-  ["sleep","Sleep","h","build",1,"body","Nightly, from the Stats meters or here"],
+  ["sleep","Sleep","h","build",1,"body","Nightly \u2014 filled in by WHOOP, or typed here"],
+  ["rhr","Resting heart rate","bpm","endurance",-1,"body","Every morning, from WHOOP"],
+  ["hrv","Heart rate variability","ms","build",1,"body","Every morning, from WHOOP"],
   ["bench","Bench press","lb","strength",1,"body","Top set"],
   ["squat","Squat","lb","strength",1,"body","Top set"],
   ["deadlift","Deadlift","lb","strength",1,"body","Top set"],
@@ -5375,6 +5693,7 @@ async function start(){
   db.collection("notes").limit(400).onSnapshot(s=>{S.notes=s.docs.map(d=>Object.assign({id:d.id},d.data()));rail();notes();},bad);
   db.collection("gymlog").limit(400).onSnapshot(s=>{S.gym=s.docs.map(d=>Object.assign({id:d.id},d.data())).filter(g=>g.date);rail();gym();stats();},bad);
   db.collection("whoop").limit(400).onSnapshot(s=>{const m={};s.docs.forEach(d=>{m[d.id]=d.data();});S.whoop.map=m;gym();},bad);
+  db.doc("musc/"+todayISO()).onSnapshot(s=>{GB.feel=s.exists?(s.data().feel||{}):{};gbDraw();},bad);
   db.doc("meta/whoop").onSnapshot(s=>{S.whoop.meta=s.exists?s.data():null;gym();gwAuto();},bad);
   db.doc("daily/"+todayISO()).onSnapshot(s=>{S.daily=s.exists?s.data():null;today();stats();},bad);
   db.doc("daily/"+shift(todayISO(),1)).onSnapshot(s=>{S.tomorrow=s.exists?s.data():null;today();},bad);
@@ -5401,7 +5720,7 @@ async function start(){
     await db.load();
     db.live();
     S.fin.loaded=true;if(S.view==="finance")finEnter();
-    S.st.loaded=true;stats();
+    S.st.loaded=true;stats();gwFeed();
     $("#status").textContent="Live · saves as you go";
     document.addEventListener("visibilitychange",()=>{if(!document.hidden)db.load().catch(bad);});
     setInterval(()=>{if(!document.hidden)db.load().catch(bad);},120000);
