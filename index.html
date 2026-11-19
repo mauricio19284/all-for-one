@@ -1261,6 +1261,9 @@ body:has(#view-week:not([hidden])) .living.on{display:block}
 body:has(#view-home:not([hidden])) .cape{display:block}
 @media (max-width:820px){.cape{display:none!important}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+body:has(#view-widow:not([hidden])) .stage{max-width:none; padding:0}
+body:has(#view-widow:not([hidden])) .foot{display:none}
+#view-widow iframe{display:block; width:100%; border:0; background:#03110f}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -1445,6 +1448,7 @@ body:has(#view-home:not([hidden])) .cape{display:block}
       <button class="navbtn" data-view="records" aria-current="false">Records<span class="n" id="n-records"></span></button>
       <button class="navbtn" data-view="review" aria-current="false">Review<span class="n" id="n-review"></span></button>
       <button class="navbtn" data-view="notes" aria-current="false">Notes<span class="n" id="n-notes"></span></button>
+      <button class="navbtn" data-view="widow" aria-current="false">Widow<span class="n"></span></button>
     </nav>
     <span class="navdate" id="navdate"></span>
   </div>
@@ -2206,6 +2210,10 @@ body:has(#view-home:not([hidden])) .cape{display:block}
     </section>
 
     <!-- NOTES -->
+    <!-- WIDOW -->
+    <section id="view-widow" hidden>
+      <iframe id="widow-frame" title="Widow, the trading spider"></iframe>
+    </section>
     <section id="view-notes" hidden>
       <div class="pagehead"><h1>Notes</h1><p>Everything you've stored, by folder.</p></div>
       <div class="panel">
@@ -4569,7 +4577,7 @@ async function recSave(id,d,v,note){
 })();
 
 /* ---------- events ---------- */
-const VIEWS=["home","today","week","school","learning","finance","gym","projects","habits","stats","records","review","notes"];
+const VIEWS=["home","today","week","school","learning","finance","gym","projects","habits","stats","records","review","notes","widow"];
 function go(v){
   if(v==="money"){S.fin.sub="grow";v="finance";}
   if(VIEWS.indexOf(v)<0)return;
@@ -4583,7 +4591,15 @@ function go(v){
   window.scrollTo(0,0);
   if(v==="finance")finEnter();
   if(v==="gym")setTimeout(gbDraw,40);
+  if(v==="widow")widowEnter();
 }
+/* Widow, the trading spider, is its own page (widow.html) shown in a frame; it loads the first time the tab is opened. */
+function widowEnter(){
+  const f=document.getElementById("widow-frame");
+  f.style.height=Math.max(520,window.innerHeight-document.querySelector("header.nav").offsetHeight)+"px";
+  if(!f.getAttribute("src"))f.setAttribute("src","widow.html");
+}
+window.addEventListener("resize",()=>{if(S.view==="widow")widowEnter();});
 document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>go(b.dataset.view)));
 (function(){
   const deck=document.getElementById("weekcal");

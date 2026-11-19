@@ -111,3 +111,16 @@ Every muscle is selectable on its own: a click on the body selects that muscle (
 estimate times `PART_FACTOR`. `MUSCLE_NOTE` holds the one-line description per muscle.
 Each muscle's material adds fibre striations along the muscle's long axis and whitens its two ends like tendons (principal axis found
 at load, shader patched in `onBeforeCompile`); the face muscles are drawn but are not a selectable area.
+
+## Widow tab
+
+`widow.html` is the trading spider, a separate page shown in a frame by the Widow tab (it shares the sign-in because it is served
+from the same address). Hunt: paste a page, the spider crawls it, webs the phrases that matter and writes a draft. Study: paste
+material and it stores rules in the playbook. Practice: a generated market with fake cash where its calls are graded after five days.
+It uses the `ai` edge function (two short calls per hunt, because that function answers in at most 1024 tokens) and falls back to
+keyword rules when signed out.
+- meta/widow: `{book: [{id, src, title, when, then, why, watch: []}], sim: {seed, day, sel, cash, pos, calls: [{sym, day, px, call, ret?, ok?, log?}]}}`
+- widowlog (one per run): `{kind: hunt|study|call, at, title, vault: bool, by: claude|rules, lean?, confidence?, draft: [], check_next: [], against: [],
+  rules_used: [], catches: [{type, quote, why}], source?, rules?: [...], call?: {sym, name, day, px, call, ret?, ok?}}`
+  `vault` is false until the "Widow vault sync" scheduled task has written the run into the Obsidian vault (`02 Projects/Widow/`);
+  a graded practice call is set back to false so its note is refreshed.
