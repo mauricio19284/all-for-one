@@ -239,6 +239,10 @@ th{font:400 11px var(--mono);color:var(--muted)}
         <button class="btn" id="btn-week">Skip 5 days</button>
       </div>
       <div class="row">
+        <button class="btn" id="btn-train">Train 5 rounds</button>
+        <label class="hint" style="display:flex;gap:8px;align-items:center;flex:1 1 220px"><input type="checkbox" id="auto-train"> Practise 3 rounds by itself the first time I open Widow each day</label>
+      </div>
+      <div class="row">
         <label for="qty" class="hint">Shares</label><input type="number" id="qty" min="1" step="1" value="5">
         <button class="btn" id="btn-buy">Buy</button><button class="btn" id="btn-sell">Sell</button>
       </div>
@@ -249,6 +253,12 @@ th{font:400 11px var(--mono);color:var(--muted)}
       <h2>Widow's call</h2>
       <ul class="catches" id="mk-catches"></ul>
       <div class="draft" id="mk-draft"><p class="hint">Pick a stock and send Widow. It reads the chart, the numbers and the news, then says buy, avoid or pass, and why. Five trading days later the call is graded.</p></div>
+    </section>
+
+    <section class="glass card" data-view="practice">
+      <h2>What Widow has learned</h2>
+      <div class="list" id="learn"></div>
+      <p class="fine">The track record counts every graded call by the evidence behind it. The built-in rules lean on a setup more or less once it has six graded calls, and Claude gets the record and the lessons before each new call.</p>
     </section>
 
     <section class="glass card" data-view="practice">
@@ -310,7 +320,7 @@ class Widow{
   run(targets,cb){
     this.patrolling=false;this.cb=cb;this.fast=false;
     this.queue=targets.map(t=>({t,pt:this.center(t.el)})).sort((a,b)=>a.pt.y-b.pt.y||a.pt.x-b.pt.x);
-    if(REDUCED){for(const q of this.queue){q.t.el.classList.add("caught");this.nodes.push({x:q.pt.x,y:q.pt.y,r:16,type:q.t.type});cb.onCatch&&cb.onCatch(q.t)}this.queue=[];this.state="idle";cb.onDone&&cb.onDone();return}
+    if(REDUCED||this.W<40){for(const q of this.queue){q.t.el.classList.add("caught");this.nodes.push({x:q.pt.x,y:q.pt.y,r:16,type:q.t.type});cb.onCatch&&cb.onCatch(q.t)}this.queue=[];this.state="idle";cb.onDone&&cb.onDone();return}
     this.state="run";this.next();
   }
   next(){
@@ -454,7 +464,7 @@ function locate(text,items){ // items: [{quote,type,why}] from the model -> rang
 function renderMarked(box,text,sigs){box.textContent="";let pos=0;for(const s of sigs){box.append(text.slice(pos,s.start));const m=el("mark","sig",text.slice(s.start,s.end));m.dataset.type=s.type;s.el=m;s.quote=m.textContent;box.append(m);pos=s.end}box.append(text.slice(pos))}
 
 /* ---------- state + memory ---------- */
-const S={book:[],sim:null};
+const S={book:[],sim:null,learn:{},lessons:[],auto:false,autoDay:"",vaultNotes:""};
 const store={ref:null,kind:"memory",timer:0,busy:false,dirty:false};
 let brain=null;
 const CFG={url:"https://lijjbumgqelkqwpljjov.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpampidW1ncWVsa3F3cGxqam92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0Nzk3MTksImV4cCI6MjEwNzA1NTcxOX0.c3q8M3C6nPYkTOeUcDlpWUkEzSZeh9GeWGlpetrZwms"};
@@ -471,7 +481,12 @@ async function initCaps(){
   $("led-save").textContent=store.kind==="cloud"?"[OK]":"[--]";$("led-save").classList.toggle("off",store.kind!=="cloud");
   $("sys-save").textContent=store.kind==="cloud"?"COMMAND CENTER":store.kind==="local"?"THIS BROWSER ONLY":"THIS VISIT ONLY";
   if(!signed)readStatus("[--] SIGN IN ON THE COMMAND CENTER, THEN REOPEN THIS TAB, TO USE CLAUDE AND SAVE.");
-  if(loaded&&!touched){if(Array.isArray(loaded.book))S.book=loaded.book;if(loaded.sim&&loaded.sim.seed){S.sim=loaded.sim;buildMarket()}renderBook();renderMarket()}
+  if(loaded&&!touched){if(Array.isArray(loaded.book))S.book=loaded.book;if(loaded.sim&&loaded.sim.seed){S.sim=loaded.sim;buildMarket()}
+    if(loaded.learn&&typeof loaded.learn==="object")S.learn=loaded.learn;if(Array.isArray(loaded.lessons))S.lessons=loaded.lessons;S.auto=!!loaded.auto;S.autoDay=String(loaded.autoDay||"");renderBook();renderMarket()}
+  if(store.kind==="cloud"){try{const r=await sb.from("docs").select("data").eq("collection","meta").eq("id","widowvault").maybeSingle();if(r.data&&r.data.data&&typeof r.data.data.notes==="string")S.vaultNotes=r.data.data.notes.slice(0,3000)}catch(e){}}
+  $("auto-train").checked=S.auto;renderLearn();
+  const dd=new Date(),today=dd.getFullYear()+"-"+(dd.getMonth()+1)+"-"+dd.getDate();
+  if(S.auto&&signed&&S.autoDay!==today){S.autoDay=today;save();train(3)}
   vaultLed();
 }
 /* every run is logged as widowlog/<id>; a scheduled task copies unsynced ones into the Obsidian vault and sets vault:true */
@@ -494,7 +509,7 @@ async function patchLog(id,fn){
 let touched=false;
 function save(){touched=true;clearTimeout(store.timer);store.timer=setTimeout(flush,700)}
 async function flush(){
-  if(store.busy){store.dirty=true;return}store.busy=true;const data=JSON.parse(JSON.stringify({book:S.book,sim:S.sim,v:1}));
+  if(store.busy){store.dirty=true;return}store.busy=true;const data=JSON.parse(JSON.stringify({book:S.book,sim:S.sim,learn:S.learn,lessons:S.lessons,auto:S.auto,autoDay:S.autoDay,v:2}));
   try{if(store.kind==="cloud"){const r=await sb.from("docs").upsert({collection:"meta",id:"widow",data,updated_at:new Date().toISOString()});if(r.error)throw r.error}else if(store.kind==="local")localStorage.setItem("widow-state",JSON.stringify(data))}
   catch(e){if(store.kind==="cloud"){$("sys-save").textContent="SAVE FAILED, RETRY ON NEXT CHANGE";$("led-save").classList.add("off")}}
   store.busy=false;if(store.dirty){store.dirty=false;flush()}
@@ -502,7 +517,7 @@ async function flush(){
 async function ask(prompt){ // -> parsed JSON or throws
   const r=await withTimeout(brain(prompt),60000);const s=r.text||"",a=s.indexOf("{"),b=s.lastIndexOf("}");if(a<0||b<=a)throw new Error("no json");return JSON.parse(s.slice(a,b+1))
 }
-const bookText=()=>S.book.length?S.book.map((r,i)=>(i+1)+". "+r.title+": WHEN "+(r.when||"-")+" THEN "+(r.then||"-")+" BECAUSE "+(r.why||"-")).join("\n"):"(empty)";
+const bookText=()=>(S.vaultNotes?"NOTES THE STUDENT WROTE FOR YOU IN HIS VAULT (follow them where they apply):\n"+S.vaultNotes+"\n\nRULES:\n":"")+(S.book.length?S.book.map((r,i)=>(i+1)+". "+r.title+": WHEN "+(r.when||"-")+" THEN "+(r.then||"-")+" BECAUSE "+(r.why||"-")).join("\n"):"(empty)");
 
 /* ---------- hunt + study ---------- */
 const EXAMPLE_TITLE="Novara Chips third-quarter report";
@@ -659,7 +674,7 @@ function feats(sym){
 }
 const wMk=new Widow($("stage-market"));let mkBusy=false,flags=[];
 const mkStatus=(t,live)=>{$("mk-status").textContent=t;$("mk-status").classList.toggle("live",!!live)};
-function grade(){for(const k of S.sim.calls){if(k.ret==null&&S.sim.day>=k.day+5){k.ret=px(k.sym,k.day+5)/k.px-1;k.ok=k.call==="BUY"?k.ret>.01:k.call==="AVOID"?k.ret<-.01:null;const ret=k.ret,ok=k.ok;patchLog(k.log,d=>{if(d.call){d.call.ret=ret;d.call.ok=ok}})}}}
+function grade(){for(const k of S.sim.calls){if(k.ret==null&&S.sim.day>=k.day+5){k.ret=px(k.sym,k.day+5)/k.px-1;k.ok=k.call==="BUY"?k.ret>.01:k.call==="AVOID"?k.ret<-.01:null;if(k.ok!=null)for(const t of k.tags||[]){const key=t+"|"+k.call,r=S.learn[key]||(S.learn[key]={n:0,hit:0});r.n++;if(k.ok)r.hit++}const ret=k.ret,ok=k.ok;patchLog(k.log,d=>{if(d.call){d.call.ret=ret;d.call.ok=ok}})}}}
 function equity(){let e=S.sim.cash;for(const s in S.sim.pos)e+=S.sim.pos[s].q*px(s);return e}
 function renderMarket(){
   if(!S.sim)return;const sim=S.sim,sym=sim.sel,f=feats(sym);wMk.reset();
@@ -692,7 +707,7 @@ function renderDesk(){
   for(const k of sim.calls.slice(-6).reverse()){const d=el("div","rule");d.style.borderLeftColor=k.ok==null?(k.ret==null?"var(--cat)":"var(--faint)"):k.ok?"var(--bull)":"var(--bear)";
     d.append(el("span","t",k.call+" "+k.sym+" at "+k.px.toFixed(2)+" on day "+k.day));
     d.append(el("span","hint",k.ret==null?"Graded on day "+(k.day+5)+".":"Five days later: "+pct(k.ret)+". "+(k.ok==null?"Pass, not scored.":k.ok?"Hit.":"Miss.")));cl.append(d)}
-  $("btn-call").disabled=mkBusy||sim.calls.some(k=>k.sym===sim.sel&&k.day===sim.day);
+  $("btn-call").disabled=mkBusy||sim.calls.some(k=>k.sym===sim.sel&&k.day===sim.day);$("btn-train").disabled=mkBusy;renderLearn();
   const end=sim.day>=DAYS-7;$("btn-day").disabled=$("btn-week").disabled=end||mkBusy;if(end)mkStatus("[OK] THIS MARKET HAS RUN OUT OF DAYS. START A NEW ONE.");
 }
 function drawChart(f){
@@ -714,11 +729,43 @@ function drawChart(f){
   else if(f.breakdown)flag(D,all[D].h,"NEW 20-DAY LOW","bearish","Price closed below every low of the last 20 days. Breakdowns tend to continue.");
   else if(f.cross)flag(D-2,all[D-2].h,f.cross==="up"?"TREND TURNED UP":"TREND TURNED DOWN",f.cross==="up"?"bullish":"bearish","The 5-day average just crossed the 20-day average, an early sign the trend is changing.");
 }
+const TAGNAME={"news+":"bullish news","news-":"bearish news",riskflag:"a risk headline",breakout:"a new 20-day high",breakdown:"a new 20-day low",trendUp:"an uptrend",trendDown:"a downtrend",rsiHigh:"RSI above 72",rsiLow:"RSI under 28",volSpike:"a volume spike",quiet:"no clear signal"};
+function callTags(f,targets){const t=[],m=k=>targets.some(x=>x.el.tagName==="MARK"&&x.type===k);
+  if(m("bullish"))t.push("news+");if(m("bearish"))t.push("news-");if(m("risk"))t.push("riskflag");if(f.breakout)t.push("breakout");if(f.breakdown)t.push("breakdown");
+  if(f.trendUp&&f.vs20>0)t.push("trendUp");if(!f.trendUp&&f.vs20<0)t.push("trendDown");if(f.rsi>72)t.push("rsiHigh");if(f.rsi<28)t.push("rsiLow");if(f.volx>1.7)t.push("volSpike");if(!t.length)t.push("quiet");return t}
+/* how much the built-in rules trust a setup: 1 until it has 6 graded calls, then scaled by its own hit rate */
+const lw=(tag,call)=>{const r=S.learn[tag+"|"+call];return r&&r.n>=6?clamp(.3+1.4*r.hit/r.n,.3,1.6):1};
+function recordText(min){const rows=Object.entries(S.learn).filter(([,r])=>r.n>=(min||3)).sort((a,b)=>b[1].n-a[1].n).slice(0,12).map(([k,r])=>{const[tag,call]=k.split("|");return call+" with "+(TAGNAME[tag]||tag)+": right "+r.hit+" of "+r.n});return rows.length?rows.join("\n"):"(no graded calls yet)"}
+const lessonText=()=>S.lessons.length?S.lessons.map((l,i)=>(i+1)+". "+l.title+": "+l.lesson).join("\n"):"(none yet)";
+function lessonPrompt(){const g=S.sim.calls.filter(k=>k.ret!=null).slice(-14);return `You are Widow, a trading research assistant reviewing your own graded practice calls on a SIMULATED market. Work out what your misses have in common and what your hits have in common.
+
+GRADED CALLS (newest last):
+${g.map(k=>k.call+" "+k.sym+" | evidence: "+((k.tags||[]).map(t=>TAGNAME[t]||t).join(", ")||"not recorded")+" | reason given: "+(k.why||"-")+" | 5-day result "+pct(k.ret)+" | "+(k.ok==null?"pass, not scored":k.ok?"HIT":"MISS")).join("\n")}
+
+TRACK RECORD BY SETUP (all graded calls so far):
+${recordText(2)}
+
+CURRENT LESSONS:
+${lessonText()}
+
+Reply with ONLY one JSON object:
+{"lessons":[{"title":"max 8 words","lesson":"max 30 words: a concrete change to how you will call next time, tied to the results above"}]}
+
+Return the full updated list, 2 to 6 lessons. Keep earlier lessons that still hold, rewrite ones the new results contradict, add new ones. Do not invent patterns the results do not show; where there are too few calls to tell, say it is unproven.`}
+function renderLearn(){
+  const box=$("learn");box.textContent="";
+  const rows=Object.entries(S.learn).filter(([,r])=>r.n>=1).sort((a,b)=>b[1].n-a[1].n).slice(0,10);
+  if(rows.length){const t=el("table"),h=el("tr");["Setup","Right","Rate"].forEach(x=>h.append(el("th",null,x)));t.append(h);
+    for(const[k,r]of rows){const[tag,call]=k.split("|"),tr=el("tr"),rate=r.hit/r.n;tr.append(el("td",null,call+" with "+(TAGNAME[tag]||tag)),el("td",null,r.hit+" of "+r.n),el("td",r.n<6?"":rate>=.5?"up":"dn",Math.round(rate*100)+"%"+(r.n<6?" (early)":"")));t.append(tr)}box.append(t)}
+  else box.append(el("p","hint","Nothing graded yet. Press Train and Widow will make calls, wait five days for each, and keep score by setup."));
+  for(const l of S.lessons){const d=el("div","rule");d.append(el("span","t",l.title),el("span",null,l.lesson));box.append(d)}
+  box.append(el("p","hint",S.vaultNotes?"Widow is also reading your note \u201cNotes for Widow\u201d from Punk Records.":"To teach it yourself, write in 02 Projects/Widow/Notes for Widow.md in Obsidian. Widow reads that note after the next vault sync."));
+}
 function localCall(f,targets){
   let s=0; // news sentiment comes from the phrases the spider webbed
-  for(const t of targets){if(t.el.tagName==="MARK")s+=t.type==="bullish"?2:t.type==="bearish"?-2:t.type==="risk"?-1:0}
-  if(f.breakout)s+=1.5+(f.volx>1.5?.5:0);if(f.breakdown)s-=1.5+(f.volx>1.5?.5:0);
-  s+=f.trendUp&&f.vs20>0?1:(!f.trendUp&&f.vs20<0?-1:0);if(f.rsi>75)s-=.5;if(f.rsi<25)s+=.5;
+  for(const t of targets){if(t.el.tagName==="MARK")s+=t.type==="bullish"?2*lw("news+","BUY"):t.type==="bearish"?-2*lw("news-","AVOID"):t.type==="risk"?-1*lw("riskflag","AVOID"):0}
+  if(f.breakout)s+=(1.5+(f.volx>1.5?.5:0))*lw("breakout","BUY");if(f.breakdown)s-=(1.5+(f.volx>1.5?.5:0))*lw("breakdown","AVOID");
+  s+=f.trendUp&&f.vs20>0?lw("trendUp","BUY"):(!f.trendUp&&f.vs20<0?-lw("trendDown","AVOID"):0);if(f.rsi>75)s-=.5;if(f.rsi<25)s+=.5;
   const call=s>=2.5?"BUY":s<=-2.5?"AVOID":"PASS";
   return{call,confidence:clamp(35+Math.abs(s)*9,30,78),headline:call==="PASS"?"No clear edge today":call==="BUY"?"Evidence lines up for a buy":"Evidence points down, stay out",
     draft:[call==="PASS"?"The signals are thin or they disagree. Passing is a valid call: most days there is no trade.":"Score "+s.toFixed(1)+" from news, breakout, trend and RSI. News counts double because here, and in real markets, fresh surprises move price the most.",
@@ -732,31 +779,58 @@ HEADLINES (last 4 days): ${f.news.length?f.news.map(n=>'"'+n.text+'" ('+(S.sim.d
 WHAT YOU WEBBED: ${targets.map(t=>t.label).join("; ")||"nothing"}
 PLAYBOOK (rules the student taught you, apply when relevant):
 ${bookText()}
+YOUR TRACK RECORD ON THIS MARKET BY SETUP (trust setups that have worked, be slower on ones that have not):
+${recordText()}
+LESSONS FROM YOUR OWN GRADED CALLS (apply them):
+${lessonText()}
 
 Reply with ONLY one JSON object:
 {"call":"BUY|AVOID|PASS","confidence":0-100,"headline":"max 12 words","draft":["2 or 3 short paragraphs explaining the call and why, plain language for a beginner"],"against":["1 or 2 reasons the call could be wrong"],"rules_used":["playbook rule titles applied, if any"]}`}
-function sendWidow(){
-  if(mkBusy)return;const sim=S.sim,sym=sim.sel,f=feats(sym);mkBusy=true;renderDesk();
+function widowCall(opts){opts=opts||{};return new Promise(done=>{
+  const sim=S.sim,sym=sim.sel,f=feats(sym);
   $("mk-catches").textContent="";$("mk-draft").textContent="";$("mk-draft").append(el("p","hint","Widow is on the page."));
   const els=[...$("chips").querySelectorAll("[data-type]"),...flags,...$("news").querySelectorAll("mark.sig")];
   const targets=els.map(e=>({el:e,type:e.dataset.type,label:e.dataset.label||e.textContent,why:e.dataset.why||""}));
-  mkStatus("[..] CRAWLING "+sym+". "+targets.length+" TARGETS LOCKED.",true);
+  if(!opts.train)mkStatus("[..] CRAWLING "+sym+". "+targets.length+" TARGETS LOCKED.",true);
   const p=brain?ask(callPrompt(sym,f,targets)).catch(()=>null):Promise.resolve(null);
   wMk.run(targets,{onCatch:t=>catchRow($("mk-catches"),{type:t.type,quote:t.label,why:t.why}),
-    onDone:async()=>{mkStatus("[..] WRITING THE CALL",true);let r=await p;const viaAI=!!(r&&/^(BUY|AVOID|PASS)$/.test(String(r.call).toUpperCase()));if(!viaAI)r=localCall(f,targets);
-      r.call=String(r.call).toUpperCase();const rec={sym,day:sim.day,px:f.price,call:r.call};sim.calls.push(rec);if(sim.calls.length>60)sim.calls.shift();save();
-      const logP=logRun({kind:"call",title:r.call+" "+sym+" on practice day "+sim.day,call:{sym,name:MK[sym].name,day:sim.day,px:f.price,call:r.call},confidence:r.confidence,draft:[].concat(r.draft||[]),against:r.against||[],rules_used:r.rules_used||[],catches:targets.map(t=>({type:t.type,quote:t.label,why:t.why})),by:viaAI?"claude":"rules"}).then(id=>{if(id){rec.log=id;save()}return id});
-      renderDraft($("mk-draft"),r);drawChartKeep(f);mkStatus("[..] WRAPPING THE CALL FOR PUNK RECORDS",true);
+    onDone:async()=>{if(!opts.train)mkStatus("[..] WRITING THE CALL",true);let r=await p;const viaAI=!!(r&&/^(BUY|AVOID|PASS)$/.test(String(r.call).toUpperCase()));if(!viaAI)r=localCall(f,targets);
+      r.call=String(r.call).toUpperCase();const rec={sym,day:sim.day,px:f.price,call:r.call,tags:callTags(f,targets),why:String(r.headline||"").slice(0,120)};sim.calls.push(rec);if(sim.calls.length>60)sim.calls.shift();save();
+      const logP=logRun({kind:"call",title:r.call+" "+sym+" on practice day "+sim.day,call:{sym,name:MK[sym].name,day:sim.day,px:f.price,call:r.call},confidence:r.confidence,draft:[].concat(r.draft||[]),against:r.against||[],rules_used:r.rules_used||[],catches:targets.map(t=>({type:t.type,quote:t.label,why:t.why})),evidence:rec.tags.map(t=>TAGNAME[t]||t),by:viaAI?"claude":"rules",trained:!!opts.train}).then(id=>{if(id){rec.log=id;save()}return id});
+      renderDraft($("mk-draft"),r);drawChartKeep(f);
+      if(opts.train){await logP;done(rec);return}
+      mkStatus("[..] WRAPPING THE CALL FOR PUNK RECORDS",true);
       wMk.wrap({el:$("vault-market"),color:r.call==="BUY"?COLORS.bullish:r.call==="AVOID"?COLORS.bearish:COLORS.number},async()=>{const id=await logP;mkBusy=false;renderDesk();
-        mkStatus("[OK] CALL LOGGED: "+r.call+" "+sym+". GRADED ON DAY "+(sim.day+5)+"."+(viaAI?"":" Made by the built-in rules.")+(id?" WRAPPED AND SENT TO PUNK RECORDS.":" NOT FILED IN THE VAULT: SIGN IN TO SAVE."))})}});
+        mkStatus("[OK] CALL LOGGED: "+r.call+" "+sym+". GRADED ON DAY "+(sim.day+5)+"."+(viaAI?"":" Made by the built-in rules.")+(id?" WRAPPED AND SENT TO PUNK RECORDS.":" NOT FILED IN THE VAULT: SIGN IN TO SAVE."));done(rec)})}});
+  if(opts.train)wMk.skip();
+})}
+function sendWidow(){if(mkBusy)return;mkBusy=true;renderDesk();widowCall()}
+/* training: each round Widow picks the two stocks with the most going on, calls them, jumps five days and grades itself; then it reviews its results */
+async function train(n){
+  if(mkBusy)return;mkBusy=true;renderDesk();const recs=[];
+  for(let r=1;r<=n;r++){
+    if(S.sim.day>=DAYS-13){newSim();mkStatus("[..] THAT MARKET RAN OUT OF DAYS, SO A NEW ONE STARTED. LESSONS AND TRACK RECORD ARE KEPT.",true)}
+    const picks=CO.map(([sy])=>{const f=feats(sy);return[sy,Math.abs(f.vs20)*20+f.news.length*2+(f.breakout||f.breakdown?2:0)+(f.volx>1.7?1:0)]}).sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>x[0]);
+    for(const sy of picks){if(S.sim.calls.some(k=>k.sym===sy&&k.day===S.sim.day))continue;S.sim.sel=sy;renderMarket();mkStatus("[..] TRAINING ROUND "+r+" OF "+n+": READING "+sy+".",true);recs.push(await widowCall({train:true}));await new Promise(ok=>setTimeout(ok,350))}
+    S.sim.day=Math.min(DAYS-7,S.sim.day+5);grade();save();
+  }
+  renderMarket();
+  const hit=recs.filter(k=>k.ok===true).length,miss=recs.filter(k=>k.ok===false).length,pass=recs.length-hit-miss;let fresh=0,logP=Promise.resolve(null);
+  if(brain&&S.sim.calls.filter(k=>k.ok!=null).length>=3){mkStatus("[..] REVIEWING ITS OWN RESULTS",true);
+    try{const L=await ask(lessonPrompt()),list=(L.lessons||[]).slice(0,6).map(l=>({title:String(l.title||"Lesson").slice(0,80),lesson:String(l.lesson||"").slice(0,300)})).filter(l=>l.lesson);
+      if(list.length){S.lessons=list;fresh=list.length;logP=logRun({kind:"lesson",title:"Lessons after training: "+hit+" hits, "+miss+" misses",lessons:list,record:recordText(1),round:{calls:recs.length,hit,miss,pass}})}}catch(e){}}
+  save();renderLearn();
+  const line="[OK] TRAINED "+n+" ROUNDS: "+recs.length+" CALLS, "+hit+" HITS, "+miss+" MISSES, "+pass+" PASSES."+(fresh?" "+fresh+" LESSONS REWRITTEN AND SENT TO PUNK RECORDS.":brain?" NOT ENOUGH GRADED CALLS YET FOR LESSONS.":" TRACK RECORD UPDATED. SIGN IN FOR WRITTEN LESSONS.");
+  const fin=async()=>{await logP;mkBusy=false;renderDesk();mkStatus(line)};
+  if(fresh)wMk.wrap({el:$("vault-market"),color:COLORS.rule},fin);else fin();
 }
 function drawChartKeep(f){const caught=flags.map(e=>e.classList.contains("caught"));drawChart(f);flags.forEach((e,i)=>caught[i]&&e.classList.add("caught"))}
 function advance(n){if(mkBusy)return;const sim=S.sim;sim.day=Math.min(DAYS-7,sim.day+n);grade();save();$("mk-catches").textContent="";renderMarket();mkStatus("[OK] DAY "+sim.day+". MARKET OPEN.")}
 function trade(dir){
   const sim=S.sim,sym=sim.sel,q=Math.floor(+$("qty").value),p=px(sym);if(!(q>0)){mkStatus("[--] ENTER A WHOLE NUMBER OF SHARES.");return}
   const pos=sim.pos[sym]||{q:0,cost:0};
-  if(dir>0){if(q*p>sim.cash){mkStatus("[--] NOT ENOUGH CASH. "+q+" SHARES COST "+money(q*p)+", YOU HAVE "+money(sim.cash)+".");return}pos.cost=(pos.cost*pos.q+p*q)/(pos.q+q);pos.q+=q;sim.cash-=q*p;sim.pos[sym]=pos;mkStatus("[OK] BOUGHT "+q+" "+sym+" AT "+p.toFixed(2)+".")}
-  else{if(q>pos.q){mkStatus("[--] YOU HOLD "+pos.q+" "+sym+". YOU CANNOT SELL "+q+".");return}pos.q-=q;sim.cash+=q*p;if(!pos.q)delete sim.pos[sym];mkStatus("[OK] SOLD "+q+" "+sym+" AT "+p.toFixed(2)+".")}
+  if(dir>0){if(q*p>sim.cash){mkStatus("[--] NOT ENOUGH CASH. "+q+" SHARES COST "+money(q*p)+", YOU HAVE "+money(sim.cash)+".");return}pos.cost=(pos.cost*pos.q+p*q)/(pos.q+q);pos.q+=q;sim.cash-=q*p;sim.pos[sym]=pos;mkStatus("[OK] BOUGHT "+q+" "+sym+" AT "+p.toFixed(2)+".");logRun({kind:"trade",title:"BUY "+q+" "+sym+" at "+p.toFixed(2),trade:{side:"BUY",sym,name:MK[sym].name,qty:q,px:p,day:sim.day,cash:sim.cash}})}
+  else{if(q>pos.q){mkStatus("[--] YOU HOLD "+pos.q+" "+sym+". YOU CANNOT SELL "+q+".");return}pos.q-=q;sim.cash+=q*p;if(!pos.q)delete sim.pos[sym];mkStatus("[OK] SOLD "+q+" "+sym+" AT "+p.toFixed(2)+".");logRun({kind:"trade",title:"SELL "+q+" "+sym+" at "+p.toFixed(2),trade:{side:"SELL",sym,name:MK[sym].name,qty:q,px:p,day:sim.day,cash:sim.cash,cost:pos.cost,realized:(p-pos.cost)*q}})}
   save();renderDesk();
 }
 
@@ -824,7 +898,7 @@ $("feed-file").onchange=e=>takeFile(e.target.files[0]);
   addEventListener("dragleave",()=>{if(--n<=0){n=0;box.classList.remove("drop")}});
 })();
 $("btn-copy").onclick=async()=>{try{await navigator.clipboard.writeText(lastDraft);$("copy-status").textContent="Copied."}catch(e){$("copy-status").textContent="Copy was blocked. Select the draft text and copy it by hand."}};
-$("btn-call").onclick=sendWidow;$("btn-day").onclick=()=>advance(1);$("btn-week").onclick=()=>advance(5);
+$("btn-call").onclick=sendWidow;$("btn-train").onclick=()=>train(5);$("auto-train").onchange=e=>{S.auto=e.target.checked;save()};$("btn-day").onclick=()=>advance(1);$("btn-week").onclick=()=>advance(5);
 $("btn-buy").onclick=()=>trade(1);$("btn-sell").onclick=()=>trade(-1);
 let resetArmed=0;$("btn-reset").onclick=()=>{if(mkBusy)return;if(Date.now()-resetArmed>4000){resetArmed=Date.now();$("btn-reset").textContent="Click again to wipe account and calls";setTimeout(()=>$("btn-reset").textContent="Start a new market",4000);return}resetArmed=0;$("btn-reset").textContent="Start a new market";newSim();save();$("mk-catches").textContent="";renderMarket();mkStatus("[OK] NEW MARKET. $7,000 IN FAKE CASH.")};
 addEventListener("resize",()=>{if(S.sim&&document.body.dataset.v==="practice"&&!mkBusy)drawChartKeep(feats(S.sim.sel))});
