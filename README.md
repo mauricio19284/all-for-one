@@ -124,3 +124,9 @@ keyword rules when signed out.
   rules_used: [], catches: [{type, quote, why}], source?, rules?: [...], call?: {sym, name, day, px, call, ret?, ok?}}`
   `vault` is false until the "Widow vault sync" scheduled task has written the run into the Obsidian vault (`02 Projects/Widow/`);
   a graded practice call is set back to false so its note is refreshed.
+
+Practice learning: every call stores the evidence behind it (`tags`) and its reason; grading adds to `meta/widow.learn` (`{"<tag>|<call>": {n, hit}}`),
+which scales the built-in rules once a setup has six graded calls and is given to Claude with `meta/widow.lessons` (`[{title, lesson}]`, rewritten by
+Claude after each training run). "Train 5 rounds" picks two stocks a round, calls them, jumps five days and grades; `auto` runs three rounds on the
+first visit of the day. `widowlog` also holds `kind: trade` (`trade: {side, sym, qty, px, day, cash, realized?}`) and `kind: lesson`
+(`lessons`, `record`, `round`). `meta/widowvault: {notes, at}` is the vault note "Notes for Widow", copied in by the vault sync and read into every prompt.
