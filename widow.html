@@ -84,6 +84,9 @@ textarea{min-height:120px;resize:vertical;font-size:14px;line-height:1.5}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .status{font:400 12px/1.4 var(--mono);color:var(--muted);min-height:17px}
 .status.live{color:var(--teal)}
+.vh{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#feed-text.drop{border-color:var(--teal);box-shadow:0 0 0 3px rgba(122,20,32,.14)}
+#file-status{flex:1 1 180px}
 
 .catches{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
 .catches li{--c:var(--num);display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.7);border:1px solid var(--edge);border-left:3px solid var(--c)}
@@ -195,7 +198,12 @@ th{font:400 11px var(--mono);color:var(--muted)}
       <h2 id="feed-h">Send Widow into a page</h2>
       <p class="hint" id="feed-hint">Paste an article, earnings report, filing or your own notes. Widow crawls it top to bottom, webs what matters for a trade, then writes you a draft.</p>
       <input type="text" id="feed-title" placeholder="Name this material (book chapter, video notes, strategy)" data-view="study" style="display:none">
-      <textarea id="feed-text" placeholder="Paste text here"></textarea>
+      <textarea id="feed-text" placeholder="Paste text here, or drop a file on this box"></textarea>
+      <div class="row">
+        <button class="btn" id="btn-file" type="button">Upload a file</button>
+        <input type="file" id="feed-file" class="vh" tabindex="-1" aria-hidden="true" accept=".pdf,.docx,.pptx,.xlsx,.xls,.csv,.tsv,.txt,.md,.html,.htm,.json,.xml,.log,text/*">
+        <span class="status" id="file-status">PDF, Word, PowerPoint, Excel, CSV or any text file.</span>
+      </div>
       <div class="row">
         <button class="btn go" id="btn-run">Release Widow</button>
         <button class="btn" id="btn-skip" disabled>Skip ahead</button>
@@ -767,6 +775,54 @@ addEventListener("hashchange",route);
 $("btn-run").onclick=runRead;
 $("btn-skip").onclick=()=>wRead.skip();
 $("btn-example").onclick=()=>{$("feed-text").value=EXAMPLE;runRead()};
+
+/* ---------- files: the text is pulled out in the browser and put in the box; nothing is uploaded anywhere ---------- */
+const LIMIT=14000,LIBS={pdf:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",pdfWorker:"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",docx:"https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js",zip:"https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",xlsx:"https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"};
+const libCache={};
+function lib(url){return libCache[url]||(libCache[url]=new Promise((ok,no)=>{const t=document.createElement("script");t.src=url;t.onload=ok;t.onerror=()=>{delete libCache[url];no(new Error("The reader for this file type did not load. Check your connection and try again."))};document.head.append(t)}))}
+async function fileText(file){
+  const ext=(file.name.includes(".")?file.name.split(".").pop():"").toLowerCase(),type=file.type||"";
+  if(file.size>30*1024*1024)throw new Error("That file is over 30 MB. Split it or paste the part you need.");
+  if(ext==="pdf"||type==="application/pdf"){
+    await lib(LIBS.pdf);const pj=window.pdfjsLib;pj.GlobalWorkerOptions.workerSrc=LIBS.pdfWorker;
+    const doc=await pj.getDocument({data:await file.arrayBuffer()}).promise;let out="";
+    for(let i=1;i<=doc.numPages&&out.length<LIMIT+2000;i++){const tc=await(await doc.getPage(i)).getTextContent();let y=null,line="";
+      for(const it of tc.items){if(y!==null&&Math.abs(it.transform[5]-y)>3){out+=line.trim()+"\n";line=""}y=it.transform[5];line+=it.str+" "}out+=line.trim()+"\n\n"}
+    if(out.replace(/\s/g,"").length<20)throw new Error("This PDF has no text layer (it is a scan or pictures). Widow reads text only, so paste the text or use a text PDF.");
+    return{text:out,pages:doc.numPages};
+  }
+  if(ext==="docx"){await lib(LIBS.docx);return{text:(await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()})).value}}
+  if(ext==="pptx"){await lib(LIBS.zip);const z=await window.JSZip.loadAsync(await file.arrayBuffer());
+    const names=Object.keys(z.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));let out="";const ta=document.createElement("textarea");
+    for(const n of names){const xml=await z.files[n].async("string"),bits=(xml.match(/<a:t>[^<]*<\/a:t>/g)||[]).map(m=>{ta.innerHTML=m.slice(5,-6);return ta.value});out+=bits.join(" ")+"\n\n"}
+    return{text:out,pages:names.length};
+  }
+  if(ext==="xlsx"||ext==="xls"){await lib(LIBS.xlsx);const wb=window.XLSX.read(await file.arrayBuffer(),{type:"array"});
+    return{text:wb.SheetNames.map(n=>"Sheet: "+n+"\n"+window.XLSX.utils.sheet_to_csv(wb.Sheets[n])).join("\n\n")}}
+  if(/^(image|audio|video)\//.test(type)||["doc","ppt","zip","rar","7z","key","pages","numbers","epub"].includes(ext))
+    throw new Error(/^image/.test(type)?"Widow reads text, and a picture has none it can read. Paste what the picture says.":"Widow can't open ."+(ext||"this")+" files. Save it as PDF or Word, or paste the text.");
+  let text=await file.text();
+  if((text.slice(0,4000).match(/[\u0000-\u0008\uFFFD]/g)||[]).length>40)throw new Error("Widow can't read this file type. Save it as PDF, Word or text, or paste the text.");
+  if(ext==="html"||ext==="htm"||type==="text/html"){const d=new DOMParser().parseFromString(text,"text/html");d.querySelectorAll("script,style,noscript").forEach(e=>e.remove());text=(d.body?d.body.innerText||d.body.textContent:"")||""}
+  return{text};
+}
+async function takeFile(file){
+  if(!file||readBusy)return;const st=$("file-status");st.classList.add("live");st.textContent="Reading "+file.name+"…";
+  try{const r=await fileText(file),clean=r.text.replace(/\r/g,"").replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+    if(!clean)throw new Error("No text was found in "+file.name+".");
+    $("feed-text").value=clean.slice(0,LIMIT);if(!$("feed-title").value.trim())$("feed-title").value=file.name.replace(/\.[^.]+$/,"");
+    st.classList.remove("live");st.textContent=file.name+(r.pages?" ("+r.pages+(r.pages===1?" page":" pages")+")":"")+": "+clean.length.toLocaleString("en-US")+" characters."+(clean.length>LIMIT?" Widow reads the first "+LIMIT.toLocaleString("en-US")+" per run, so the rest was cut. Paste later sections to run them separately.":" Ready. Press the button to send Widow in.");
+  }catch(e){st.classList.remove("live");st.textContent=(e&&e.message)||"That file could not be read."}
+  $("feed-file").value="";
+}
+$("btn-file").onclick=()=>$("feed-file").click();
+$("feed-file").onchange=e=>takeFile(e.target.files[0]);
+(function(){const box=$("feed-text");let n=0;
+  addEventListener("dragover",e=>{if(e.dataTransfer&&[...e.dataTransfer.types].includes("Files"))e.preventDefault()});
+  addEventListener("drop",e=>{if(e.dataTransfer&&e.dataTransfer.files.length){e.preventDefault();n=0;box.classList.remove("drop");takeFile(e.dataTransfer.files[0])}});
+  addEventListener("dragenter",e=>{if(e.dataTransfer&&[...e.dataTransfer.types].includes("Files")){n++;box.classList.add("drop")}});
+  addEventListener("dragleave",()=>{if(--n<=0){n=0;box.classList.remove("drop")}});
+})();
 $("btn-copy").onclick=async()=>{try{await navigator.clipboard.writeText(lastDraft);$("copy-status").textContent="Copied."}catch(e){$("copy-status").textContent="Copy was blocked. Select the draft text and copy it by hand."}};
 $("btn-call").onclick=sendWidow;$("btn-day").onclick=()=>advance(1);$("btn-week").onclick=()=>advance(5);
 $("btn-buy").onclick=()=>trade(1);$("btn-sell").onclick=()=>trade(-1);
