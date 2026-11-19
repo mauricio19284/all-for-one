@@ -58,12 +58,15 @@ h2{margin:0;font:700 16px/1.2 var(--display);letter-spacing:.18em;text-transform
 .stage{position:relative;flex:1;min-height:420px;overflow:hidden;padding:0}
 .sheet{position:absolute;inset:0;overflow:auto;padding:0 26px 280px;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
 canvas.web{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.band{min-height:128px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;padding-right:350px;border-bottom:1px dashed var(--edge);margin-bottom:18px}
+.band{min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:4px;position:relative;padding-right:350px;border-bottom:1px dashed var(--edge);margin-bottom:18px}
 .band .tag{font:400 12px var(--mono);color:var(--muted)}
 .band .ttl{font:700 26px/1.15 var(--display);text-wrap:balance}
-.vault{position:absolute;right:178px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;border:1px solid var(--edge);background:var(--glass-2);box-shadow:inset 0 1px 0 var(--edge-hi),0 8px 20px -12px rgba(17,17,28,.3)}
-.vault .gem{width:22px;height:26px;background:linear-gradient(155deg,#555,#111 60%);clip-path:polygon(50% 0,100% 32%,80% 100%,20% 100%,0 32%)}
-.vault b{display:block;font:700 14px/1.1 var(--display);letter-spacing:.18em}
+.vault{position:absolute;right:178px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 16px 9px;border-radius:16px;border:1px solid var(--edge);background:var(--glass-2);box-shadow:inset 0 1px 0 var(--edge-hi),0 8px 20px -12px rgba(17,17,28,.3)}
+.temple{width:112px;height:78px;fill:#fff;stroke:#111;stroke-width:1.3;stroke-linejoin:round}
+.temple .door{fill:#111}
+.vault.got .temple .door{animation:door 2.6s ease-out}
+@keyframes door{0%{fill:#111}18%{fill:#F2C14E;filter:drop-shadow(0 0 7px #F2C14E)}70%{fill:#F2C14E;filter:drop-shadow(0 0 7px #F2C14E)}100%{fill:#111}}
+.vault b{display:block;font:700 15px/1.1 var(--display);letter-spacing:.2em}
 .vault i{display:block;font:400 10.5px/1.3 var(--mono);font-style:normal;color:var(--muted)}
 .vault.got{animation:got .9s ease-out}
 @keyframes got{30%{box-shadow:0 0 0 7px rgba(122,20,32,.22);background:#fff}}
@@ -178,7 +181,7 @@ th{font:400 11px var(--mono);color:var(--muted)}
   <div class="col">
     <section class="glass stage" id="stage-read" data-view="hunt study" aria-label="Page under the web">
       <div class="sheet" id="sheet-read">
-        <div class="band"><span class="tag" id="read-tag">EXAMPLE PAGE. Paste your own on the right.</span><span class="ttl" id="read-ttl">Novara Chips third-quarter report</span><div class="vault" id="vault-read"><span class="gem" aria-hidden="true"></span><span><b>PUNK RECORDS</b><i>OBSIDIAN VAULT</i></span></div></div>
+        <div class="band"><span class="tag" id="read-tag">EXAMPLE PAGE. Paste your own on the right.</span><span class="ttl" id="read-ttl">Novara Chips third-quarter report</span><div class="vault" id="vault-read"><svg class="temple" viewBox="0 0 120 84" aria-hidden="true"><path d="M8 25 60 4l52 21Z"/><circle cx="60" cy="16" r="3.2"/><rect x="13" y="25" width="94" height="6"/><rect class="door" x="52" y="38" width="16" height="30"/><rect x="20" y="31" width="9" height="37"/><rect x="38" y="31" width="9" height="37"/><rect x="73" y="31" width="9" height="37"/><rect x="91" y="31" width="9" height="37"/><rect x="12" y="68" width="96" height="6"/><rect x="5" y="74" width="110" height="6"/></svg><span><b>PUNK RECORDS</b><i>OBSIDIAN VAULT</i></span></div></div>
         <div class="paper" id="paper"></div>
       </div>
       <div class="verdict" id="verdict-read"><span class="vt" data-k="go">BUY</span><span class="vt" data-k="wait">WAIT</span><span class="vt" data-k="no">DON'T BUY</span></div>
@@ -187,7 +190,7 @@ th{font:400 11px var(--mono);color:var(--muted)}
 
     <section class="glass stage" id="stage-market" data-view="practice" aria-label="Practice market">
       <div class="sheet" id="sheet-market">
-        <div class="band"><span class="tag">SIMULATED MARKET. Fake companies, fake money.</span><span class="ttl" id="mk-day">Day 60</span><div class="vault" id="vault-market"><span class="gem" aria-hidden="true"></span><span><b>PUNK RECORDS</b><i>OBSIDIAN VAULT</i></span></div></div>
+        <div class="band"><span class="tag">SIMULATED MARKET. Fake companies, fake money.</span><span class="ttl" id="mk-day">Day 60</span><div class="vault" id="vault-market"><svg class="temple" viewBox="0 0 120 84" aria-hidden="true"><path d="M8 25 60 4l52 21Z"/><circle cx="60" cy="16" r="3.2"/><rect x="13" y="25" width="94" height="6"/><rect class="door" x="52" y="38" width="16" height="30"/><rect x="20" y="31" width="9" height="37"/><rect x="38" y="31" width="9" height="37"/><rect x="73" y="31" width="9" height="37"/><rect x="91" y="31" width="9" height="37"/><rect x="12" y="68" width="96" height="6"/><rect x="5" y="74" width="110" height="6"/></svg><span><b>PUNK RECORDS</b><i>OBSIDIAN VAULT</i></span></div></div>
         <div class="tickers" id="tickers"></div>
         <div class="quote" id="quote"></div>
         <div class="chips" id="chips"></div>
@@ -322,7 +325,7 @@ class Widow{
   world(lx,ly){const c=Math.cos(this.ang),s=Math.sin(this.ang);return{x:this.p.x+c*lx-s*ly,y:this.p.y+s*lx+c*ly}}
   home(l){return this.world(l.hx+Math.cos(l.a)*l.r,l.hy+Math.sin(l.a)*l.r)}
   head(){return this.world(22*this.S,0)}
-  perch(){this.p={x:Math.max(90,this.W-92),y:66};this.ang=Math.PI/2;this.v={x:0,y:0};this.goal=null;for(const l of this.legs){l.foot=this.home(l);l.step=null}}
+  perch(){this.p={x:Math.max(90,this.W-92),y:76};this.ang=Math.PI/2;this.v={x:0,y:0};this.goal=null;for(const l of this.legs){l.foot=this.home(l);l.step=null}}
   reset(){this.nodes=[];this.strands=[];this.trail=[];this.queue=[];this.cb=null;this.state="idle";this.fast=false;this.patrolling=false;this.par=null;this.shot=null;this.sheet.scrollTop=0;this.perch()}
   patrol(on){this.patrolling=on;if(on){this.state="patrol";this.goal={x:this.W*.5,y:66}}else if(this.state==="patrol"){this.state="idle";this.goal=null}}
   center(e){const r=(e.getClientRects()[0])||e.getBoundingClientRect(),s=this.sheet.getBoundingClientRect();return{x:r.left-s.left+this.sheet.scrollLeft+r.width/2,y:r.top-s.top+this.sheet.scrollTop+r.height/2}}
