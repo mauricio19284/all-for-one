@@ -1272,14 +1272,16 @@ body:has(#view-home:not([hidden])) .cape{display:block}
   .depth{display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:0; pointer-events:none;
     transform-origin:var(--zx,44%) var(--zy,35%); transform:scale(var(--zs,1)); will-change:transform}
   body:has(#view-home:not([hidden])) .depth.on{display:block}
-  /* opening clip: img/hero-turn.mp4 laid exactly over the still photo (same cover fit), played once, then faded away */
+  /* opening clip: img/hero-turn.mp4 laid exactly over the still photo (same cover fit). It plays once and then stays on
+     its last frame, so Alexander remains where he walked to; it zooms with the scroll film like the photo does */
   .intro{display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; object-fit:cover; object-position:52% 46%;
-    z-index:0; pointer-events:none; opacity:0; transition:opacity .8s ease}
+    z-index:0; pointer-events:none; opacity:0; transition:opacity .8s ease;
+    transform-origin:var(--zx,44%) var(--zy,35%); transform:scale(var(--zs,1)); will-change:transform}
   body:has(#view-home:not([hidden])) .intro.show{display:block}
   .intro.play{opacity:1}
   html.intro-lock{overflow:hidden}            /* no scrolling until the clip has finished */
   .cape{transition:opacity .8s ease}
-  html.intro-lock .cape{opacity:0}            /* the cape cut-out waits, so it never sits on top of the moving figure */
+  html.intro-lock .cape, html.intro-held .cape{opacity:0}   /* the cape cut-out belongs to the old pose, so it stays away once he has moved */
   #view-home .hero{will-change:transform}
   #view-home .hero h1{transform-origin:0 60%}
   #view-home .homegrid{position:relative; z-index:2; perspective:1500px}
@@ -1526,29 +1528,30 @@ document.addEventListener("DOMContentLoaded",function(){
   }
 
   // ----- opening clip -----
-  // Order of events on the home page: 1) the clip of Alexander plays once, with scrolling held;
-  // 2) it fades back into the still photo; 3) only then does the scroll film below start listening.
-  // It plays once per visit (per browser tab), not every time you come back to Home from another tab.
+  // Order of events on the home page: 1) the clip of Alexander walking plays once, with scrolling held;
+  // 2) it stops on its last frame and stays there, so he remains at the balcony; 3) only then does the
+  // scroll film below start listening. It plays on every page load, not when you come back to Home from another tab.
   const INTRO="img/hero-turn.mp4";
   let intro=false;
   (function(){
-    const v=document.getElementById("intro"); let seen=false;
-    try{seen=sessionStorage.getItem("afo-intro")==="1";}catch(_){}
-    if(!v||seen||!mq.matches||view.hidden)return;
+    const v=document.getElementById("intro");
+    if(!v||!mq.matches||view.hidden)return;
     intro=true; root.classList.add("intro-lock"); scrollTo(0,0);
     let done=false;
-    const end=()=>{
+    const end=held=>{
       if(done)return; done=true;
-      try{sessionStorage.setItem("afo-intro","1");}catch(_){}
-      v.classList.remove("play");                       // fade the clip out over the still photo
-      root.classList.remove("intro-lock");              // cape back, scrolling back
-      setTimeout(()=>{v.classList.remove("show");v.pause();v.removeAttribute("src");v.load();},900);
+      if(held){root.classList.add("intro-held");v.pause();}        // keep the last frame on screen
+      else{                                                        // the clip failed: fall back to the still photo
+        v.classList.remove("play");
+        setTimeout(()=>{v.classList.remove("show");v.pause();v.removeAttribute("src");v.load();},900);
+      }
+      root.classList.remove("intro-lock");                         // scrolling back
       intro=false; kick();
     };
     v.addEventListener("playing",()=>{v.classList.add("show");requestAnimationFrame(()=>v.classList.add("play"));},{once:true});
-    v.addEventListener("ended",end); v.addEventListener("error",end);
-    setTimeout(end,12000);                              // safety net: never hold the page longer than this
-    v.src=INTRO; const pl=v.play(); if(pl&&pl.catch)pl.catch(end);
+    v.addEventListener("ended",()=>end(true)); v.addEventListener("error",()=>end(false));
+    setTimeout(()=>end(false),12000);                              // safety net: never hold the page longer than this
+    v.src=INTRO; const pl=v.play(); if(pl&&pl.catch)pl.catch(()=>end(false));
   })();
 
   function measure(){
