@@ -1265,23 +1265,32 @@ body:has(#view-home:not([hidden])) .cape{display:block}
    Alexander toward the acropolis, the day name and the hexagons break apart, and the two glass cards rise and
    tilt into place. Driven by the script after the cape script (search "home scroll film"). Home only, desktop
    only, and off entirely when the system asks for reduced motion. Delete this block + that script to remove it. */
+/* --zs (the zoom) is registered as non-inheriting, so changing it every frame restyles only <body>'s own photo layer
+   instead of forcing the browser to re-check every element on the page */
+@property --zs{syntax:"<number>"; inherits:false; initial-value:1}
 @media (min-width:821px) and (prefers-reduced-motion:no-preference){
   body:has(#view-home:not([hidden]))::before{transform-origin:var(--zx,44%) var(--zy,35%); transform:scale(var(--zs,1)); will-change:transform}
+  /* give every moving piece its own GPU layer up front, so the first scroll does not stutter while layers are built */
+  #view-home .hero h1, #view-home .hive .hex, #view-home .hquote, #view-home .eyebrow, #view-home .motto, #view-home .capture,
+  #view-home .sideline, #view-home .homegrid .panel{will-change:transform,opacity}
+  /* while the film is moving, the hexagons drop their live blur (re-blurring 11 moving shapes every frame is the costly part) */
+  #view-home.filming .hx::before{-webkit-backdrop-filter:none; backdrop-filter:none}
   #view-home{padding-bottom:12vh}
   /* cursor depth: a WebGL copy of the photo that sits exactly over the still one and shifts near things more than far ones */
   .depth{display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:0; pointer-events:none;
-    transform-origin:var(--zx,44%) var(--zy,35%); transform:scale(var(--zs,1)); will-change:transform}
+    transform-origin:var(--zx,44%) var(--zy,35%); will-change:transform}
   body:has(#view-home:not([hidden])) .depth.on{display:block}
   /* opening clip: img/hero-turn.mp4 laid exactly over the still photo (same cover fit). It plays once and then stays on
      its last frame, so Alexander remains where he walked to; it zooms with the scroll film like the photo does */
   .intro{display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; object-fit:cover; object-position:52% 46%;
     z-index:0; pointer-events:none; opacity:0; transition:opacity .8s ease;
-    transform-origin:var(--zx,44%) var(--zy,35%); transform:scale(var(--zs,1)); will-change:transform}
+    transform-origin:var(--zx,44%) var(--zy,35%); will-change:transform}
   body:has(#view-home:not([hidden])) .intro.show{display:block}
   .intro.play{opacity:1}
   html.intro-lock{overflow:hidden}            /* no scrolling until the clip has finished */
   .cape{transition:opacity .8s ease}
-  html.intro-lock .cape, html.intro-held .cape{opacity:0}   /* the cape cut-out belongs to the old pose, so it stays away once he has moved */
+  html.intro-lock .cape{opacity:0}                 /* the cape cut-out belongs to the old pose, so it waits during the clip... */
+  html.intro-held .cape{display:none!important}    /* ...and is switched off after it (its wind filter is costly to keep running unseen) */
   #view-home .hero{will-change:transform}
   #view-home .hero h1{transform-origin:0 60%}
   #view-home .homegrid{position:relative; z-index:2; perspective:1500px}
@@ -1295,6 +1304,7 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="plans.js"></script>
+<script src="lenis.min.js"></script>
 
 <!-- ===== Today tab restyle. Scoped to #view-today — nothing else on the site is affected. ===== -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&display=swap">
@@ -1410,6 +1420,48 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
   #view-today .must .k,#view-today .kv .k{flex:none; padding-top:6px}
   #view-today .draftmeta{gap:14px 32px}
 }
+</style>
+
+<!-- ===== Dark glass boxes (Home + Today). Only the cards change: the page backgrounds and photos are untouched.
+     To go back to the light cards, delete this <link> and <style id="dark-boxes"> block. ===== -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<style id="dark-boxes">
+:is(#view-home,#view-today) .panel.panel{
+  /* the colours every card element reads from, flipped for a dark surface */
+  --ink:#FFFFFF; --ink-2:rgba(255,255,255,.86); --muted:rgba(255,255,255,.6);
+  --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.32);
+  --field:rgba(255,255,255,.07); --paper:#0A0A0A; --surface-2:rgba(255,255,255,.07); --ground:#0A0A0A;
+  --glass:rgba(8,8,8,.74); --glass-strong:rgba(8,8,8,.9);
+  --accent:#FF8E9A; --accent-fill:#FFFFFF; --accent-ink:#0A0A0A; --accent-soft:rgba(255,142,154,.16);
+  --copper:#E9C97E; --copper-soft:rgba(233,201,126,.16); --crit:#FF9A8A; --ok:#8FD6A4; --warn:#F0C36A;
+  --sans:'Poppins',system-ui,sans-serif; --serif:'Poppins',system-ui,sans-serif; --display:'Poppins',system-ui,sans-serif;
+  font-family:'Poppins',system-ui,sans-serif; color:#fff;
+  background:rgba(8,8,8,.74)!important; border:1px solid rgba(255,255,255,.92)!important; border-radius:0!important;
+  box-shadow:0 30px 70px rgba(0,0,0,.4)!important;
+  -webkit-backdrop-filter:blur(26px) saturate(120%)!important; backdrop-filter:blur(26px) saturate(120%)!important;
+}
+:is(#view-home,#view-today) .panel :is(h2,h3,p,b,li,label,dt,dd,summary,span,div,time,button,input,textarea,select){font-family:'Poppins',system-ui,sans-serif}
+:is(#view-home,#view-today) .panel > header{padding:26px 30px 10px; align-items:center}
+:is(#view-home,#view-today) .panel > header h2{font-size:26px; font-weight:700; letter-spacing:0; text-transform:uppercase; line-height:1.05; color:#fff}
+:is(#view-home,#view-today) .panel .body{padding:10px 30px 28px}
+:is(#view-home,#view-today) .panel .mono{font-family:'Poppins',system-ui,sans-serif}
+/* anything that had a fixed light fill becomes a faint light-on-dark fill */
+:is(#view-home,#view-today) .panel :is(input:not([type=checkbox]):not([type=radio]),textarea,select,.flag,#suggestbox,#tsuggestbox,.split div,.hcell,.chip,.prep li){
+  background:rgba(255,255,255,.07)!important; color:#fff; border-color:rgba(255,255,255,.28); border-radius:0!important}
+:is(#view-home,#view-today) .panel :is(input,textarea)::placeholder{color:rgba(255,255,255,.45)}
+:is(#view-home,#view-today) .panel select option{color:#111}
+:is(#view-home,#view-today) .panel input[type=checkbox]{background:transparent!important; border:1.5px solid rgba(255,255,255,.8); border-radius:0}
+:is(#view-home,#view-today) .panel input[type=checkbox]:checked{background:#fff!important; border-color:#fff}
+:is(#view-home,#view-today) .panel .btn{background:#fff!important; color:#0A0A0A!important; border:1px solid #fff!important; border-radius:0!important}
+:is(#view-home,#view-today) .panel .btn.ghost{background:transparent!important; color:#fff!important; border:1px solid rgba(255,255,255,.7)!important}
+:is(#view-home,#view-today) .panel .btn:hover{background:rgba(255,255,255,.86)!important; color:#0A0A0A!important}
+:is(#view-home,#view-today) .panel .btn.ghost:hover{background:rgba(255,255,255,.14)!important; color:#fff!important}
+:is(#view-home,#view-today) .panel .chip{color:rgba(255,255,255,.86)}
+:is(#view-home,#view-today) .panel .chip.due-crit{color:var(--crit)} :is(#view-home,#view-today) .panel :is(.chip.due-warn,.chip.kind){color:var(--copper)}
+:is(#view-home,#view-today) .panel .tl li.past{opacity:.55}
+#view-home .panel .cday.today{background:#fff; border-color:#fff; color:#0A0A0A}
+#view-home .panel .cday.today[aria-pressed="true"]{box-shadow:0 0 0 2px #0A0A0A, 0 0 0 3.5px #fff}
+#view-home .panel .calnav button{color:#fff}
 </style>
 </head>
 <body>
@@ -1554,71 +1606,111 @@ document.addEventListener("DOMContentLoaded",function(){
     v.src=INTRO; const pl=v.play(); if(pl&&pl.catch)pl.catch(()=>end(false));
   })();
 
+  const vid=document.getElementById("intro");
+  let gridTop=0, room=1, last=0, zLast=-1, pe=null, vis=null, filming=null, lenis=null, lraf=0;
+
   function measure(){
     const W=innerWidth, H=innerHeight, s=Math.max(W/IW,H/IH);
     fitS=s; fitX=(W-IW*s)*PX; fitY=(H-IH*s)*PY; glSize();
     zx=fitX+FX*IW*s; zy=fitY+FY*IH*s;
     root.style.setProperty("--zx",zx+"px"); root.style.setProperty("--zy",zy+"px");
+    if(cape)cape.style.transformOrigin=(zx-cape.offsetLeft)+"px "+(zy-cape.offsetTop)+"px";
     // each hexagon flies straight away from the middle of the hive
     const c=hexes.map(h=>[h.offsetLeft+h.offsetWidth/2,h.offsetTop+h.offsetHeight/2]);
     const mx=c.reduce((n,v)=>n+v[0],0)/(c.length||1), my=c.reduce((n,v)=>n+v[1],0)/(c.length||1);
     vec=c.map((v,i)=>{let x=v[0]-mx,y=v[1]-my;const l=Math.hypot(x,y);if(l<12){x=0;y=-70;}return [x,y,i%2?1:-1];});
+    sizes();
+  }
+  // Layout numbers are read here, once, instead of inside every frame: asking the browser for positions
+  // mid-animation makes it stop and re-measure the page, which is a classic cause of stutter.
+  function sizes(){
+    gridTop=grid.getBoundingClientRect().top+scrollY;
+    room=Math.max(1,Math.min(hero.offsetHeight*.85,root.scrollHeight-innerHeight));
   }
   function clear(){
-    root.style.removeProperty("--zs");
-    [hero,h1,cape].concat(hexes,panels,parts.map(a=>a[0])).forEach(el=>{if(el){el.style.transform="";el.style.opacity="";el.style.filter="";}});
-    hero.style.pointerEvents="";hero.style.visibility="";
+    document.body.style.removeProperty("--zs"); zLast=-1;
+    [hero,h1,cape,vid,cv].concat(hexes,panels,parts.map(a=>a[0])).forEach(el=>{if(el){el.style.transform="";el.style.opacity="";el.style.filter="";}});
+    hero.style.pointerEvents="";hero.style.visibility="";pe=vis=null;
+    view.classList.remove("filming");filming=null;
   }
   function draw(p){
     const y=scrollY, z=1+out(p)*ZOOM, vh=innerHeight;
-    // 1. the camera: the photo and the cape cut-out grow together, toward the acropolis
-    root.style.setProperty("--zs",z.toFixed(4));
-    if(cape){
-      // the cape rides with Alexander: same zoom, plus the same sideways shift the shader gives his depth
-      const k=gl?(FIG-FAR)*DEPTH*IW*fitS*z:0;
-      cape.style.transformOrigin=(zx-cape.offsetLeft)+"px "+(zy-cape.offsetTop)+"px";
-      cape.style.transform="translate3d("+(mx*k).toFixed(2)+"px,"+(my*k*.8).toFixed(2)+"px,0) scale("+z.toFixed(4)+")";
+    // 1. the camera: the photo, the clip and the cape cut-out grow together, toward the acropolis
+    if(z!==zLast){
+      zLast=z; const zs=z.toFixed(4), sc="scale("+zs+")";
+      document.body.style.setProperty("--zs",zs);
+      if(vid)vid.style.transform=sc; if(cv)cv.style.transform=sc;
+      if(cape&&!root.classList.contains("intro-held")){
+        const k=gl?(FIG-FAR)*DEPTH*IW*fitS*z:0;
+        cape.style.transform="translate3d("+(mx*k).toFixed(2)+"px,"+(my*k*.8).toFixed(2)+"px,0) "+sc;
+      }
     }
     glDraw();
+    const f1=p>.002; if(f1!==filming){filming=f1;view.classList.toggle("filming",f1);}
     // 2. the hero holds its place while the page moves under it (it only drifts up at a fifth of the speed)
     hero.style.transform="translate3d(0,"+(y*.8).toFixed(1)+"px,0)";
-    hero.style.pointerEvents=p>.4?"none":"";hero.style.visibility=p>=.995?"hidden":"";
-    // 3. the day name swells toward you and dissolves
-    let t=clamp(p/.62);
-    h1.style.transform="translate3d(0,"+(-t*36).toFixed(1)+"px,0) scale("+(1+t*.34).toFixed(4)+")";
-    h1.style.opacity=(1-t*t).toFixed(3);h1.style.filter=t>.01?"blur("+(t*9).toFixed(2)+"px)":"";
-    // 4. the small lines lift away at different speeds (parallax)
-    parts.forEach(a=>{const f=clamp(p/a[2]);a[0].style.transform="translate3d(0,"+(-p*a[1]*2.2).toFixed(1)+"px,0)";a[0].style.opacity=(1-f).toFixed(3);});
-    // 5. the hive breaks apart, one hexagon after another
-    hexes.forEach((h,i)=>{
-      const v=vec[i]||[0,-70,1], f=clamp((p-i*.03)/.5), e=f*f;
-      h.style.transform="translate3d("+(v[0]*e*1.9).toFixed(1)+"px,"+(v[1]*e*1.9-e*46).toFixed(1)+"px,0) rotate("+(v[2]*e*64).toFixed(2)+"deg) scale("+(1-e*.5).toFixed(4)+")";
-      h.style.opacity=(1-f).toFixed(3);
-    });
+    const p1=p>.4?"none":"", v1=p>=.995?"hidden":"";
+    if(p1!==pe){pe=p1;hero.style.pointerEvents=p1;} if(v1!==vis){vis=v1;hero.style.visibility=v1;}
+    if(v1==="")  {
+      // 3. the day name swells toward you and dissolves
+      const t=clamp(p/.62);
+      h1.style.transform="translate3d(0,"+(-t*36).toFixed(1)+"px,0) scale("+(1+t*.34).toFixed(4)+")";
+      h1.style.opacity=(1-t*t).toFixed(3);
+      // 4. the small lines lift away at different speeds (parallax)
+      parts.forEach(a=>{const f=clamp(p/a[2]);a[0].style.transform="translate3d(0,"+(-p*a[1]*2.2).toFixed(1)+"px,0)";a[0].style.opacity=(1-f).toFixed(3);});
+      // 5. the hive breaks apart, one hexagon after another
+      hexes.forEach((h,i)=>{
+        const v=vec[i]||[0,-70,1], f=clamp((p-i*.03)/.5), e=f*f;
+        h.style.transform="translate3d("+(v[0]*e*1.9).toFixed(1)+"px,"+(v[1]*e*1.9-e*46).toFixed(1)+"px,0) rotate("+(v[2]*e*64).toFixed(2)+"deg) scale("+(1-e*.5).toFixed(4)+")";
+        h.style.opacity=(1-f).toFixed(3);
+      });
+    }
     // 6. the glass cards rise from below and tilt flat as they arrive
-    const top=grid.getBoundingClientRect().top;
+    const top=gridTop-y;
     panels.forEach((el,j)=>{
       const e=out(clamp((vh-top-j*70)/(vh*.62)));
       el.style.transform="translate3d(0,"+((1-e)*64).toFixed(1)+"px,0) rotateX("+((1-e)*15).toFixed(2)+"deg) scale("+(.955+.045*e).toFixed(4)+")";
       el.style.opacity=(.55+.45*e).toFixed(3);
     });
   }
-  function frame(){
+
+  // ----- smooth scrolling (Lenis) -----
+  // A mouse wheel moves the page in jumps of about 100px, which is what makes a scroll film look blocky.
+  // Lenis (lenis.min.js, MIT licence) turns each jump into a short glide. It runs on Home only and is
+  // switched off on every other tab, so the rest of the site scrolls exactly as before.
+  function smoothOn(){
+    if(lenis||typeof Lenis==="undefined")return;
+    try{lenis=new Lenis({lerp:.11,smoothWheel:true,autoRaf:false});}catch(_){lenis=null;return;}
+    const loop=t=>{if(!lenis)return;lenis.raf(t);lraf=requestAnimationFrame(loop);};
+    lraf=requestAnimationFrame(loop);
+  }
+  function smoothOff(){
+    if(!lenis)return;
+    cancelAnimationFrame(lraf); try{lenis.destroy();}catch(_){}
+    lenis=null; root.classList.remove("lenis","lenis-smooth","lenis-scrolling","lenis-stopped");
+  }
+
+  function frame(now){
     raf=0;
-    if(view.hidden||!mq.matches||intro){if(on){on=false;clear();}cur=tgt=0;return;}
-    if(!on){on=true;glStart();measure();}
+    if(view.hidden||!mq.matches||intro){if(on){on=false;clear();}smoothOff();cur=tgt=0;return;}
+    if(!on){on=true;glStart();measure();smoothOn();last=0;}
     mx+=(tmx-mx)*.07; my+=(tmy-my)*.07; if(Math.abs(tmx-mx)+Math.abs(tmy-my)<.0015){mx=tmx;my=tmy;}
-    const room=Math.max(1,Math.min(hero.offsetHeight*.85,root.scrollHeight-innerHeight));
     tgt=clamp(scrollY/room);
-    cur+=(tgt-cur)*.16; if(Math.abs(tgt-cur)<.0006)cur=tgt;   // ease toward the scroll position so it glides
+    if(lenis)cur=tgt;                       // Lenis already glides the scroll itself, so follow it exactly
+    else{                                   // fallback: ease toward the scroll position, at the same pace on any screen refresh rate
+      const dt=last?Math.min(64,now-last):16.7; last=now;
+      cur+=(tgt-cur)*(1-Math.exp(-dt/90)); if(Math.abs(tgt-cur)<.0006)cur=tgt;
+    }
     draw(cur);
-    if(cur!==tgt||mx!==tmx||my!==tmy)kick();
+    if(cur!==tgt||mx!==tmx||my!==tmy)kick();else last=0;
   }
   function kick(){if(!raf)raf=requestAnimationFrame(frame);}
   addEventListener("scroll",kick,{passive:true});
   addEventListener("resize",()=>{on=false;kick();});
   addEventListener("load",()=>{on=false;kick();});
   new MutationObserver(kick).observe(view,{attributes:true,attributeFilter:["hidden"]});
+  // the cards grow when your data loads; re-read the page size then (not on every frame)
+  if(window.ResizeObserver)new ResizeObserver(()=>{if(on){sizes();kick();}}).observe(view);
   kick();
 });
 </script>
