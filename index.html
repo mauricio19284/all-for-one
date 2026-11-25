@@ -1268,6 +1268,10 @@ body:has(#view-home:not([hidden])) .cape{display:block}
 @media (min-width:821px) and (prefers-reduced-motion:no-preference){
   body:has(#view-home:not([hidden]))::before{transform-origin:var(--zx,44%) var(--zy,35%); transform:scale(var(--zs,1)); will-change:transform}
   #view-home{padding-bottom:12vh}
+  /* cursor depth: a WebGL copy of the photo that sits exactly over the still one and shifts near things more than far ones */
+  .depth{display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; z-index:0; pointer-events:none;
+    transform-origin:var(--zx,44%) var(--zy,35%); transform:scale(var(--zs,1)); will-change:transform}
+  body:has(#view-home:not([hidden])) .depth.on{display:block}
   #view-home .hero{will-change:transform}
   #view-home .hero h1{transform-origin:0 60%}
   #view-home .homegrid{position:relative; z-index:2; perspective:1500px}
@@ -1420,6 +1424,7 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
   <feComposite in="n3" in2="g" operator="arithmetic" k1="1" k2="0" k3="-0.5" k4="0.5" result="nw"/>
   <feDisplacementMap in="SourceGraphic" in2="nw" scale="30" xChannelSelector="R" yChannelSelector="G"/>
 </filter></defs></svg>
+<canvas class="depth" id="depth" aria-hidden="true"></canvas>
 <img class="cape" id="cape" src="img/cape.png" alt="" aria-hidden="true">
 <script>
 // Place the cape cut-out exactly where it sits inside the cover-fitted hero photo (same math as background-size:cover).
@@ -1453,9 +1458,65 @@ document.addEventListener("DOMContentLoaded",function(){
   const clamp=x=>x<0?0:x>1?1:x, out=x=>1-Math.pow(1-x,3);
   let cur=0, tgt=0, raf=0, zx=0, zy=0, vec=[], on=false;
 
+  // ----- cursor depth -----
+  // img/hero-depth.jpg is a grey copy of the photo where white = close to the camera and black = far away.
+  // The shader slides every pixel toward the cursor by (its depth x DEPTH), so Alexander and the table move
+  // more than the city and the sky stays put. That difference in movement is what reads as 3D.
+  const DEPTH=.022;      // strength: how far the nearest things travel, as a share of the photo's width
+  const FAR=.1;          // depth that does not move at all (the sky is 0, Alexander is about .72)
+  const FIG=.72;         // Alexander's depth, so the cape cut-out can follow him exactly
+  const cv=document.getElementById("depth");
+  let gl=null, U={}, mx=0, my=0, tmx=0, tmy=0, fitS=1, fitX=0, fitY=0;
+  function glStart(){
+    if(gl||!cv)return;
+    const g=cv.getContext("webgl",{antialias:false,alpha:false}); if(!g)return;
+    const sh=(t,src)=>{const o=g.createShader(t);g.shaderSource(o,src);g.compileShader(o);return o;};
+    const pr=g.createProgram();
+    g.attachShader(pr,sh(g.VERTEX_SHADER,"attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}"));
+    g.attachShader(pr,sh(g.FRAGMENT_SHADER,
+      "precision highp float;uniform sampler2D img,dep;uniform vec2 res,off,size,m;uniform float far;"
+      +"void main(){vec2 uv=(vec2(gl_FragCoord.x,res.y-gl_FragCoord.y)-off)/size;"
+      +"vec2 d=m*(texture2D(dep,uv).r-far);d=m*(texture2D(dep,uv-d).r-far);d=m*(texture2D(dep,uv-d).r-far);"
+      +"gl_FragColor=texture2D(img,uv-d);}"));
+    g.linkProgram(pr); if(!g.getProgramParameter(pr,g.LINK_STATUS))return;
+    g.useProgram(pr);
+    g.bindBuffer(g.ARRAY_BUFFER,g.createBuffer());g.bufferData(g.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),g.STATIC_DRAW);
+    const a=g.getAttribLocation(pr,"a");g.enableVertexAttribArray(a);g.vertexAttribPointer(a,2,g.FLOAT,false,0,0);
+    ["res","off","size","m","far","img","dep"].forEach(n=>U[n]=g.getUniformLocation(pr,n));
+    let left=2;
+    [["img/hero.jpg",0,"img"],["img/hero-depth.jpg",1,"dep"]].forEach(t=>{
+      const im=new Image();
+      im.onload=()=>{
+        try{
+          g.activeTexture(g.TEXTURE0+t[1]);g.bindTexture(g.TEXTURE_2D,g.createTexture());
+          g.texImage2D(g.TEXTURE_2D,0,g.RGB,g.RGB,g.UNSIGNED_BYTE,im);
+          g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MAG_FILTER,g.LINEAR);
+          g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_S,g.CLAMP_TO_EDGE);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_T,g.CLAMP_TO_EDGE);
+          g.uniform1i(U[t[2]],t[1]);
+          if(--left===0){gl=g;glSize();cv.classList.add("on");kick();}
+        }catch(_){}
+      };
+      im.src=t[0];
+    });
+  }
+  function glSize(){
+    if(!gl)return;
+    const r=Math.min(devicePixelRatio||1,1.5), W=Math.round(innerWidth*r), H=Math.round(innerHeight*r);
+    if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
+    gl.viewport(0,0,W,H);gl.uniform2f(U.res,W,H);gl.uniform2f(U.off,fitX*r,fitY*r);gl.uniform2f(U.size,IW*fitS*r,IH*fitS*r);gl.uniform1f(U.far,FAR);
+  }
+  function glDraw(){
+    if(!gl)return;
+    gl.uniform2f(U.m,mx*DEPTH,my*DEPTH*.8*IW/IH);
+    gl.drawArrays(gl.TRIANGLES,0,3);
+  }
+  addEventListener("mousemove",e=>{tmx=e.clientX/innerWidth*2-1;tmy=e.clientY/innerHeight*2-1;kick();},{passive:true});
+  document.addEventListener("mouseleave",()=>{tmx=tmy=0;kick();});
+
   function measure(){
     const W=innerWidth, H=innerHeight, s=Math.max(W/IW,H/IH);
-    zx=(W-IW*s)*PX+FX*IW*s; zy=(H-IH*s)*PY+FY*IH*s;
+    fitS=s; fitX=(W-IW*s)*PX; fitY=(H-IH*s)*PY; glSize();
+    zx=fitX+FX*IW*s; zy=fitY+FY*IH*s;
     root.style.setProperty("--zx",zx+"px"); root.style.setProperty("--zy",zy+"px");
     // each hexagon flies straight away from the middle of the hive
     const c=hexes.map(h=>[h.offsetLeft+h.offsetWidth/2,h.offsetTop+h.offsetHeight/2]);
@@ -1471,7 +1532,13 @@ document.addEventListener("DOMContentLoaded",function(){
     const y=scrollY, z=1+out(p)*ZOOM, vh=innerHeight;
     // 1. the camera: the photo and the cape cut-out grow together, toward the acropolis
     root.style.setProperty("--zs",z.toFixed(4));
-    if(cape){cape.style.transformOrigin=(zx-cape.offsetLeft)+"px "+(zy-cape.offsetTop)+"px";cape.style.transform="scale("+z.toFixed(4)+")";}
+    if(cape){
+      // the cape rides with Alexander: same zoom, plus the same sideways shift the shader gives his depth
+      const k=gl?(FIG-FAR)*DEPTH*IW*fitS*z:0;
+      cape.style.transformOrigin=(zx-cape.offsetLeft)+"px "+(zy-cape.offsetTop)+"px";
+      cape.style.transform="translate3d("+(mx*k).toFixed(2)+"px,"+(my*k*.8).toFixed(2)+"px,0) scale("+z.toFixed(4)+")";
+    }
+    glDraw();
     // 2. the hero holds its place while the page moves under it (it only drifts up at a fifth of the speed)
     hero.style.transform="translate3d(0,"+(y*.8).toFixed(1)+"px,0)";
     hero.style.pointerEvents=p>.4?"none":"";hero.style.visibility=p>=.995?"hidden":"";
@@ -1498,12 +1565,13 @@ document.addEventListener("DOMContentLoaded",function(){
   function frame(){
     raf=0;
     if(view.hidden||!mq.matches){if(on){on=false;clear();}cur=tgt=0;return;}
-    if(!on){on=true;measure();}
+    if(!on){on=true;glStart();measure();}
+    mx+=(tmx-mx)*.07; my+=(tmy-my)*.07; if(Math.abs(tmx-mx)+Math.abs(tmy-my)<.0015){mx=tmx;my=tmy;}
     const room=Math.max(1,Math.min(hero.offsetHeight*.85,root.scrollHeight-innerHeight));
     tgt=clamp(scrollY/room);
     cur+=(tgt-cur)*.16; if(Math.abs(tgt-cur)<.0006)cur=tgt;   // ease toward the scroll position so it glides
     draw(cur);
-    if(cur!==tgt)kick();
+    if(cur!==tgt||mx!==tmx||my!==tmy)kick();
   }
   function kick(){if(!raf)raf=requestAnimationFrame(frame);}
   addEventListener("scroll",kick,{passive:true});
