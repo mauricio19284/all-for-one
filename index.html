@@ -1487,7 +1487,9 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
      eyes blink. If 3D is unavailable the old portrait stays. To remove: delete this <style>, the #gbot <canvas> in the
      Stats markup, and the <script id="stats-robot"> near the end of the page. ===== -->
 <style id="stats-robot-css">
-#view-stats .gbot{display:none; position:absolute; left:0; top:0; width:100%; height:78%; cursor:pointer}
+/* the drawing area is wider than the card and allowed to spill out of it, so a reaching arm can leave the frame */
+#view-stats .gbot{display:none; position:absolute; left:-60%; top:0; width:220%; height:78%; pointer-events:none}
+#view-stats .gchar.bot{overflow:visible; z-index:3; cursor:pointer}
 #view-stats .gchar.bot{background:radial-gradient(120% 70% at 50% 28%,#2b2a28 0,#151514 55%,#0a0a0a 100%);
   --inkg:#FFFFFF; --mutedg:rgba(255,255,255,.62); border-radius:0;
   box-shadow:0 0 0 1px rgba(255,255,255,.92), 0 30px 70px rgba(0,0,0,.4)}
@@ -1854,6 +1856,7 @@ document.addEventListener("DOMContentLoaded",function(){
     for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i);pos.setZ(i,-.09*(x*x+y*y));}     // bulge like old glass
     sg.computeVertexNormals();
     M(sg,new THREE.MeshBasicMaterial({map:tex,toneMapped:false}),0,.9,.74,head);
+    let arms=null;                                          // filled in once the arm skeleton exists
     let glass=false, camZ=11.4;                             // glass: draw only the eyes, so the model's own screen shows behind them
     let lid=1, ex=0, ey=0, mood=0;                          // lid: 1 open … 0 shut; ex/ey: where the eyes look; mood: happy squint
     function face(){
@@ -1887,32 +1890,109 @@ document.addEventListener("DOMContentLoaded",function(){
       camZ=5.7; cam.position.set(0,.74,camZ); cam.lookAt(0,.68,0);
       key.intensity=3.2; rim.intensity=3.0;
       face();
+      try{rigArms();}catch(e){arms=null;}
+    }
+
+    // ----- arms that can move -----
+    // The body model is one solid piece, so to move an arm we give it a tiny skeleton: a shoulder bone and an elbow
+    // bone per side. Every point of the model is told which bone it follows (arm points are the ones outside the
+    // gap between arm and torso). Turning a bone then swings that part of the mesh, like a puppet joint.
+    function rigArms(){
+      let src=null; mdl.body.updateMatrixWorld(true); mdl.body.traverse(o=>{if(o.isMesh&&!src)src=o;}); if(!src)return;
+      const geo=src.geometry, pos=geo.attributes.position, n=pos.count, v=new THREE.Vector3();
+      const toBody=new THREE.Matrix4().copy(body.matrixWorld).invert().multiply(src.matrixWorld);   // model point -> body space
+      const ss=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
+      const SH=new THREE.Vector3(.43,.36,-.02), EL=new THREE.Vector3(.48,.03,0);                     // shoulder and elbow joints (right side; left is mirrored)
+      // Which points belong to an arm? Start from points that are surely in the hand and spread along the surface,
+      // point to connected point, never climbing above the shoulder. This follows the arm's real shape, so plates
+      // hanging at the hip (which sit close to the hand) are not picked up by mistake.
+      const P=new Float32Array(n*3), id=new Int32Array(n), seen=new Map(); let m=0;
+      for(let i=0;i<n;i++){v.fromBufferAttribute(pos,i).applyMatrix4(toBody);P[i*3]=v.x;P[i*3+1]=v.y;P[i*3+2]=v.z;
+        const k=Math.round(v.x*4000)+","+Math.round(v.y*4000)+","+Math.round(v.z*4000); let j=seen.get(k); if(j===undefined){j=m++;seen.set(k,j);} id[i]=j;}
+      const mx=new Float32Array(m), my=new Float32Array(m); for(let i=0;i<n;i++){mx[id[i]]=P[i*3];my[id[i]]=P[i*3+1];}
+      const adj=Array.from({length:m},()=>[]), ix=geo.index?geo.index.array:null, tc=ix?ix.length:n;
+      for(let t=0;t<tc;t+=3){const a=id[ix?ix[t]:t],b=id[ix?ix[t+1]:t+1],c=id[ix?ix[t+2]:t+2];adj[a].push(b,c);adj[b].push(a,c);adj[c].push(a,b);}
+      const arm=new Uint8Array(m), q=[];
+      for(let j=0;j<m;j++)if(Math.abs(mx[j])>.5&&my[j]<-.1&&my[j]>-.3){arm[j]=1;q.push(j);}
+      const ok=j=>my[j]<.38&&Math.abs(mx[j])>(my[j]>.2?.34:.3);
+      while(q.length){const j=q.pop();for(const k of adj[j])if(!arm[k]&&ok(k)){arm[k]=1;q.push(k);}}
+      const si=new Uint16Array(n*4), sw=new Float32Array(n*4);
+      for(let i=0;i<n;i++){
+        const x=P[i*3], y=P[i*3+1], left=x<0;
+        const a=arm[id[i]]?(y<.28?1:Math.max(0,(.38-y)/.1)):0;
+        const e=a*ss(.08,-.02,y), sh=a-e, o=i*4;
+        si[o]=0;sw[o]=1-a; si[o+1]=left?3:1;sw[o+1]=sh; si[o+2]=left?4:2;sw[o+2]=e; si[o+3]=0;sw[o+3]=0;
+      }
+      geo.setAttribute("skinIndex",new THREE.BufferAttribute(si,4)); geo.setAttribute("skinWeight",new THREE.BufferAttribute(sw,4));
+      const root=new THREE.Bone(), mk=(par,p)=>{const b=new THREE.Bone();b.position.copy(p);par.add(b);return b;};
+      const shR=mk(root,SH), elR=mk(shR,EL.clone().sub(SH)), SHL=SH.clone().setX(-SH.x), ELL=EL.clone().setX(-EL.x), shL=mk(root,SHL), elL=mk(shL,ELL.clone().sub(SHL));
+      body.add(root); body.updateMatrixWorld(true);
+      const sk=new THREE.SkinnedMesh(geo,src.material); sk.frustumCulled=false;
+      src.parent.add(sk); sk.position.copy(src.position); sk.quaternion.copy(src.quaternion); sk.scale.copy(src.scale); src.visible=false; src.parent.remove(src);
+      sk.updateMatrixWorld(true); sk.bind(new THREE.Skeleton([root,shR,elR,shL,elL]));
+      arms={R:{sh:shR,el:elR,p:SH,r:{x:0,v:0},q:new THREE.Quaternion()},L:{sh:shL,el:elL,p:SHL,r:{x:0,v:0},q:new THREE.Quaternion()}};
     }
 
     // ----- size, cursor, blinking -----
     function size(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;
       cam.position.z=cam.aspect<.66?camZ*.66/cam.aspect:camZ; cam.updateProjectionMatrix();}
     let tx=0,ty=0,lastMove=0;                               // where the cursor is, from -1 to 1 around the robot
-    addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect();
+    let cxp=0,cyp=0,reach=false,reachOff=0;                 // cursor in pixels; reach: is he reaching for it right now
+    const BOW=[new THREE.Vector3(0,.01,.3),new THREE.Vector3(.02,-.28,.3)], tmp=new THREE.Vector3();   // the knot and the hanging ends of the sash
+    function onBow(){                                       // is the cursor over the bow? (compare on screen, in pixels)
+      if(!arms)return false; const r=cv.getBoundingClientRect(), lim=r.height*.075;
+      return BOW.some(b=>{tmp.copy(b);body.localToWorld(tmp);tmp.project(cam);
+        return Math.hypot(r.left+(tmp.x*.5+.5)*r.width-cxp, r.top+(-tmp.y*.5+.5)*r.height-cyp)<lim;});
+    }
+    addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect(); cxp=e.clientX; cyp=e.clientY; 
+      if(!view.hidden&&arms){const hit=onBow(), c=card.getBoundingClientRect(); card.style.cursor=hit?"grab":"pointer"; if(hit)reach=true;
+        // he keeps reaching while the cursor stays near his card, and lowers the arm shortly after it leaves
+        const near=cxp>c.left-260&&cxp<c.right+520&&cyp>c.top-80&&cyp<c.bottom+80;
+        if(near)reachOff=Infinity; else if(reachOff===Infinity)reachOff=performance.now()+1200;}
       tx=Math.max(-1,Math.min(1,(e.clientX-(r.left+r.width/2))/(innerWidth*.45)));
       ty=Math.max(-1,Math.min(1,(e.clientY-(r.top+r.height*.4))/(innerHeight*.55))); lastMove=performance.now();},{passive:true});
     let blinkAt=performance.now()+1800, blinkT=-1, again=false;
-    cv.addEventListener("click",()=>{mood=1;blinkT=0;});      // click him: quick blink and a happy squint
+    card.addEventListener("click",()=>{mood=1;blinkT=0;});      // click him: quick blink and a happy squint
     let yaw=0,pitch=0,prev=0,raf=0;
+    // A spring makes motion flow: the thing speeds up gently, glides, and settles without a hard stop.
+    // w is how quick the spring is. Eyes are quickest, then the head, then the shoulders, so the turn ripples down him.
+    const S={yaw:{x:0,v:0},pit:{x:0,v:0},byaw:{x:0,v:0},ex:{x:0,v:0},ey:{x:0,v:0},lean:{x:0,v:0}};
+    const spring=(o,to,w,dt)=>{o.v+=(w*w*(to-o.x)-2*w*o.v)*dt;o.x+=o.v*dt;return o.x;};
+    const ray=new THREE.Raycaster(), ndc=new THREE.Vector2(), plane=new THREE.Plane(new THREE.Vector3(0,0,1),-.55), hitP=new THREE.Vector3(),
+          DOWN=new THREE.Vector3(.1,-1,.02).normalize(), dir=new THREE.Vector3(), qT=new THREE.Quaternion(), qI=new THREE.Quaternion(), XA=new THREE.Vector3(1,0,0);
     function frame(now){
       raf=0; if(view.hidden||document.hidden)return;        // stop drawing when Stats is not on screen
       const dt=Math.min(.05,(now-(prev||now))/1000); prev=now;
       let gx=tx,gy=ty; if(now-lastMove>4500){gx=Math.sin(now/2300)*.45;gy=Math.sin(now/3100)*.18;}   // idle: look around slowly
-      const k=1-Math.exp(-dt*7); yaw+=(gx*.62-yaw)*k; pitch+=(gy*.32-pitch)*k;
-      head.rotation.y=yaw; head.rotation.x=pitch; head.rotation.z=-yaw*.08;
-      body.rotation.y=yaw*.22; body.position.y=Math.sin(now/1400)*(mdl?.012:.025);                              // shoulders follow a little; slow breathing
+      const steps=dt>.02?2:1, h=dt/steps;                    // small steps keep the springs steady on slow frames
+      for(let i=0;i<steps;i++){
+        spring(S.ex,gx,9,h); spring(S.ey,gy,9,h);            // eyes first
+        spring(S.yaw,gx*.62,3.6,h); spring(S.pit,gy*.32,3.6,h);   // then the head
+        spring(S.byaw,gx*.2,1.9,h); spring(S.lean,gx*.035,1.6,h); // then the shoulders, slowest
+      }
+      yaw=S.yaw.x; pitch=S.pit.x;
+      body.rotation.y=S.byaw.x; body.rotation.z=-S.lean.x; body.position.y=0;      // no bobbing
+      head.rotation.y=yaw-S.byaw.x; head.rotation.x=pitch; head.rotation.z=-(yaw-S.byaw.x)*.1;
+      // reaching: after you touch the bow, the hand on the cursor's side lifts and points at the cursor
+      if(arms){
+        if(reach&&now>reachOff)reach=false;
+        const r=cv.getBoundingClientRect(); ndc.set((cxp-r.left)/r.width*2-1,-((cyp-r.top)/r.height)*2+1); ray.setFromCamera(ndc,cam);
+        let side=null;
+        if(reach&&ray.ray.intersectPlane(plane,hitP)){body.worldToLocal(hitP);hitP.z=Math.max(.3,hitP.z);side=hitP.x>=0?"R":"L";}
+        for(const k of ["R","L"]){
+          const a=arms[k], t=spring(a.r,side===k?1:0,side===k?3.2:2.4,dt);
+          if(side===k){dir.copy(hitP).sub(a.p).normalize();qT.setFromUnitVectors(DOWN,dir);a.q.slerp(qT,1-Math.exp(-dt*6));}
+          a.sh.quaternion.copy(qI).slerp(a.q,Math.max(0,Math.min(1,t)));
+          a.el.quaternion.setFromAxisAngle(XA,-.5*Math.sin(Math.max(0,Math.min(1,t))*Math.PI));    // elbow bends on the way up, straightens at full reach
+        }
+      }
       ant.rotation.x=-pitch*.5+Math.sin(now/600)*.03; tip.scale.setScalar(1+Math.sin(now/400)*.08);
       // blink: shut in 70ms, open in 110ms; sometimes twice in a row
       let l=1;
       if(blinkT<0&&now>blinkAt)blinkT=0;
       if(blinkT>=0){blinkT+=dt*1000; l=blinkT<70?1-blinkT/70:blinkT<180?(blinkT-70)/110:1;
         if(blinkT>=180){blinkT=-1; if(!again&&Math.random()<.25){again=true;blinkAt=now+140;}else{again=false;blinkAt=now+2600+Math.random()*3800;}}}
-      const m=Math.max(0,mood-dt*.9), nx=yaw/.62*.9, ny=-pitch/.32*.9;
+      const m=Math.max(0,mood-dt*.9), nx=Math.max(-1,Math.min(1,S.ex.x))*.9, ny=-Math.max(-1,Math.min(1,S.ey.x))*.9;
       if(Math.abs(l-lid)>.01||Math.abs(nx-ex)>.004||Math.abs(ny-ey)>.004||m!==mood){lid=l;ex=nx;ey=ny;mood=m;face();}
       renderer.render(scene,cam); kick();
     }
