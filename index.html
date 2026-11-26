@@ -1487,12 +1487,12 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
      eyes blink. If 3D is unavailable the old portrait stays. To remove: delete this <style>, the #gbot <canvas> in the
      Stats markup, and the <script id="stats-robot"> near the end of the page. ===== -->
 <style id="stats-robot-css">
-#view-stats .gbot{display:none; position:absolute; left:0; top:0; width:100%; height:74%; cursor:pointer}
+#view-stats .gbot{display:none; position:absolute; left:0; top:0; width:100%; height:78%; cursor:pointer}
 #view-stats .gchar.bot{background:radial-gradient(120% 70% at 50% 28%,#2b2a28 0,#151514 55%,#0a0a0a 100%);
   --inkg:#FFFFFF; --mutedg:rgba(255,255,255,.62); border-radius:0;
   box-shadow:0 0 0 1px rgba(255,255,255,.92), 0 30px 70px rgba(0,0,0,.4)}
 #view-stats .gchar.bot .gbot{display:block}
-#view-stats .gchar.bot::before{background:linear-gradient(180deg,rgba(10,10,10,0) 52%,rgba(10,10,10,.9) 74%,#0a0a0a 100%); pointer-events:none}
+#view-stats .gchar.bot::before{background:linear-gradient(180deg,rgba(10,10,10,0) 60%,rgba(10,10,10,.9) 74%,#0a0a0a 100%); pointer-events:none}
 #view-stats .gchar.bot .vital i{background:rgba(255,255,255,.14); box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
 #view-stats .gchar.bot .vital svg{fill:#fff}
 </style>
@@ -1774,7 +1774,7 @@ document.addEventListener("DOMContentLoaded",function(){
     renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
     const scene=new THREE.Scene();
     scene.environment=new THREE.PMREMGenerator(renderer).fromScene(new RE.RoomEnvironment(),.04).texture;
-    const cam=new THREE.PerspectiveCamera(30,1,.1,50); cam.position.set(0,1.05,8.4); cam.lookAt(0,.95,0);
+    const cam=new THREE.PerspectiveCamera(30,1,.1,50); cam.position.set(0,.5,11.4); cam.lookAt(0,.2,0);
     // three lights: a soft fill, a key light from the upper left, and a warm rim from behind so the edges read on a dark card
     scene.add(new THREE.HemisphereLight(0xffffff,0x1a1a1a,.9));
     const key=new THREE.DirectionalLight(0xffffff,2.6); key.position.set(-3,5,6); scene.add(key);
@@ -1786,17 +1786,43 @@ document.addEventListener("DOMContentLoaded",function(){
     const gold =new THREE.MeshStandardMaterial({color:0xc9a24a,roughness:.3,metalness:1});
     const M=(g,m,x,y,z,par)=>{const o=new THREE.Mesh(g,m);o.position.set(x||0,y||0,z||0);(par||scene).add(o);return o;};
 
-    // ----- body (bust) -----
+    // ----- body: layered plate armour over a thin frame, with a cloth sash at the waist -----
+    const cloth=new THREE.MeshStandardMaterial({color:0x8f4614,roughness:1,metalness:0});
+    const glow =new THREE.MeshBasicMaterial({color:0xf3c56a,toneMapped:false});
     const body=new THREE.Group(); scene.add(body);
-    const chest=M(new THREE.SphereGeometry(1,48,32),shell,0,-.55,0,body); chest.scale.set(1.28,1.0,.82);
-    M(new THREE.TorusGeometry(.4,.07,16,48),gold,0,.36,0,body).rotation.x=Math.PI/2;                 // collar ring
+    const plate=(w,h,d,x,y,z,rz,ry,m)=>{const o=M(new RB.RoundedBoxGeometry(w,h,d,3,Math.min(w,h,d)*.3),m||shell,x,y,z,body);o.rotation.z=rz||0;o.rotation.y=ry||0;return o;};
+    plate(1.5,1.15,.78, 0,-.35,0);                                                     // chest core
+    plate(1.75,.3,.1, -.05,.06,.4, -.42);                                              // wrapped chest plates, one over the next
+    plate(1.7,.34,.1,  .05,-.2,.44, -.36);
+    plate(1.55,.36,.1, -.02,-.5,.46, -.3);
+    plate(1.3,.3,.1,   .04,-.8,.44, -.24);
+    for(let i=0;i<4;i++)plate(.035,.16,.03, -.52+i*.08,-.02-i*.03,.5, -.5, 0, dark);   // small slots, upper left
+    plate(.62,.24,.06, .38,-.72,.5, -.14, 0, dark);                                    // lit grille, lower right
+    for(let i=0;i<6;i++)M(new THREE.BoxGeometry(.05,.16,.03),glow,.16+i*.09,-.7-i*.012,.535,body);
+    M(new THREE.CylinderGeometry(.36,.42,.16,28),dark,0,.34,0,body);                   // collar
+    M(new THREE.TorusGeometry(.38,.035,12,40),gold,0,.42,0,body).rotation.x=Math.PI/2;
+    // waist: stacked rings, belt, tassets (hanging plates) and the sash with its knot
+    for(let i=0;i<4;i++)M(new THREE.CylinderGeometry(.5-i*.03,.52-i*.03,.14,24),dark,0,-1.02-i*.16,0,body);
+    M(new THREE.CylinderGeometry(.62,.62,.16,32),dark,0,-1.72,0,body);
+    plate(.26,.2,.1, -.2,-1.72,.6, 0,0, gold);                                         // buckle
+    for(let i=-3;i<=3;i++){const t=plate(.3,1.0,.07, i*.2,-2.3,.5-Math.abs(i)*.07, -i*.06, 0, i%2?shell:dark);t.rotation.x=.08;}
+    const sash=M(new THREE.TorusGeometry(.6,.2,14,40),cloth,0,-1.58,0,body); sash.rotation.x=Math.PI/2; sash.rotation.y=.12; sash.scale.set(1,.92,1.25);
+    const sash2=M(new THREE.TorusGeometry(.6,.16,14,40),cloth,0,-1.42,0,body); sash2.rotation.x=Math.PI/2+.08; sash2.scale.set(.98,.9,1.0);
+    const knot=M(new THREE.SphereGeometry(.24,20,16),cloth,.42,-1.6,.6,body); knot.scale.set(1,.85,.8);
+    [[.5,-2.2,.62,-.1,.34],[.74,-2.12,.5,-.3,.28]].forEach(v=>{const t=M(new RB.RoundedBoxGeometry(v[4],1.2,.06,3,.03),cloth,v[0],v[1],v[2],body);t.rotation.z=v[3];t.rotation.x=.1;});
+    // shoulders and arms
+    const tri=new THREE.Shape(); tri.moveTo(0,0); tri.lineTo(1.05,.62); tri.lineTo(1.0,-.5); tri.lineTo(.1,-.42); tri.closePath();
+    const pg=new THREE.ExtrudeGeometry(tri,{depth:.5,bevelEnabled:true,bevelSize:.03,bevelThickness:.03,bevelSegments:2}); pg.translate(0,0,-.25);
     [-1,1].forEach(k=>{
-      M(new THREE.SphereGeometry(.4,32,24),shell,k*1.3,-.12,0,body);                                 // shoulders
-      M(new THREE.TorusGeometry(.4,.035,12,40),gold,k*1.3,-.12,0,body).rotation.y=Math.PI/2;
-      M(new THREE.CapsuleGeometry(.27,1.1,8,24),shell,k*1.42,-1.0,0,body).rotation.z=k*.1;           // upper arms
+      const p1=M(pg,shell,k*.62,.02,0,body); p1.scale.set(k,1,1.35);                   // big pointed shoulder plate
+      const p2=M(pg,dark,k*.7,-.3,0,body);  p2.scale.set(k*.82,.7,1.2);                // second plate under it
+      M(new THREE.SphereGeometry(.2,20,16),dark,k*1.18,-.42,0,body);
+      M(new THREE.CylinderGeometry(.11,.11,1.0,12),dark,k*1.24,-1.0,0,body).rotation.z=k*.07;        // thin upper-arm frame
+      [-.07,.07].forEach(d=>M(new THREE.CylinderGeometry(.028,.028,1.0,8),d<0?gold:dark,k*1.24+d,-1.0,.09,body).rotation.z=k*.07);  // cables
+      plate(.26,.42,.26, k*1.21,-.72,0, k*.07);                                        // upper-arm guard
+      M(new THREE.TorusGeometry(.13,.035,10,24),gold,k*1.29,-1.5,0,body).rotation.x=Math.PI/2;       // elbow ring
+      const fa=M(new THREE.CylinderGeometry(.2,.3,1.25,20),shell,k*1.36,-2.22,0,body); fa.rotation.z=k*.08; fa.scale.z=.8;   // forearm
     });
-    const badge=M(new THREE.CylinderGeometry(.2,.2,.05,6),gold,0,-.3,.8,body); badge.rotation.x=Math.PI/2;   // hexagon badge
-    [-.3,0,.3].forEach(x=>M(new THREE.BoxGeometry(.2,.035,.04),dark,x,-.78,.74,body));               // chest vents
 
     // ----- neck + head (the head turns around the top of the neck) -----
     M(new THREE.CylinderGeometry(.17,.21,.62,24),dark,0,.62,0,body);
@@ -1835,7 +1861,7 @@ document.addEventListener("DOMContentLoaded",function(){
 
     // ----- size, cursor, blinking -----
     function size(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;
-      cam.position.z=cam.aspect<.86?8.4*.86/cam.aspect:8.4; cam.updateProjectionMatrix();}
+      cam.position.z=cam.aspect<.66?11.4*.66/cam.aspect:11.4; cam.updateProjectionMatrix();}
     let tx=0,ty=0,lastMove=0;                               // where the cursor is, from -1 to 1 around the robot
     addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect();
       tx=Math.max(-1,Math.min(1,(e.clientX-(r.left+r.width/2))/(innerWidth*.45)));
