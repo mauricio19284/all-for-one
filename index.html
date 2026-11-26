@@ -1780,7 +1780,18 @@ document.addEventListener("DOMContentLoaded",function(){
     const key=new THREE.DirectionalLight(0xffffff,2.6); key.position.set(-3,5,6); scene.add(key);
     const rim=new THREE.DirectionalLight(0xf3df8f,2.2); rim.position.set(4,3,-5); scene.add(rim);
 
-    // ----- materials -----
+    // ----- the real models -----
+    // img/bot-head.glb and img/bot-body.glb are two 3D model files (made from design pictures with an image-to-3D tool).
+    // They are loaded here; if either fails, the simple robot built from shapes below is shown as the stand-in.
+    let mdl=null;
+    try{
+      const GL=await import("three/addons/loaders/GLTFLoader.js"), MO=await import("three/addons/libs/meshopt_decoder.module.js");
+      const L=new GL.GLTFLoader(); L.setMeshoptDecoder(MO.MeshoptDecoder);
+      const got=await Promise.all([L.loadAsync("img/bot-head.glb"),L.loadAsync("img/bot-body.glb")]);
+      mdl={head:got[0].scene,body:got[1].scene};
+    }catch(e){mdl=null;}
+
+    // ----- materials (stand-in robot) -----
     const shell=new THREE.MeshStandardMaterial({color:0x34363c,roughness:.38,metalness:.6});
     const dark =new THREE.MeshStandardMaterial({color:0x121214,roughness:.6,metalness:.3});
     const gold =new THREE.MeshStandardMaterial({color:0xc9a24a,roughness:.3,metalness:1});
@@ -1843,10 +1854,12 @@ document.addEventListener("DOMContentLoaded",function(){
     for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i);pos.setZ(i,-.09*(x*x+y*y));}     // bulge like old glass
     sg.computeVertexNormals();
     M(sg,new THREE.MeshBasicMaterial({map:tex,toneMapped:false}),0,.9,.74,head);
+    let glass=false, camZ=11.4;                             // glass: draw only the eyes, so the model's own screen shows behind them
     let lid=1, ex=0, ey=0, mood=0;                          // lid: 1 open … 0 shut; ex/ey: where the eyes look; mood: happy squint
     function face(){
-      const W=fc.width,H=fc.height, g=fx.createRadialGradient(W/2,H/2,20,W/2,H/2,W*.7);
-      g.addColorStop(0,"#151a1c"); g.addColorStop(1,"#050606"); fx.fillStyle=g; fx.fillRect(0,0,W,H);
+      const W=fc.width,H=fc.height;
+      if(glass)fx.clearRect(0,0,W,H);
+      else{const g=fx.createRadialGradient(W/2,H/2,20,W/2,H/2,W*.7);g.addColorStop(0,"#151a1c");g.addColorStop(1,"#050606");fx.fillStyle=g;fx.fillRect(0,0,W,H);}
       const cx=W/2+ex*46, cy=H/2-6+ey*30, ew=66, eh=Math.max(8,128*lid);
       fx.shadowColor="rgba(243,223,143,.9)"; fx.shadowBlur=26; fx.fillStyle="#f6e7a6";
       [-1,1].forEach(k=>{
@@ -1854,14 +1867,31 @@ document.addEventListener("DOMContentLoaded",function(){
         fx.beginPath(); fx.roundRect(x,y,ew,eh,Math.min(ew,eh)/2); fx.fill();
         if(mood>.02&&lid>.5){fx.shadowBlur=0;fx.fillStyle="#0b0d0e";fx.beginPath();fx.ellipse(cx+k*92,cy+eh*.62,ew*.9,eh*.5*mood+2,0,0,Math.PI*2);fx.fill();fx.fillStyle="#f6e7a6";fx.shadowBlur=26;}
       });
-      fx.shadowBlur=0; fx.fillStyle="rgba(0,0,0,.2)"; for(let y=0;y<H;y+=4)fx.fillRect(0,y,W,1.6);   // scan lines
+      fx.shadowBlur=0;
+      if(glass){fx.globalCompositeOperation="destination-out";fx.fillStyle="rgba(0,0,0,.22)";for(let y=0;y<H;y+=4)fx.fillRect(0,y,W,1.6);fx.globalCompositeOperation="source-over";}
+      else{fx.fillStyle="rgba(0,0,0,.2)";for(let y=0;y<H;y+=4)fx.fillRect(0,y,W,1.6);}                // scan lines
       tex.needsUpdate=true;
     }
     face();
 
+    // ----- put the real models in place -----
+    if(mdl){
+      body.traverse(o=>{if(o.isMesh)o.visible=false;});     // hide the stand-in shapes
+      body.add(mdl.body);                                   // the body model stands at the centre, about 1.9 units tall
+      head.position.set(0,.93,-.05);                        // the neck: this is the point the head turns around
+      const hm=new THREE.Group(); hm.scale.setScalar(.6); hm.position.y=.48; head.add(hm); hm.add(mdl.head);
+      // the eyes: a see-through sheet floating just in front of the model's own glass screen
+      glass=true; tex.needsUpdate=true;
+      const eyes=new THREE.Mesh(new THREE.PlaneGeometry(.9,.62),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,toneMapped:false}));
+      eyes.position.set(.007,-.07,.515); hm.add(eyes);
+      camZ=5.7; cam.position.set(0,.74,camZ); cam.lookAt(0,.68,0);
+      key.intensity=3.2; rim.intensity=3.0;
+      face();
+    }
+
     // ----- size, cursor, blinking -----
     function size(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;
-      cam.position.z=cam.aspect<.66?11.4*.66/cam.aspect:11.4; cam.updateProjectionMatrix();}
+      cam.position.z=cam.aspect<.66?camZ*.66/cam.aspect:camZ; cam.updateProjectionMatrix();}
     let tx=0,ty=0,lastMove=0;                               // where the cursor is, from -1 to 1 around the robot
     addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect();
       tx=Math.max(-1,Math.min(1,(e.clientX-(r.left+r.width/2))/(innerWidth*.45)));
@@ -1875,7 +1905,7 @@ document.addEventListener("DOMContentLoaded",function(){
       let gx=tx,gy=ty; if(now-lastMove>4500){gx=Math.sin(now/2300)*.45;gy=Math.sin(now/3100)*.18;}   // idle: look around slowly
       const k=1-Math.exp(-dt*7); yaw+=(gx*.62-yaw)*k; pitch+=(gy*.32-pitch)*k;
       head.rotation.y=yaw; head.rotation.x=pitch; head.rotation.z=-yaw*.08;
-      body.rotation.y=yaw*.22; body.position.y=Math.sin(now/1400)*.025;                              // shoulders follow a little; slow breathing
+      body.rotation.y=yaw*.22; body.position.y=Math.sin(now/1400)*(mdl?.012:.025);                              // shoulders follow a little; slow breathing
       ant.rotation.x=-pitch*.5+Math.sin(now/600)*.03; tip.scale.setScalar(1+Math.sin(now/400)*.08);
       // blink: shut in 70ms, open in 110ms; sometimes twice in a row
       let l=1;
