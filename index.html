@@ -1422,11 +1422,11 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
 }
 </style>
 
-<!-- ===== Dark glass boxes (Home + Today). Only the cards change: the page backgrounds and photos are untouched.
+<!-- ===== Dark glass boxes (every tab). Only the cards change: the page backgrounds and photos are untouched.
      To go back to the light cards, delete this <link> and <style id="dark-boxes"> block. ===== -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
 <style id="dark-boxes">
-:is(#view-home,#view-today) .panel.panel{
+:is([id^="view-"] .panel.panel, #view-finance .glass.glass, :is(#view-stats,#view-records) .gpanel.gpanel){
   /* the colours every card element reads from, flipped for a dark surface */
   --ink:#FFFFFF; --ink-2:rgba(255,255,255,.86); --muted:rgba(255,255,255,.6);
   --line:rgba(255,255,255,.16); --line-2:rgba(255,255,255,.32);
@@ -1434,34 +1434,53 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
   --glass:rgba(8,8,8,.74); --glass-strong:rgba(8,8,8,.9);
   --accent:#FF8E9A; --accent-fill:#FFFFFF; --accent-ink:#0A0A0A; --accent-soft:rgba(255,142,154,.16);
   --copper:#E9C97E; --copper-soft:rgba(233,201,126,.16); --crit:#FF9A8A; --ok:#8FD6A4; --warn:#F0C36A;
+  --inkg:#FFFFFF; --mutedg:rgba(255,255,255,.62); --lineg:rgba(255,255,255,.16); --marble:#141414; --marble-2:#1c1c1c;
+  --gser:#FFFFFF; --gmut:rgba(255,255,255,.64); --gsoft:rgba(255,255,255,.42); --ggrid:rgba(255,255,255,.14); --ggood:#8FD6A4; --gwarn:#F0C36A; --gbad:#FF9A8A;
   --sans:'Poppins',system-ui,sans-serif; --serif:'Poppins',system-ui,sans-serif; --display:'Poppins',system-ui,sans-serif;
   font-family:'Poppins',system-ui,sans-serif; color:#fff;
   background:rgba(8,8,8,.74)!important; border:1px solid rgba(255,255,255,.92)!important; border-radius:0!important;
   box-shadow:0 30px 70px rgba(0,0,0,.4)!important;
   -webkit-backdrop-filter:blur(26px) saturate(120%)!important; backdrop-filter:blur(26px) saturate(120%)!important;
 }
-:is(#view-home,#view-today) .panel :is(h2,h3,p,b,li,label,dt,dd,summary,span,div,time,button,input,textarea,select){font-family:'Poppins',system-ui,sans-serif}
-:is(#view-home,#view-today) .panel > header{padding:26px 30px 10px; align-items:center}
-:is(#view-home,#view-today) .panel > header h2{font-size:26px; font-weight:700; letter-spacing:0; text-transform:uppercase; line-height:1.05; color:#fff}
-:is(#view-home,#view-today) .panel .body{padding:10px 30px 28px}
-:is(#view-home,#view-today) .panel .mono{font-family:'Poppins',system-ui,sans-serif}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) > header{padding:26px 30px 10px; align-items:center}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) > header h2{font-size:26px; font-weight:700; letter-spacing:0; text-transform:uppercase; line-height:1.05; color:#fff}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) :is(.body,.gbody){padding:10px 30px 28px}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) > header::before{display:none}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .mono{font-family:'Poppins',system-ui,sans-serif}
 /* anything that had a fixed light fill becomes a faint light-on-dark fill */
-:is(#view-home,#view-today) .panel :is(input:not([type=checkbox]):not([type=radio]),textarea,select,.flag,#suggestbox,#tsuggestbox,.split div,.hcell,.chip,.prep li){
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) :is(input:not([type=checkbox]):not([type=radio]),textarea,select,.flag,#suggestbox,#tsuggestbox,.split div,.hcell,.chip,.prep li,.gtile,.gbinfo,.gch,.gform,.rcard,code,.splits div,.habtally,.gins div,.stat div){
   background:rgba(255,255,255,.07)!important; color:#fff; border-color:rgba(255,255,255,.28); border-radius:0!important}
-:is(#view-home,#view-today) .panel :is(input,textarea)::placeholder{color:rgba(255,255,255,.45)}
-:is(#view-home,#view-today) .panel select option{color:#111}
-:is(#view-home,#view-today) .panel input[type=checkbox]{background:transparent!important; border:1.5px solid rgba(255,255,255,.8); border-radius:0}
-:is(#view-home,#view-today) .panel input[type=checkbox]:checked{background:#fff!important; border-color:#fff}
-:is(#view-home,#view-today) .panel .btn{background:#fff!important; color:#0A0A0A!important; border:1px solid #fff!important; border-radius:0!important}
-:is(#view-home,#view-today) .panel .btn.ghost{background:transparent!important; color:#fff!important; border:1px solid rgba(255,255,255,.7)!important}
-:is(#view-home,#view-today) .panel .btn:hover{background:rgba(255,255,255,.86)!important; color:#0A0A0A!important}
-:is(#view-home,#view-today) .panel .btn.ghost:hover{background:rgba(255,255,255,.14)!important; color:#fff!important}
-:is(#view-home,#view-today) .panel .chip{color:rgba(255,255,255,.86)}
-:is(#view-home,#view-today) .panel .chip.due-crit{color:var(--crit)} :is(#view-home,#view-today) .panel :is(.chip.due-warn,.chip.kind){color:var(--copper)}
-:is(#view-home,#view-today) .panel .tl li.past{opacity:.55}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) :is(input,textarea)::placeholder{color:rgba(255,255,255,.45)}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) select option{color:#111}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) input[type=checkbox]{background:transparent!important; border:1.5px solid rgba(255,255,255,.8); border-radius:0}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) input[type=checkbox]:checked{background:#fff!important; border-color:#fff}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .btn{background:#fff!important; color:#0A0A0A!important; border:1px solid #fff!important; border-radius:0!important}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .btn.ghost{background:transparent!important; color:#fff!important; border:1px solid rgba(255,255,255,.7)!important}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .btn:hover{background:rgba(255,255,255,.86)!important; color:#0A0A0A!important}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .btn.ghost:hover{background:rgba(255,255,255,.14)!important; color:#fff!important}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .chip{color:rgba(255,255,255,.86)}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .chip.due-crit{color:var(--crit)} :is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) :is(.chip.due-warn,.chip.kind){color:var(--copper)}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .tl li.past{opacity:.55}
 #view-home .panel .cday.today{background:#fff; border-color:#fff; color:#0A0A0A}
 #view-home .panel .cday.today[aria-pressed="true"]{box-shadow:0 0 0 2px #0A0A0A, 0 0 0 3.5px #fff}
 #view-home .panel .calnav button{color:#fff}
+/* segmented switches (1W / 1M, Front / Side...): the chosen one is a white pill with dark text */
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .seg button[aria-pressed="true"]{background:#fff!important; color:#0A0A0A!important}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .seg button:hover{background:rgba(255,255,255,.14)}
+/* the Week page's paper day cards stay white paper, as before: give them the light colours back */
+[id^="view-"] .panel .dcard{--ink:#111111; --ink-2:#32312F; --muted:#6B6966; --line:rgba(17,17,17,.09); --line-2:rgba(17,17,17,.22);
+  --paper:#FFFFFF; --field:#FFFFFF; --surface-2:#FFFFFF; --ground:#F8F7F3; --accent:#7A1420; --accent-fill:#111111; --accent-ink:#FFFFFF;
+  --copper:#7A5A12; --ok:#256B40; --warn:#7E5A08; --crit:#8E1B26;
+  --display:"Cormorant Garamond","Cormorant","Garamond","Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif; --serif:var(--display);
+  font-family:var(--sans); color:#111111}
+/* small fixes for colours that were written for light cards */
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) a{color:#fff}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .crumbs button{background:rgba(255,255,255,.07); color:#fff; border-color:rgba(255,255,255,.3)}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .crumbs button[aria-current="true"]{background:#fff; border-color:#fff; color:#0A0A0A}
+:is([id^="view-"] .panel, #view-finance .glass, :is(#view-stats,#view-records) .gpanel) .crumbs button[aria-current="true"] small{color:rgba(10,10,10,.6)}
+#view-stats .gpanel .arow .ad.up{color:var(--ggood)} #view-stats .gpanel .arow .ad.dn{color:var(--gbad)}
+#view-records .gpanel .rcard .radd button{background:#fff; color:#0A0A0A; border-color:#fff; border-radius:0}
 </style>
 </head>
 <body>
