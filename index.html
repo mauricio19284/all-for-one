@@ -1482,6 +1482,21 @@ body:has(#view-widow:not([hidden])) .foot{display:none}
 #view-stats .gpanel .arow .ad.up{color:var(--ggood)} #view-stats .gpanel .arow .ad.dn{color:var(--gbad)}
 #view-records .gpanel .rcard .radd button{background:#fff; color:#0A0A0A; border-color:#fff; border-radius:0}
 </style>
+
+<!-- ===== Stats robot: an original TV-head character drawn live in 3D (Three.js). Its head follows the cursor and its
+     eyes blink. If 3D is unavailable the old portrait stays. To remove: delete this <style>, the #gbot <canvas> in the
+     Stats markup, and the <script id="stats-robot"> near the end of the page. ===== -->
+<style id="stats-robot-css">
+#view-stats .gbot{display:none; position:absolute; left:0; top:0; width:100%; height:74%; cursor:pointer}
+#view-stats .gchar.bot{background:radial-gradient(120% 70% at 50% 28%,#2b2a28 0,#151514 55%,#0a0a0a 100%);
+  --inkg:#FFFFFF; --mutedg:rgba(255,255,255,.62); border-radius:0;
+  box-shadow:0 0 0 1px rgba(255,255,255,.92), 0 30px 70px rgba(0,0,0,.4)}
+#view-stats .gchar.bot .gbot{display:block}
+#view-stats .gchar.bot::before{background:linear-gradient(180deg,rgba(10,10,10,0) 52%,rgba(10,10,10,.9) 74%,#0a0a0a 100%); pointer-events:none}
+#view-stats .gchar.bot .vital i{background:rgba(255,255,255,.14); box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+#view-stats .gchar.bot .vital svg{fill:#fff}
+</style>
+
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -1731,6 +1746,128 @@ document.addEventListener("DOMContentLoaded",function(){
   // the cards grow when your data loads; re-read the page size then (not on every frame)
   if(window.ResizeObserver)new ResizeObserver(()=>{if(on){sizes();kick();}}).observe(view);
   kick();
+});
+</script>
+
+<script id="stats-robot">
+// ===== Stats robot =====
+// Built from simple 3D shapes (boxes, spheres, cylinders), so there is no model file to download.
+// How it works: 1) build the robot once, the first time Stats is opened; 2) every frame, turn the head a
+// little toward where the cursor is; 3) the face is a tiny 2D drawing (a <canvas>) pasted on the screen as a
+// texture, and blinking is just redrawing the eyes squashed flat for a moment.
+document.addEventListener("DOMContentLoaded",function(){
+  const view=document.getElementById("view-stats"), cv=document.getElementById("gbot");
+  if(!view||!cv)return;
+  const card=cv.parentElement; let started=false;
+
+  async function start(){
+    if(started)return; started=true;
+    let THREE,RB,RE;
+    try{
+      THREE=await import("three");
+      RB=await import("three/addons/geometries/RoundedBoxGeometry.js");
+      RE=await import("three/addons/environments/RoomEnvironment.js");
+    }catch(e){return;}                                    // no 3D library: keep the old portrait
+    let renderer;
+    try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});}catch(e){return;}
+    renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+    renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+    const scene=new THREE.Scene();
+    scene.environment=new THREE.PMREMGenerator(renderer).fromScene(new RE.RoomEnvironment(),.04).texture;
+    const cam=new THREE.PerspectiveCamera(30,1,.1,50); cam.position.set(0,1.05,8.4); cam.lookAt(0,.95,0);
+    // three lights: a soft fill, a key light from the upper left, and a warm rim from behind so the edges read on a dark card
+    scene.add(new THREE.HemisphereLight(0xffffff,0x1a1a1a,.9));
+    const key=new THREE.DirectionalLight(0xffffff,2.6); key.position.set(-3,5,6); scene.add(key);
+    const rim=new THREE.DirectionalLight(0xf3df8f,2.2); rim.position.set(4,3,-5); scene.add(rim);
+
+    // ----- materials -----
+    const shell=new THREE.MeshStandardMaterial({color:0x34363c,roughness:.38,metalness:.6});
+    const dark =new THREE.MeshStandardMaterial({color:0x121214,roughness:.6,metalness:.3});
+    const gold =new THREE.MeshStandardMaterial({color:0xc9a24a,roughness:.3,metalness:1});
+    const M=(g,m,x,y,z,par)=>{const o=new THREE.Mesh(g,m);o.position.set(x||0,y||0,z||0);(par||scene).add(o);return o;};
+
+    // ----- body (bust) -----
+    const body=new THREE.Group(); scene.add(body);
+    const chest=M(new THREE.SphereGeometry(1,48,32),shell,0,-.55,0,body); chest.scale.set(1.28,1.0,.82);
+    M(new THREE.TorusGeometry(.4,.07,16,48),gold,0,.36,0,body).rotation.x=Math.PI/2;                 // collar ring
+    [-1,1].forEach(k=>{
+      M(new THREE.SphereGeometry(.4,32,24),shell,k*1.3,-.12,0,body);                                 // shoulders
+      M(new THREE.TorusGeometry(.4,.035,12,40),gold,k*1.3,-.12,0,body).rotation.y=Math.PI/2;
+      M(new THREE.CapsuleGeometry(.27,1.1,8,24),shell,k*1.42,-1.0,0,body).rotation.z=k*.1;           // upper arms
+    });
+    const badge=M(new THREE.CylinderGeometry(.2,.2,.05,6),gold,0,-.3,.8,body); badge.rotation.x=Math.PI/2;   // hexagon badge
+    [-.3,0,.3].forEach(x=>M(new THREE.BoxGeometry(.2,.035,.04),dark,x,-.78,.74,body));               // chest vents
+
+    // ----- neck + head (the head turns around the top of the neck) -----
+    M(new THREE.CylinderGeometry(.17,.21,.62,24),dark,0,.62,0,body);
+    [-.26,.26].forEach(x=>M(new THREE.CylinderGeometry(.035,.035,.56,12),gold,x,.62,-.04,body));     // neck pistons
+    const head=new THREE.Group(); head.position.set(0,.95,0); body.add(head);
+    M(new RB.RoundedBoxGeometry(2.0,1.46,1.3,6,.2),shell,0,.86,0,head);                              // the TV case
+    M(new RB.RoundedBoxGeometry(1.2,.95,.7,5,.2),dark,0,.86,-.82,head);                              // tube housing at the back
+    M(new RB.RoundedBoxGeometry(1.72,1.2,.1,5,.1),dark,0,.9,.63,head);                               // bezel
+    [-1,1].forEach(k=>{const e=M(new THREE.CylinderGeometry(.2,.2,.14,28),gold,k*1.05,.86,0,head);e.rotation.z=Math.PI/2;}); // side dials
+    M(new THREE.CylinderGeometry(.05,.05,.03,16),gold,.68,.2,.67,head).rotation.x=Math.PI/2;         // power knob
+    const ant=new THREE.Group(); ant.position.set(-.55,1.58,-.1); ant.rotation.z=.22; head.add(ant); // antenna
+    M(new THREE.CylinderGeometry(.018,.018,.75,8),gold,0,.37,0,ant); const tip=M(new THREE.SphereGeometry(.06,16,12),gold,0,.77,0,ant);
+
+    // ----- the face: a 2D drawing used as a glowing texture on a slightly curved screen -----
+    const fc=document.createElement("canvas"); fc.width=512; fc.height=352; const fx=fc.getContext("2d");
+    const tex=new THREE.CanvasTexture(fc); tex.colorSpace=THREE.SRGBColorSpace;
+    const sg=new THREE.PlaneGeometry(1.5,1.0,24,16), pos=sg.attributes.position;
+    for(let i=0;i<pos.count;i++){const x=pos.getX(i),y=pos.getY(i);pos.setZ(i,-.09*(x*x+y*y));}     // bulge like old glass
+    sg.computeVertexNormals();
+    M(sg,new THREE.MeshBasicMaterial({map:tex,toneMapped:false}),0,.9,.74,head);
+    let lid=1, ex=0, ey=0, mood=0;                          // lid: 1 open … 0 shut; ex/ey: where the eyes look; mood: happy squint
+    function face(){
+      const W=fc.width,H=fc.height, g=fx.createRadialGradient(W/2,H/2,20,W/2,H/2,W*.7);
+      g.addColorStop(0,"#151a1c"); g.addColorStop(1,"#050606"); fx.fillStyle=g; fx.fillRect(0,0,W,H);
+      const cx=W/2+ex*46, cy=H/2-6+ey*30, ew=66, eh=Math.max(8,128*lid);
+      fx.shadowColor="rgba(243,223,143,.9)"; fx.shadowBlur=26; fx.fillStyle="#f6e7a6";
+      [-1,1].forEach(k=>{
+        const x=cx+k*92-ew/2, y=cy-eh/2;
+        fx.beginPath(); fx.roundRect(x,y,ew,eh,Math.min(ew,eh)/2); fx.fill();
+        if(mood>.02&&lid>.5){fx.shadowBlur=0;fx.fillStyle="#0b0d0e";fx.beginPath();fx.ellipse(cx+k*92,cy+eh*.62,ew*.9,eh*.5*mood+2,0,0,Math.PI*2);fx.fill();fx.fillStyle="#f6e7a6";fx.shadowBlur=26;}
+      });
+      fx.shadowBlur=0; fx.fillStyle="rgba(0,0,0,.2)"; for(let y=0;y<H;y+=4)fx.fillRect(0,y,W,1.6);   // scan lines
+      tex.needsUpdate=true;
+    }
+    face();
+
+    // ----- size, cursor, blinking -----
+    function size(){const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;
+      cam.position.z=cam.aspect<.86?8.4*.86/cam.aspect:8.4; cam.updateProjectionMatrix();}
+    let tx=0,ty=0,lastMove=0;                               // where the cursor is, from -1 to 1 around the robot
+    addEventListener("mousemove",e=>{const r=cv.getBoundingClientRect();
+      tx=Math.max(-1,Math.min(1,(e.clientX-(r.left+r.width/2))/(innerWidth*.45)));
+      ty=Math.max(-1,Math.min(1,(e.clientY-(r.top+r.height*.4))/(innerHeight*.55))); lastMove=performance.now();},{passive:true});
+    let blinkAt=performance.now()+1800, blinkT=-1, again=false;
+    cv.addEventListener("click",()=>{mood=1;blinkT=0;});      // click him: quick blink and a happy squint
+    let yaw=0,pitch=0,prev=0,raf=0;
+    function frame(now){
+      raf=0; if(view.hidden||document.hidden)return;        // stop drawing when Stats is not on screen
+      const dt=Math.min(.05,(now-(prev||now))/1000); prev=now;
+      let gx=tx,gy=ty; if(now-lastMove>4500){gx=Math.sin(now/2300)*.45;gy=Math.sin(now/3100)*.18;}   // idle: look around slowly
+      const k=1-Math.exp(-dt*7); yaw+=(gx*.62-yaw)*k; pitch+=(gy*.32-pitch)*k;
+      head.rotation.y=yaw; head.rotation.x=pitch; head.rotation.z=-yaw*.08;
+      body.rotation.y=yaw*.22; body.position.y=Math.sin(now/1400)*.025;                              // shoulders follow a little; slow breathing
+      ant.rotation.x=-pitch*.5+Math.sin(now/600)*.03; tip.scale.setScalar(1+Math.sin(now/400)*.08);
+      // blink: shut in 70ms, open in 110ms; sometimes twice in a row
+      let l=1;
+      if(blinkT<0&&now>blinkAt)blinkT=0;
+      if(blinkT>=0){blinkT+=dt*1000; l=blinkT<70?1-blinkT/70:blinkT<180?(blinkT-70)/110:1;
+        if(blinkT>=180){blinkT=-1; if(!again&&Math.random()<.25){again=true;blinkAt=now+140;}else{again=false;blinkAt=now+2600+Math.random()*3800;}}}
+      const m=Math.max(0,mood-dt*.9), nx=yaw/.62*.9, ny=-pitch/.32*.9;
+      if(Math.abs(l-lid)>.01||Math.abs(nx-ex)>.004||Math.abs(ny-ey)>.004||m!==mood){lid=l;ex=nx;ey=ny;mood=m;face();}
+      renderer.render(scene,cam); kick();
+    }
+    function kick(){if(!raf)raf=requestAnimationFrame(frame);}
+    card.classList.add("bot"); size(); kick();
+    addEventListener("resize",()=>{size();kick();});
+    document.addEventListener("visibilitychange",kick);
+    new MutationObserver(()=>{prev=0;size();kick();}).observe(view,{attributes:true,attributeFilter:["hidden"]});
+  }
+  if(!view.hidden)start();
+  new MutationObserver(()=>{if(!view.hidden)start();}).observe(view,{attributes:true,attributeFilter:["hidden"]});
 });
 </script>
 <div class="living" aria-hidden="true"><canvas id="wkgl" width="1024" height="1022"></canvas><canvas id="wkfx" width="1024" height="1022"></canvas></div>
@@ -2402,6 +2539,7 @@ document.addEventListener("DOMContentLoaded",function(){
     <!-- STATS -->
     <section id="view-stats" hidden>
       <div class="gchar">
+        <canvas class="gbot" id="gbot" aria-hidden="true"></canvas>
         <div class="plaque">
           <div class="pname">Mauricio</div>
           <div class="plvl">Level <b id="st-level-n">1</b></div>
